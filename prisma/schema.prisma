@@ -1,0 +1,255 @@
+// ============================================
+// SKILLPROOF PRISMA SCHEMA
+// Phase 3: Database Schema & Relational Integrity
+// ============================================
+// This schema implements exactly 6 entities from Phase 2.
+// No additional entities are permitted.
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum EvidenceType {
+  SCREENSHOT
+  LINK
+  CODE_SNIPPET
+  DESCRIPTION
+  METRIC
+}
+
+enum SkillCategory {
+  LANGUAGE
+  FRAMEWORK
+  TOOL
+  DATABASE
+  CONCEPT
+  SOFT_SKILL
+  OTHER
+}
+
+// ============================================
+// USER
+// ============================================
+// The human who owns a SkillProof profile.
+// Root of all ownership. Authentication anchor.
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  passwordHash  String?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // 1:1 relationships
+  profile         Profile?
+  profileSettings ProfileSettings?
+
+  // NextAuth.js
+  accounts Account[]
+  sessions Session[]
+
+  @@index([email])
+}
+
+// ============================================
+// NEXTAUTH MODELS
+// ============================================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ============================================
+// PROFILE
+// ============================================
+// The public-facing identity of a User.
+// What recruiters see when they open a link.
+// ============================================
+
+model Profile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  slug      String   @unique
+  headline  String?
+  summary   String?  @db.Text
+  image     String?  // Profile picture URL (UploadThing)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 1:1 relationship to User
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 1:many relationships
+  skills   Skill[]
+  projects Project[]
+
+  @@index([slug])
+  @@index([userId])
+}
+
+// ============================================
+// PROFILE SETTINGS
+// ============================================
+// Privacy and visibility controls.
+// Separated from Profile to keep content clean.
+// ============================================
+
+model ProfileSettings {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  isPublic           Boolean  @default(false)
+  showEmail          Boolean  @default(false)
+  showUnprovenSkills Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // 1:1 relationship to User
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ============================================
+// SKILL
+// ============================================
+// A claimed ability the User wishes to demonstrate.
+// Has no value until Evidence is attached.
+// ============================================
+
+model Skill {
+  id           String        @id @default(cuid())
+  profileId    String
+  name         String
+  category     SkillCategory @default(OTHER)
+  displayOrder Int           @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Many:1 relationship to Profile
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  // Many:Many relationship to Evidence via junction table
+  evidenceLinks EvidenceSkill[]
+
+  @@unique([profileId, name])
+  @@index([profileId])
+  @@index([category])
+}
+
+// ============================================
+// PROJECT
+// ============================================
+// A body of work created by the User.
+// Container for Evidence.
+// ============================================
+
+model Project {
+  id           String    @id @default(cuid())
+  profileId    String
+  title        String
+  description  String?   @db.Text
+  url          String?
+  startDate    DateTime?
+  endDate      DateTime?
+  displayOrder Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Many:1 relationship to Profile
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  // 1:many relationship to Evidence
+  evidence Evidence[]
+
+  @@index([profileId])
+}
+
+// ============================================
+// EVIDENCE
+// ============================================
+// The atomic unit of proof.
+// Proves that Skills were applied within a Project.
+// Supports multiple skills per evidence.
+// ============================================
+
+model Evidence {
+  id           String       @id @default(cuid())
+  projectId    String
+  title        String
+  description  String?      @db.Text
+  type         EvidenceType @default(DESCRIPTION)
+  content      String?      @db.Text
+  url          String?
+  displayOrder Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  // Many:1 relationship to Project
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Many:Many relationship to Skills via junction table
+  skills EvidenceSkill[]
+
+  @@index([projectId])
+}
+
+// Junction table for Evidence-Skill many-to-many relationship
+model EvidenceSkill {
+  id         String   @id @default(cuid())
+  evidenceId String
+  skillId    String
+  createdAt  DateTime @default(now())
+
+  evidence Evidence @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+  skill    Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([evidenceId, skillId])
+  @@index([evidenceId])
+  @@index([skillId])
+}
+
