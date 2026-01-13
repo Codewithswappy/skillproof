@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -12,7 +13,6 @@ import { Separator } from "@/components/ui/separator";
 import {
   CheckCircle,
   Circle,
-  ExternalLink,
   Calendar,
   Mail,
   Briefcase,
@@ -24,7 +24,19 @@ import {
   Link2,
   Code,
   BarChart3,
+  ChevronDown,
 } from "lucide-react";
+import {
+  IconBrandGithub,
+  IconBrandLinkedin,
+  IconBrandTwitter,
+  IconBrandYoutube,
+  IconBrandFigma,
+  IconBrandCodepen,
+  IconBrandDribbble,
+  IconBrandVercel,
+  IconWorld,
+} from "@tabler/icons-react";
 import Image from "next/image";
 import { PublicProfileData, EvidenceWithSkills } from "@/lib/actions/public";
 import { Profile, Skill, Project, ProfileSettings } from "@prisma/client";
@@ -36,6 +48,144 @@ interface PublicProfileViewProps {
 // Type for skills with evidenceCount
 type SkillWithCount = Skill & { evidenceCount: number };
 type ProjectWithCount = Project & { evidenceCount: number };
+
+// Smart link icon detector
+interface LinkInfo {
+  icon: React.ReactNode;
+  label: string;
+}
+
+function getLinkInfo(url: string): LinkInfo {
+  const u = url.toLowerCase();
+  if (u.includes("github.com"))
+    return { icon: <IconBrandGithub className="w-4 h-4" />, label: "GitHub" };
+  if (u.includes("linkedin.com"))
+    return {
+      icon: <IconBrandLinkedin className="w-4 h-4" />,
+      label: "LinkedIn",
+    };
+  if (u.includes("twitter.com") || u.includes("x.com"))
+    return { icon: <IconBrandTwitter className="w-4 h-4" />, label: "Twitter" };
+  if (u.includes("youtube.com") || u.includes("youtu.be"))
+    return { icon: <IconBrandYoutube className="w-4 h-4" />, label: "YouTube" };
+  if (u.includes("figma.com"))
+    return { icon: <IconBrandFigma className="w-4 h-4" />, label: "Figma" };
+  if (u.includes("codepen.io"))
+    return { icon: <IconBrandCodepen className="w-4 h-4" />, label: "CodePen" };
+  if (u.includes("dribbble.com"))
+    return {
+      icon: <IconBrandDribbble className="w-4 h-4" />,
+      label: "Dribbble",
+    };
+  if (u.includes("vercel.com") || u.includes("vercel.app"))
+    return { icon: <IconBrandVercel className="w-4 h-4" />, label: "Vercel" };
+  return { icon: <IconWorld className="w-4 h-4" />, label: "Website" };
+}
+
+// Simple syntax highlighting for code snippets
+function highlightCode(code: string): React.ReactNode[] {
+  const lines = code.split("\n");
+
+  return lines.map((line, lineIndex) => {
+    // Process each line for syntax highlighting
+    let highlighted = line;
+
+    // Keywords (purple/pink)
+    const keywords = [
+      "import",
+      "export",
+      "from",
+      "const",
+      "let",
+      "var",
+      "function",
+      "return",
+      "if",
+      "else",
+      "for",
+      "while",
+      "class",
+      "extends",
+      "interface",
+      "type",
+      "enum",
+      "default",
+      "async",
+      "await",
+      "try",
+      "catch",
+      "throw",
+      "new",
+      "this",
+      "super",
+      "static",
+      "public",
+      "private",
+      "protected",
+      "readonly",
+    ];
+
+    // Create regex pattern for keywords
+    const keywordPattern = new RegExp(`\\b(${keywords.join("|")})\\b`, "g");
+
+    // Split line into parts and process
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+
+    // Handle strings first (green)
+    const stringRegex = /(["'`])(?:(?!\1)[^\\]|\\.)*?\1/g;
+    let match;
+    const stringMatches: { start: number; end: number; text: string }[] = [];
+
+    while ((match = stringRegex.exec(line)) !== null) {
+      stringMatches.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        text: match[0],
+      });
+    }
+
+    // Handle comments (gray)
+    const commentStart = line.indexOf("//");
+    const hasComment = commentStart !== -1;
+
+    // Build the line with highlights
+    let currentPos = 0;
+
+    for (let i = 0; i < line.length; i++) {
+      // Check if we're in a string
+      const inString = stringMatches.some((s) => i >= s.start && i < s.end);
+      const inComment = hasComment && i >= commentStart;
+
+      if (inString || inComment) continue;
+    }
+
+    // Simple approach: just colorize the whole line based on patterns
+    let result = line
+      .replace(
+        keywordPattern,
+        '<span class="text-blue-600 font-semibold">$1</span>'
+      )
+      .replace(
+        /(["'`])(?:(?!\1)[^\\]|\\.)*?\1/g,
+        '<span class="text-green-600">$&</span>'
+      )
+      .replace(/\/\/.*/g, '<span class="text-gray-500 italic">$&</span>')
+      .replace(/\b(\d+)\b/g, '<span class="text-orange-600">$1</span>')
+      .replace(/\{|\}|\(|\)|\[|\]/g, '<span class="text-gray-500">$&</span>')
+      .replace(
+        /\b(className|href|src|alt|key|variant|size)\b/g,
+        '<span class="text-purple-600">$1</span>'
+      );
+
+    return (
+      <span key={lineIndex}>
+        <span dangerouslySetInnerHTML={{ __html: result }} />
+        {lineIndex < lines.length - 1 && "\n"}
+      </span>
+    );
+  });
+}
 
 export function PublicProfileView({ data }: PublicProfileViewProps) {
   const { profile, skills, projects, evidence, email, userName } = data;
@@ -79,6 +229,15 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
   const totalSkills = typedSkills.length;
   const totalProjects = typedProjects.length;
 
+  // Track expanded evidence sections
+  const [expandedProjects, setExpandedProjects] = useState<Set<string>>(
+    new Set()
+  );
+  // Track expanded code snippets
+  const [expandedCodeItems, setExpandedCodeItems] = useState<Set<string>>(
+    new Set()
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto py-8 px-4 space-y-4 ">
@@ -107,17 +266,20 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
               <div className="flex-1 pl-2">
                 <div className="flex justify-between items-center">
                   <h1 className="text-2xl font-bold tracking-tighter">
-                  {displayName}
-                </h1>
-                 <Badge variant="default" className="text-xs rounded-sm tracking-tighter ">
+                    {displayName}
+                  </h1>
+                  <Badge
+                    variant="default"
+                    className="text-xs rounded-sm tracking-tighter "
+                  >
                     Skill Proof
                   </Badge>
                 </div>
-                  {profile.headline && (
-                    <span className="text-muted-foreground text-sm mt-2">
-                      {profile.headline}
-                    </span>
-                  )}
+                {profile.headline && (
+                  <span className="text-muted-foreground text-sm mt-2">
+                    {profile.headline}
+                  </span>
+                )}
                 {email && (
                   <a
                     href={`mailto:${email}`}
@@ -264,137 +426,304 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                 No projects listed yet.
               </p>
             ) : (
-              <div className="space-y-6">
-                {typedProjects.map((project, index) => {
-                  const projectEvidence = evidence.filter(
-                    (e) => e.projectId === project.id
-                  );
+              <div className="relative">
+                {/* Timeline line */}
+                <div className="absolute left-[5px] top-3 bottom-3 w-px border-l-2 border-dashed border-border" />
 
-                  return (
-                    <div key={project.id}>
-                      {index > 0 && <Separator className="mb-6" />}
-                      <div className="space-y-4">
-                        {/* Project Header */}
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1">
-                            <h3 className="font-semibold">{project.title}</h3>
-                            {(project.startDate || project.endDate) && (
-                              <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-                                <Calendar className="w-3 h-3" />
-                                {project.startDate &&
-                                  formatDate(project.startDate)}
-                                {project.startDate && " — "}
-                                {project.endDate
-                                  ? formatDate(project.endDate)
-                                  : "Present"}
-                              </div>
-                            )}
+                <div className="space-y-6">
+                  {typedProjects.map((project, index) => {
+                    const projectEvidence = evidence.filter(
+                      (e) => e.projectId === project.id
+                    );
+
+                    return (
+                      <div key={project.id} className="relative pl-6">
+                        {/* Timeline dot */}
+                        <div className="absolute left-0 top-1.5 w-3 h-3 rounded-full bg-primary ring-4 ring-background" />
+
+                        <div className="space-y-4">
+                          {/* Project Header */}
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <h3 className="font-semibold">{project.title}</h3>
+                              {(project.startDate || project.endDate) && (
+                                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                                  <Calendar className="w-3 h-3" />
+                                  {project.startDate &&
+                                    formatDate(project.startDate)}
+                                  {project.startDate && " — "}
+                                  {project.endDate
+                                    ? formatDate(project.endDate)
+                                    : "Present"}
+                                </div>
+                              )}
+                            </div>
+                            {project.url &&
+                              (() => {
+                                const linkInfo = getLinkInfo(project.url);
+                                return (
+                                  <a
+                                    href={project.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1.5 transition-colors"
+                                  >
+                                    {linkInfo.icon}
+                                    <span>{linkInfo.label}</span>
+                                  </a>
+                                );
+                              })()}
                           </div>
-                          {project.url && (
-                            <a
-                              href={project.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-xs text-primary hover:underline flex items-center gap-1"
-                            >
-                              <ExternalLink className="w-3 h-3" />
-                              View
-                            </a>
-                          )}
-                        </div>
 
-                        {/* Description */}
-                        {project.description && (
-                          <p className="text-sm text-muted-foreground">
-                            {project.description}
-                          </p>
-                        )}
-
-                        {/* Evidence Items */}
-                        {projectEvidence.length > 0 && (
-                          <div className="space-y-3 pt-2 ">
-                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                              Evidence ({projectEvidence.length})
+                          {/* Description */}
+                          {project.description && (
+                            <p className="text-sm text-muted-foreground">
+                              {project.description}
                             </p>
-                            <div className="grid gap-3">
-                              {projectEvidence.map((item) => (
-                                <div
-                                  key={item.id}
-                                  className="rounded-sm p-4"
-                                >
-                                  {/* Evidence Header */}
-                                  <div className="flex items-start justify-between gap-2 mb-2">
-                                    <div className="flex items-center gap-2">
-                                      {getEvidenceIcon(item.type)}
-                                      <span className="font-medium text-sm">
-                                        {item.title}
-                                      </span>
-                                    </div>
-                                    {item.url && item.type !== "SCREENSHOT" && (
-                                      <a
-                                        href={item.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-xs text-primary hover:underline flex items-center gap-1"
-                                      >
-                                        <ExternalLink className="w-3 h-3" />
-                                        Source
-                                      </a>
-                                    )}
-                                  </div>
+                          )}
 
-                                  {/* Skills demonstrated */}
-                                  <div className="flex flex-wrap gap-1 mb-2">
-                                    {getSkillNames(item).map((name, i) => (
-                                      <Badge
-                                        key={i}
-                                        variant="default"
-                                        className="text-xs py-0 rounded-sm"
-                                      >
-                                        {name}
-                                      </Badge>
+                          {/* Evidence Items */}
+                          {projectEvidence.length > 0 &&
+                            (() => {
+                              const isExpanded = expandedProjects.has(
+                                project.id
+                              );
+                              const showFirst = projectEvidence[0];
+                              const hasMore = projectEvidence.length > 1;
+                              const itemsToShow = isExpanded
+                                ? projectEvidence
+                                : [showFirst];
+
+                              const toggleExpand = () => {
+                                setExpandedProjects((prev) => {
+                                  const newSet = new Set(prev);
+                                  if (newSet.has(project.id)) {
+                                    newSet.delete(project.id);
+                                  } else {
+                                    newSet.add(project.id);
+                                  }
+                                  return newSet;
+                                });
+                              };
+
+                              return (
+                                <div className="pt-2">
+                                  {/* Collapsible header when multiple items */}
+                                  {hasMore && (
+                                    <button
+                                      onClick={toggleExpand}
+                                      className="w-full flex items-center justify-between py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors"
+                                    >
+                                      <span>
+                                        Evidence ({projectEvidence.length})
+                                      </span>
+                                      <ChevronDown
+                                        className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                                      />
+                                    </button>
+                                  )}
+
+                                  {!hasMore && (
+                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider py-2">
+                                      Evidence ({projectEvidence.length})
+                                    </p>
+                                  )}
+
+                                  <div className="space-y-4">
+                                    {itemsToShow.map((item) => (
+                                      <div key={item.id} className="py-1">
+                                        {/* Evidence Header */}
+                                        <div className="py-2">
+                                          <div className="flex items-center justify-between gap-2">
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-muted-foreground">
+                                                {getEvidenceIcon(item.type)}
+                                              </span>
+                                              <span className="font-medium text-sm">
+                                                {item.title}
+                                              </span>
+                                            </div>
+                                            {item.url &&
+                                              item.type !== "SCREENSHOT" &&
+                                              (() => {
+                                                const linkInfo = getLinkInfo(
+                                                  item.url
+                                                );
+                                                return (
+                                                  <a
+                                                    href={item.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1.5 transition-colors"
+                                                  >
+                                                    {linkInfo.icon}
+                                                    <span>
+                                                      {linkInfo.label}
+                                                    </span>
+                                                  </a>
+                                                );
+                                              })()}
+                                          </div>
+
+                                          {/* Skills demonstrated */}
+                                          {getSkillNames(item).length > 0 && (
+                                            <div className="flex flex-wrap gap-1.5 mt-2">
+                                              {getSkillNames(item).map(
+                                                (name, i) => (
+                                                  <Badge
+                                                    key={i}
+                                                    variant="secondary"
+                                                    className="text-xs py-0.5 rounded-full"
+                                                  >
+                                                    {name}
+                                                  </Badge>
+                                                )
+                                              )}
+                                            </div>
+                                          )}
+                                        </div>
+
+                                        {/* Screenshot Preview - Centered with nice styling */}
+                                        {item.type === "SCREENSHOT" &&
+                                          item.url && (
+                                            <div className="p-4 flex justify-center bg-muted/20">
+                                              <a
+                                                href={item.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="block max-w-md"
+                                              >
+                                                <img
+                                                  src={item.url}
+                                                  alt={item.title}
+                                                  className="rounded shadow-lg hover:shadow-xl transition-shadow max-h-64 object-contain"
+                                                />
+                                              </a>
+                                            </div>
+                                          )}
+
+                                        {/* Code Snippet - Beautiful styling */}
+                                        {item.type === "CODE_SNIPPET" &&
+                                          item.content &&
+                                          (() => {
+                                            const isCodeExpanded =
+                                              expandedCodeItems.has(item.id);
+                                            const toggleCodeExpand = () => {
+                                              setExpandedCodeItems((prev) => {
+                                                const newSet = new Set(prev);
+                                                if (newSet.has(item.id))
+                                                  newSet.delete(item.id);
+                                                else newSet.add(item.id);
+                                                return newSet;
+                                              });
+                                            };
+
+                                            return (
+                                              <div className="overflow-hidden border border-gray-200 rounded-lg">
+                                                <div className="bg-gray-100 px-4 py-2 flex items-center justify-between border-b border-gray-200">
+                                                  <div className="flex items-center gap-2">
+                                                    <div className="flex gap-1.5">
+                                                      <span className="w-3 h-3 rounded-full bg-red-400" />
+                                                      <span className="w-3 h-3 rounded-full bg-yellow-400" />
+                                                      <span className="w-3 h-3 rounded-full bg-green-400" />
+                                                    </div>
+                                                    <span className="text-xs text-gray-500 ml-2 font-medium">
+                                                      code snippet
+                                                    </span>
+                                                  </div>
+                                                  <button
+                                                    onClick={toggleCodeExpand}
+                                                    className="text-xs text-primary hover:underline font-medium"
+                                                  >
+                                                    {isCodeExpanded
+                                                      ? "Collapse"
+                                                      : "Expand"}
+                                                  </button>
+                                                </div>
+                                                <div
+                                                  className={`relative bg-white ${isCodeExpanded ? "" : "max-h-48 overflow-hidden"}`}
+                                                >
+                                                  <pre className="p-4 text-sm font-mono leading-relaxed overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                                                    <code>
+                                                      {highlightCode(
+                                                        item.content
+                                                      )}
+                                                    </code>
+                                                  </pre>
+
+                                                  {/* Gradient Mask */}
+                                                  {!isCodeExpanded && (
+                                                    <div className="absolute bottom-0 left-0 right-0 h-24 bg-linear-to-t from-white to-transparent pointer-events-none flex items-end justify-center pb-4">
+                                                      <div className="pointer-events-auto">
+                                                        <button
+                                                          onClick={
+                                                            toggleCodeExpand
+                                                          }
+                                                          className="bg-white/80 backdrop-blur-sm shadow-sm border border-gray-200 px-3 py-1 rounded-full text-xs font-medium text-gray-600 hover:text-black hover:bg-white transition-all flex items-center gap-1"
+                                                        >
+                                                          <ChevronDown className="w-3 h-3" />
+                                                          Show full code
+                                                        </button>
+                                                      </div>
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            );
+                                          })()}
+
+                                        {/* Metric - Nice card styling */}
+                                        {item.type === "METRIC" &&
+                                          item.content && (
+                                            <div className="p-6 text-center bg-primary/5">
+                                              <p className="text-3xl font-bold text-primary">
+                                                {item.content}
+                                              </p>
+                                            </div>
+                                          )}
+
+                                        {/* Link type - just show the link info */}
+                                        {item.type === "LINK" && item.url && (
+                                          <div className="p-4 flex justify-center">
+                                            <a
+                                              href={item.url}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-sm font-medium"
+                                            >
+                                              {getLinkInfo(item.url).icon}
+                                              <span>
+                                                View{" "}
+                                                {getLinkInfo(item.url).label}
+                                              </span>
+                                            </a>
+                                          </div>
+                                        )}
+                                      </div>
                                     ))}
                                   </div>
 
-                                  {/* Screenshot Preview */}
-                                  {item.type === "SCREENSHOT" && item.url && (
-                                    <a
-                                      href={item.url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="block mt-2"
+                                  {/* Show more indicator */}
+                                  {hasMore && !isExpanded && (
+                                    <button
+                                      onClick={toggleExpand}
+                                      className="w-full mt-3 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-1"
                                     >
-                                      <img
-                                        src={item.url}
-                                        alt={item.title}
-                                        className="w-full max-h-72 object-cover rounded-sm border hover:opacity-90 transition-opacity"
-                                      />
-                                    </a>
-                                  )}
-
-                                  {/* Code Snippet */}
-                                  {item.type === "CODE_SNIPPET" &&
-                                    item.content && (
-                                      <pre className="mt-2 p-3 bg-zinc-900 text-zinc-100 rounded-md text-xs overflow-x-auto max-h-40">
-                                        <code>{item.content}</code>
-                                      </pre>
-                                    )}
-
-                                  {/* Metric */}
-                                  {item.type === "METRIC" && item.content && (
-                                    <p className="mt-2 text-lg font-bold text-primary">
-                                      {item.content}
-                                    </p>
+                                      <span>
+                                        Show {projectEvidence.length - 1} more
+                                        evidence
+                                      </span>
+                                      <ChevronDown className="w-3.5 h-3.5" />
+                                    </button>
                                   )}
                                 </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                              );
+                            })()}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             )}
           </CardContent>
