@@ -1,5 +1,8 @@
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
 
+// Force dynamic rendering for all dashboard routes (uses auth/headers)
+export const dynamic = "force-dynamic";
+
 export default async function DashboardLayout({
   children,
 }: {
