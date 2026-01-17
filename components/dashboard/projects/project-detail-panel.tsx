@@ -334,7 +334,7 @@ export function ProjectDetailPanel({
 
                   {/* Code Snippet */}
                   {item.type === "CODE_SNIPPET" && item.content && (
-                    <pre className="mt-2 p-3 bg-zinc-900 text-zinc-100 rounded-md text-xs overflow-x-auto max-h-32">
+                    <pre className="mt-2 p-3 bg-neutral-900 text-neutral-100 rounded-md text-xs overflow-x-auto max-h-32">
                       <code>{item.content}</code>
                     </pre>
                   )}

@@ -18,8 +18,8 @@ export default async function ProfilePage() {
   return (
     <div className="min-h-screen max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
       {/* Header */}
-      <div className="flex items-center gap-2 pb-4 border-b border-zinc-200 dark:border-zinc-800">
-        <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+      <div className="flex items-center gap-2 pb-4 border-b border-neutral-200 dark:border-neutral-800">
+        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
           Profile Settings
         </h1>
       </div>

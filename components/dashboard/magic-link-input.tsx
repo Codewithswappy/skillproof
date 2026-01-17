@@ -77,7 +77,7 @@ export function MagicLinkInput() {
   }
 
   return (
-    <div className="bg-white dark:bg-zinc-900/50 rounded-md p-1 shadow-sm ring-1 ring-zinc-100 dark:ring-zinc-800 transition-all hover:ring-zinc-200 dark:hover:ring-zinc-700">
+    <div className="bg-white dark:bg-neutral-900/50 rounded-md p-1 shadow-sm ring-1 ring-neutral-100 dark:ring-neutral-800 transition-all hover:ring-neutral-200 dark:hover:ring-neutral-700">
       <form onSubmit={handleProcess} className="flex items-center gap-2">
         <div className="flex items-center justify-center w-9 h-9 rounded-md bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 shrink-0 ml-1">
           <IconWand className="w-4 h-4" />
@@ -86,7 +86,7 @@ export function MagicLinkInput() {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="Paste a URL or tell us what you shipped..."
-          className="border-none shadow-none focus-visible:ring-0 bg-transparent flex-1 h-10 text-sm placeholder:text-zinc-400"
+          className="border-none shadow-none focus-visible:ring-0 bg-transparent flex-1 h-10 text-sm placeholder:text-neutral-400"
           disabled={isProcessing}
         />
         <Button
@@ -95,8 +95,8 @@ export function MagicLinkInput() {
           className={cn(
             "shrink-0 h-8 rounded-md transition-all shadow-none", // Reduced height and shadow
             isProcessing
-              ? "w-24 bg-zinc-100 text-zinc-500"
-              : "w-8 sm:w-auto bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200",
+              ? "w-24 bg-neutral-100 text-neutral-500"
+              : "w-8 sm:w-auto bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-200",
           )}
           size="sm"
         >

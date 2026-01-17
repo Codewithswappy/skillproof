@@ -75,18 +75,18 @@ const REFERRER_COLORS = ["#6366f1", "#22c55e", "#f59e0b", "#ec4899", "#06b6d4"];
 const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg p-3">
-      <p className="text-xs font-medium text-zinc-500 mb-1.5">{label}</p>
+    <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-lg p-3">
+      <p className="text-xs font-medium text-neutral-500 mb-1.5">{label}</p>
       {payload.map((entry: TooltipPayloadItem, i: number) => (
         <div key={i} className="flex items-center gap-3">
           <div
             className="w-2 h-2 rounded-sm"
             style={{ backgroundColor: entry.color }}
           />
-          <span className="text-xs text-zinc-600 dark:text-zinc-400">
+          <span className="text-xs text-neutral-600 dark:text-neutral-400">
             {entry.name}:
           </span>
-          <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
             {entry.value.toLocaleString()}
           </span>
         </div>
@@ -113,14 +113,14 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-80">
-        <Loader2 className="w-6 h-6 animate-spin text-zinc-400" />
+        <Loader2 className="w-6 h-6 animate-spin text-neutral-400" />
       </div>
     );
   }
 
   if (!data) {
     return (
-      <div className="flex items-center justify-center h-80 text-zinc-500">
+      <div className="flex items-center justify-center h-80 text-neutral-500">
         Failed to load analytics.
       </div>
     );
@@ -140,14 +140,14 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
             Analytics
           </h1>
-          <p className="text-sm text-zinc-500 mt-0.5">
+          <p className="text-sm text-neutral-500 mt-0.5">
             Track your profile performance
           </p>
         </div>
-        <div className="flex items-center gap-1 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
+        <div className="flex items-center gap-1 p-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg">
           {[
             { value: 7, label: "7D" },
             { value: 30, label: "30D" },
@@ -160,8 +160,8 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
               className={cn(
                 "px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
                 range === value
-                  ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm"
-                  : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white",
+                  ? "bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-sm"
+                  : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white",
               )}
             >
               {label}
@@ -171,93 +171,93 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
       </div>
 
       {/* METRIC CARDS - Single container with dividers */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-sm overflow-hidden">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-x divide-zinc-200 dark:divide-zinc-800 ">
+      <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-sm overflow-hidden">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-x divide-neutral-200 dark:divide-neutral-800 ">
           {/* Total Views */}
           <div className="p-5">
-            <div className="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-4">
+            <div className="w-9 h-9 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-4">
               <Users
-                className="w-4 h-4 text-zinc-500 dark:text-zinc-400"
+                className="w-4 h-4 text-neutral-500 dark:text-neutral-400"
                 strokeWidth={1.5}
               />
             </div>
-            <p className="text-2xl font-medium text-zinc-900 dark:text-zinc-100">
+            <p className="text-2xl font-medium text-neutral-900 dark:text-neutral-100">
               {summary.totalViews.toLocaleString()}
             </p>
-            <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider mt-1">
+            <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider mt-1">
               Total Views
             </p>
           </div>
 
           {/* Unique Visitors */}
           <div className="p-5">
-            <div className="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-4">
+            <div className="w-9 h-9 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-4">
               <Users
-                className="w-4 h-4 text-zinc-500 dark:text-zinc-400"
+                className="w-4 h-4 text-neutral-500 dark:text-neutral-400"
                 strokeWidth={1.5}
               />
             </div>
-            <p className="text-2xl font-medium text-zinc-900 dark:text-zinc-100">
+            <p className="text-2xl font-medium text-neutral-900 dark:text-neutral-100">
               {summary.totalUniques.toLocaleString()}
             </p>
-            <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider mt-1">
+            <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider mt-1">
               Unique Visitors
             </p>
           </div>
 
           {/* Avg Duration */}
           <div className="p-5">
-            <div className="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-4">
+            <div className="w-9 h-9 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-4">
               <Clock
-                className="w-4 h-4 text-zinc-500 dark:text-zinc-400"
+                className="w-4 h-4 text-neutral-500 dark:text-neutral-400"
                 strokeWidth={1.5}
               />
             </div>
-            <p className="text-2xl font-medium text-zinc-900 dark:text-zinc-100">
+            <p className="text-2xl font-medium text-neutral-900 dark:text-neutral-100">
               {summary.avgDuration}
-              <span className="text-base font-normal text-zinc-400 ml-0.5">
+              <span className="text-base font-normal text-neutral-400 ml-0.5">
                 s
               </span>
             </p>
-            <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider mt-1">
+            <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider mt-1">
               Avg. Duration
             </p>
           </div>
 
           {/* Returning */}
           <div className="p-5">
-            <div className="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-4">
+            <div className="w-9 h-9 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-4">
               <ArrowUpRight
-                className="w-4 h-4 text-zinc-500 dark:text-zinc-400"
+                className="w-4 h-4 text-neutral-500 dark:text-neutral-400"
                 strokeWidth={1.5}
               />
             </div>
-            <p className="text-2xl font-medium text-zinc-900 dark:text-zinc-100">
+            <p className="text-2xl font-medium text-neutral-900 dark:text-neutral-100">
               {summary.returningRate ?? 0}
-              <span className="text-base font-normal text-zinc-400 ml-0.5">
+              <span className="text-base font-normal text-neutral-400 ml-0.5">
                 %
               </span>
             </p>
-            <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider mt-1">
+            <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider mt-1">
               Returning
             </p>
           </div>
 
           {/* Bounce Rate */}
           <div className="p-5">
-            <div className="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-4">
+            <div className="w-9 h-9 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-4">
               <Users
-                className="w-4 h-4 text-zinc-500 dark:text-zinc-400"
+                className="w-4 h-4 text-neutral-500 dark:text-neutral-400"
                 strokeWidth={1.5}
               />
             </div>
-            <p className="text-2xl font-medium text-zinc-900 dark:text-zinc-100">
+            <p className="text-2xl font-medium text-neutral-900 dark:text-neutral-100">
               {summary.bounceRate ?? 0}
-              <span className="text-base font-normal text-zinc-400 ml-0.5">
+              <span className="text-base font-normal text-neutral-400 ml-0.5">
                 %
               </span>
             </p>
-            <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider mt-1">
+            <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider mt-1">
               Bounce Rate
             </p>
           </div>
@@ -265,12 +265,12 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
       </div>
 
       {/* BENTO GRID - Charts in unified container */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-sm overflow-hidden">
+      <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-sm overflow-hidden">
         {/* Row 1: Traffic Chart (2 cols) + Devices (1 col) */}
-        <div className="grid lg:grid-cols-3 divide-x divide-zinc-200 dark:divide-zinc-800">
+        <div className="grid lg:grid-cols-3 divide-x divide-neutral-200 dark:divide-neutral-800">
           {/* Traffic Chart */}
           <div className="lg:col-span-2 p-5">
-            <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider mb-4">
+            <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider mb-4">
               Traffic Overview
             </p>
             <div className="h-[280px]">
@@ -303,7 +303,7 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
                     iconSize={8}
                     wrapperStyle={{ paddingTop: 16 }}
                     formatter={(v) => (
-                      <span className="text-xs text-zinc-500 ml-1">{v}</span>
+                      <span className="text-xs text-neutral-500 ml-1">{v}</span>
                     )}
                   />
                   <Bar
@@ -334,7 +334,7 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
 
           {/* Devices */}
           <div className="p-5">
-            <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider mb-4">
+            <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider mb-4">
               Devices
             </p>
             {deviceBreakdown && deviceBreakdown.length > 0 ? (
@@ -381,7 +381,7 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
                             className="w-2 h-2 rounded-full"
                             style={{ backgroundColor: deviceInfo.color }}
                           />
-                          <span className="text-[11px] font-medium text-zinc-500">
+                          <span className="text-[11px] font-medium text-neutral-500">
                             {entry.name}
                           </span>
                         </div>
@@ -391,7 +391,7 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
                 </div>
               </div>
             ) : (
-              <div className="h-[220px] flex items-center justify-center text-sm text-zinc-400">
+              <div className="h-[220px] flex items-center justify-center text-sm text-neutral-400">
                 No device data
               </div>
             )}
@@ -399,13 +399,13 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
         </div>
 
         {/* Divider between rows */}
-        <div className="border-t border-zinc-200 dark:border-zinc-800" />
+        <div className="border-t border-neutral-200 dark:border-neutral-800" />
 
         {/* Row 2: Sources + Skills + Projects */}
-        <div className="grid lg:grid-cols-3 divide-x divide-zinc-200 dark:divide-zinc-800">
+        <div className="grid lg:grid-cols-3 divide-x divide-neutral-200 dark:divide-neutral-800">
           {/* Traffic Sources */}
           <div className="p-5">
-            <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider mb-4">
+            <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider mb-4">
               Traffic Sources
             </p>
             {referrerBreakdown && referrerBreakdown.length > 0 ? (
@@ -457,7 +457,7 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <div className="h-[200px] flex items-center justify-center text-sm text-zinc-400">
+              <div className="h-[200px] flex items-center justify-center text-sm text-neutral-400">
                 No referrer data
               </div>
             )}
@@ -465,7 +465,7 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
 
           {/* Top Skills */}
           <div className="p-5">
-            <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider mb-4">
+            <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider mb-4">
               Top Skills
             </p>
             {topSkills.length > 0 ? (
@@ -476,14 +476,14 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
                   return (
                     <div key={i}>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 truncate max-w-[120px]">
+                        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300 truncate max-w-[120px]">
                           {s.id}
                         </span>
-                        <span className="text-xs font-medium text-zinc-400">
+                        <span className="text-xs font-medium text-neutral-400">
                           {s.count}
                         </span>
                       </div>
-                      <div className="h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full"
                           style={{
@@ -498,7 +498,7 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
                 })}
               </div>
             ) : (
-              <div className="h-[200px] flex items-center justify-center text-sm text-zinc-400">
+              <div className="h-[200px] flex items-center justify-center text-sm text-neutral-400">
                 No skill data
               </div>
             )}
@@ -506,7 +506,7 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
 
           {/* Top Projects */}
           <div className="p-5">
-            <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider mb-4">
+            <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider mb-4">
               Top Projects
             </p>
             {topProjects.length > 0 ? (
@@ -517,14 +517,14 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
                   return (
                     <div key={i}>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 truncate max-w-[120px]">
+                        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300 truncate max-w-[120px]">
                           {p.id}
                         </span>
-                        <span className="text-xs font-medium text-zinc-400">
+                        <span className="text-xs font-medium text-neutral-400">
                           {p.count}
                         </span>
                       </div>
-                      <div className="h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full"
                           style={{
@@ -539,7 +539,7 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
                 })}
               </div>
             ) : (
-              <div className="h-[200px] flex items-center justify-center text-sm text-zinc-400">
+              <div className="h-[200px] flex items-center justify-center text-sm text-neutral-400">
                 No project data
               </div>
             )}

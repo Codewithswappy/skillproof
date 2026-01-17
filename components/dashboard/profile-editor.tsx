@@ -94,27 +94,27 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
   return (
     <div className="space-y-6">
       {/* BENTO GRID - Profile Settings */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-sm overflow-hidden">
+      <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-sm overflow-hidden">
         {/* Header Row */}
-        <div className="flex items-center justify-between p-5 border-b border-zinc-200 dark:border-zinc-800">
-          <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
+        <div className="flex items-center justify-between p-5 border-b border-neutral-200 dark:border-neutral-800">
+          <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider">
             Identity & Status
           </p>
 
           <div className="flex items-center gap-3">
             {/* Public Toggle */}
-            <div className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-sm px-3 py-1 border border-zinc-100 dark:border-zinc-700/50">
+            <div className="flex items-center gap-2 bg-neutral-50 dark:bg-neutral-800/50 rounded-sm px-3 py-1 border border-neutral-100 dark:border-neutral-700/50">
               {profileSettings.isPublic ? (
                 <Globe className="w-3.5 h-3.5 text-emerald-500" />
               ) : (
-                <Lock className="w-3.5 h-3.5 text-zinc-400" />
+                <Lock className="w-3.5 h-3.5 text-neutral-400" />
               )}
               <span
                 className={cn(
                   "text-xs font-medium",
                   profileSettings.isPublic
                     ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-zinc-500",
+                    : "text-neutral-500",
                 )}
               >
                 {profileSettings.isPublic ? "Public" : "Private"}
@@ -130,7 +130,7 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
             <Link
               href={`/${profile.slug}`}
               target="_blank"
-              className="flex items-center gap-1.5 text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors"
+              className="flex items-center gap-1.5 text-xs font-medium text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-300 transition-colors"
             >
               <Eye className="w-3.5 h-3.5" />
               <span>View</span>
@@ -140,12 +140,12 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
 
         <form action={handleSubmit}>
           {/* Avatar Row */}
-          <div className="flex flex-col md:flex-row gap-6 items-center p-5 border-b border-zinc-200 dark:border-zinc-800">
+          <div className="flex flex-col md:flex-row gap-6 items-center p-5 border-b border-neutral-200 dark:border-neutral-800">
             {/* Avatar */}
             <div className="relative group">
               <div
                 className={cn(
-                  "relative w-20 h-20 rounded-sm overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center transition-all duration-500 border border-zinc-200 dark:border-zinc-700",
+                  "relative w-20 h-20 rounded-sm overflow-hidden bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center transition-all duration-500 border border-neutral-200 dark:border-neutral-700",
                   isUploadingImage && "ring-2 ring-indigo-500/30 scale-105",
                 )}
               >
@@ -163,14 +163,14 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <User className="w-8 h-8 text-zinc-300" />
+                  <User className="w-8 h-8 text-neutral-300" />
                 )}
               </div>
               {imagePreview && !isUploadingImage && (
                 <button
                   type="button"
                   onClick={handleRemoveImage}
-                  className="absolute -top-1 -right-1 w-5 h-5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-sm flex items-center justify-center hover:scale-110 transition-transform shadow-lg z-10"
+                  className="absolute -top-1 -right-1 w-5 h-5 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-sm flex items-center justify-center hover:scale-110 transition-transform shadow-lg z-10"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -184,7 +184,7 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
                   endpoint="imageUploader"
                   appearance={{
                     button: cn(
-                      "bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-sm text-[10px] font-semibold tracking-wide h-8 px-4 w-auto shadow-none transition-all hover:opacity-90",
+                      "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-sm text-[10px] font-semibold tracking-wide h-8 px-4 w-auto shadow-none transition-all hover:opacity-90",
                       isUploadingImage &&
                         "opacity-80 cursor-wait pointer-events-none",
                     ),
@@ -219,7 +219,7 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
                   }}
                 />
               </div>
-              <p className="text-[10px] text-zinc-400 text-center md:text-left">
+              <p className="text-[10px] text-neutral-400 text-center md:text-left">
                 JPG, PNG (Max 4MB)
               </p>
             </div>
@@ -228,11 +228,11 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
           {/* Form Fields */}
           <div className="p-5 space-y-5">
             <div className="grid gap-2">
-              <Label className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
+              <Label className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider">
                 Username
               </Label>
-              <div className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-950/50 rounded-sm px-3 border border-zinc-200 dark:border-zinc-800 focus-within:border-zinc-300 dark:focus-within:border-zinc-700 transition-colors">
-                <span className="text-zinc-400 text-sm font-mono">
+              <div className="flex items-center gap-2 bg-neutral-50 dark:bg-neutral-950/50 rounded-sm px-3 border border-neutral-200 dark:border-neutral-800 focus-within:border-neutral-300 dark:focus-within:border-neutral-700 transition-colors">
+                <span className="text-neutral-400 text-sm font-mono">
                   skilldock.site/
                 </span>
                 <Input
@@ -240,23 +240,23 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
                   defaultValue={profile.slug}
                   required
                   pattern="[a-z0-9-]+"
-                  className="border-none shadow-none bg-transparent h-10 px-0 focus-visible:ring-0 font-medium text-zinc-800 dark:text-zinc-200"
+                  className="border-none shadow-none bg-transparent h-10 px-0 focus-visible:ring-0 font-medium text-neutral-800 dark:text-neutral-200"
                 />
               </div>
             </div>
             <div className="grid gap-2">
-              <Label className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
+              <Label className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider">
                 Headline
               </Label>
               <Input
                 name="headline"
                 defaultValue={profile.headline || ""}
                 placeholder="e.g. Senior Product Designer"
-                className="h-10 border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 rounded-sm shadow-none focus-visible:ring-1 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-700"
+                className="h-10 border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950/50 rounded-sm shadow-none focus-visible:ring-1 focus-visible:ring-neutral-300 dark:focus-visible:ring-neutral-700"
               />
             </div>
             <div className="grid gap-2">
-              <Label className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
+              <Label className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider">
                 About You
               </Label>
               <Textarea
@@ -264,13 +264,13 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
                 defaultValue={profile.summary || ""}
                 placeholder="Tell your story..."
                 rows={5}
-                className="border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 rounded-sm shadow-none focus-visible:ring-1 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-700 resize-none p-4"
+                className="border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950/50 rounded-sm shadow-none focus-visible:ring-1 focus-visible:ring-neutral-300 dark:focus-visible:ring-neutral-700 resize-none p-4"
               />
             </div>
           </div>
 
           {/* Footer Row */}
-          <div className="flex justify-between items-center p-5 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/30">
+          <div className="flex justify-between items-center p-5 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950/30">
             <div>
               {success && (
                 <span className="text-xs font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-sm animate-in fade-in flex items-center gap-1">
@@ -282,7 +282,7 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
             <Button
               type="submit"
               disabled={isLoading}
-              className="rounded-sm px-8 shadow-none bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 h-9 text-xs font-medium transition-all"
+              className="rounded-sm px-8 shadow-none bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-200 h-9 text-xs font-medium transition-all"
             >
               {isLoading ? (
                 <Loader2 className="w-3 h-3 animate-spin" />

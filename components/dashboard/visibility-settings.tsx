@@ -38,27 +38,27 @@ export function VisibilitySettings({ data }: VisibilitySettingsProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-sm overflow-hidden">
+    <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-sm overflow-hidden">
       {/* Header */}
-      <div className="p-5 border-b border-zinc-200 dark:border-zinc-800">
-        <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
+      <div className="p-5 border-b border-neutral-200 dark:border-neutral-800">
+        <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider">
           Public Visibility
         </p>
       </div>
 
       <form action={handleSubmit}>
         {/* Toggle Items */}
-        <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
+        <div className="divide-y divide-neutral-200 dark:divide-neutral-800">
           {/* Show Email */}
           <div className="flex items-center justify-between p-5">
             <div className="space-y-1">
               <Label
                 htmlFor="showEmail"
-                className="text-sm font-medium text-zinc-900 dark:text-zinc-100 cursor-pointer"
+                className="text-sm font-medium text-neutral-900 dark:text-neutral-100 cursor-pointer"
               >
                 Show Email Address
               </Label>
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-neutral-500">
                 Allow visitors to see your registered email.
               </p>
             </div>
@@ -73,7 +73,7 @@ export function VisibilitySettings({ data }: VisibilitySettingsProps) {
                 defaultChecked={profileSettings.showEmail}
                 className="peer sr-only"
               />
-              <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-zinc-300 dark:peer-focus:ring-zinc-800 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-zinc-900 dark:peer-checked:bg-zinc-100"></div>
+              <div className="w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-neutral-300 dark:peer-focus:ring-neutral-800 rounded-full peer dark:bg-neutral-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-neutral-900 dark:peer-checked:bg-neutral-100 dark:peer-checked:after:bg-neutral-900"></div>
             </label>
           </div>
 
@@ -82,11 +82,11 @@ export function VisibilitySettings({ data }: VisibilitySettingsProps) {
             <div className="space-y-1">
               <Label
                 htmlFor="showUnprovenSkills"
-                className="text-sm font-medium text-zinc-900 dark:text-zinc-100 cursor-pointer"
+                className="text-sm font-medium text-neutral-900 dark:text-neutral-100 cursor-pointer"
               >
                 Show Unverified Skills
               </Label>
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-neutral-500">
                 Display skills that don't have proof yet.
               </p>
             </div>
@@ -101,7 +101,7 @@ export function VisibilitySettings({ data }: VisibilitySettingsProps) {
                 defaultChecked={profileSettings.showUnprovenSkills}
                 className="peer sr-only"
               />
-              <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-zinc-300 dark:peer-focus:ring-zinc-800 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-zinc-900 dark:peer-checked:bg-zinc-100"></div>
+              <div className="w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-neutral-300 dark:peer-focus:ring-neutral-800 rounded-full peer dark:bg-neutral-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-neutral-900 dark:peer-checked:bg-neutral-100"></div>
             </label>
           </div>
         </div>
@@ -114,12 +114,12 @@ export function VisibilitySettings({ data }: VisibilitySettingsProps) {
         )}
 
         {/* Footer */}
-        <div className="flex justify-end p-5 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/30">
+        <div className="flex justify-end p-5 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950/30">
           <Button
             type="submit"
             disabled={isLoading}
             variant="outline"
-            className="rounded-sm px-6 text-xs h-9 bg-transparent border-zinc-200 dark:border-zinc-800 hover:bg-white dark:hover:bg-zinc-900 shadow-none"
+            className="rounded-sm px-6 text-xs h-9 bg-transparent border-neutral-200 dark:border-neutral-800 hover:bg-white dark:hover:bg-neutral-900 shadow-none"
           >
             {isLoading ? (
               <Loader2 className="w-3 h-3 animate-spin mr-2" />

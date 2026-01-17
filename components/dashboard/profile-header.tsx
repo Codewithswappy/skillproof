@@ -30,15 +30,15 @@ export function ProfileHeader({ data }: ProfileHeaderProps) {
   return (
     <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-6">
       <div className="space-y-1">
-        <h1 className="text-3xl font-light tracking-tight text-zinc-900 dark:text-zinc-100">
+        <h1 className="text-3xl font-light tracking-tight text-neutral-900 dark:text-neutral-100">
           Dashboard
         </h1>
-        <div className="flex items-center gap-3 text-sm text-zinc-500">
-          <span className="font-medium text-zinc-900 dark:text-zinc-200">
+        <div className="flex items-center gap-3 text-sm text-neutral-500">
+          <span className="font-medium text-neutral-900 dark:text-neutral-200">
             {profile.slug}
           </span>
-          <span className="text-zinc-300 dark:text-zinc-700">•</span>
-          <span className="truncate max-w-md text-zinc-500 font-light">
+          <span className="text-neutral-300 dark:text-neutral-700">•</span>
+          <span className="truncate max-w-md text-neutral-500 font-light">
             {profile.headline || "Ready to build your portfolio"}
           </span>
         </div>
@@ -51,7 +51,7 @@ export function ProfileHeader({ data }: ProfileHeaderProps) {
             target="_blank"
             className={cn(
               buttonVariants({ variant: "ghost", size: "sm" }),
-              "h-9 px-3 rounded-md text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors",
+              "h-9 px-3 rounded-md text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors",
             )}
           >
             <ExternalLink className="w-4 h-4 mr-2" />
@@ -65,7 +65,7 @@ export function ProfileHeader({ data }: ProfileHeaderProps) {
           onClick={handleToggle}
           disabled={isLoading}
           className={cn(
-            "h-9 rounded-md transition-all border-none bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-none",
+            "h-9 rounded-md transition-all border-none bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-none",
             isPublic &&
               "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30",
           )}
