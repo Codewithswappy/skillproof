@@ -16,7 +16,7 @@ export function PortfolioManager({ data }: PortfolioManagerProps) {
         </h1>
       </div>
 
-      <div className="max-w-5xl">
+      <div className="h-full">
         <ProjectsManager data={data} />
       </div>
     </div>
