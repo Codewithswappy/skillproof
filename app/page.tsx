@@ -81,7 +81,7 @@ export default function Home() {
         </section>
 
         {/* Problem / Solution */}
-        <section className="py-20 px-6">
+        {/* <section className="py-20 px-6">
           <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <h2 className="text-3xl font-bold">Resumes are broken.</h2>
@@ -144,7 +144,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* CTA */}
         <section className="py-20 px-6 text-center">
