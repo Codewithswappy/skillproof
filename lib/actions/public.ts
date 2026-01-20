@@ -27,6 +27,10 @@ export type PublicProfileData = {
   profileSettings: {
     isPublic: boolean;
     showEmail: boolean;
+    showExperience: boolean;
+    showProjects: boolean;
+    showTechStack: boolean;
+    showSummary: boolean;
   };
   projects: ProjectData[];
   experiences: Experience[];
@@ -130,6 +134,10 @@ export async function getPublicProfile(slug: string): Promise<ActionResult<Publi
       profileSettings: {
         isPublic: profileSettings.isPublic,
         showEmail: profileSettings.showEmail,
+        showExperience: profileSettings.showExperience,
+        showProjects: profileSettings.showProjects,
+        showTechStack: profileSettings.showTechStack,
+        showSummary: profileSettings.showSummary,
       },
       projects: profile.projects,
       experiences: profile.experiences,

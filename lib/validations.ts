@@ -49,6 +49,10 @@ export const UpdateProfileSchema = z.object({
 export const UpdateProfileSettingsSchema = z.object({
   isPublic: z.boolean().optional(),
   showEmail: z.boolean().optional(),
+  showExperience: z.boolean().optional(),
+  showProjects: z.boolean().optional(),
+  showTechStack: z.boolean().optional(),
+  showSummary: z.boolean().optional(),
 });
 
 // ============================================

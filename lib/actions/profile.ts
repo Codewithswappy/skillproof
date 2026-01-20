@@ -269,13 +269,17 @@ export async function updateProfileSettings(
       return { success: false, error: (validated.error as any).errors[0].message };
     }
 
-    const { isPublic, showEmail } = validated.data;
+    const { isPublic, showEmail, showExperience, showProjects, showTechStack, showSummary } = validated.data;
 
     const settings = await db.profileSettings.update({
       where: { userId },
       data: {
         ...(isPublic !== undefined && { isPublic }),
         ...(showEmail !== undefined && { showEmail }),
+        ...(showExperience !== undefined && { showExperience }),
+        ...(showProjects !== undefined && { showProjects }),
+        ...(showTechStack !== undefined && { showTechStack }),
+        ...(showSummary !== undefined && { showSummary }),
       },
     });
 

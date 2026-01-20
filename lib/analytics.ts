@@ -221,42 +221,71 @@ export async function getAnalytics(profileId: string, days: number = 7) {
         // Bounce rate: visitors who spent < 10 seconds
         let bounceCount = 0;
 
-        const history = records.map(r => {
-            totalViews += r.views;
-            totalDuration += r.totalDuration;
+        // Create a map of existing records by date string for quick lookup
+        const recordsByDate = new Map<string, typeof records[0]>();
+        records.forEach(r => {
+            const dateKey = r.date.toISOString().split('T')[0];
+            recordsByDate.set(dateKey, r);
+        });
+
+        // Generate all days in the range
+        const allDays: Date[] = [];
+        const currentDate = new Date(startDate);
+        while (currentDate <= endDate) {
+            allDays.push(new Date(currentDate));
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        // Build history with all days (including zeros for missing)
+        const history = allDays.map(day => {
+            const dateKey = day.toISOString().split('T')[0];
+            const record = recordsByDate.get(dateKey);
             
-            // Track all unique visitors across period
-            r.uniqueVisitors.forEach(hash => allVisitorHashes.add(hash));
-            
-            // Aggregate device stats
-            const deviceStats = (r.deviceStats as Record<string, number>) || {};
-            Object.entries(deviceStats).forEach(([device, count]) => {
-                deviceAggregates[device] = (deviceAggregates[device] || 0) + count;
-            });
-            
-            // Aggregate referrer stats
-            const referrerStats = (r.referrerStats as Record<string, number>) || {};
-            Object.entries(referrerStats).forEach(([ref, count]) => {
-                referrerAggregates[ref] = (referrerAggregates[ref] || 0) + count;
-            });
-            
-            // Aggregate project interactions
-            const pMetrics = (r.projectInteractions as Record<string, number>) || {};
-            Object.entries(pMetrics).forEach(([k, v]) => {
-                projectCounts[k] = (projectCounts[k] || 0) + v;
-            });
-            
-            // Bounce calculation: avg time < 10s indicates likely bounces
-            const avgTimeThisDay = r.views > 0 ? r.totalDuration / r.views : 0;
-            if (avgTimeThisDay < 10) {
-                bounceCount += r.views;
+            if (record) {
+                totalViews += record.views;
+                totalDuration += record.totalDuration;
+                
+                // Track all unique visitors across period
+                record.uniqueVisitors.forEach(hash => allVisitorHashes.add(hash));
+                
+                // Aggregate device stats
+                const deviceStats = (record.deviceStats as Record<string, number>) || {};
+                Object.entries(deviceStats).forEach(([device, count]) => {
+                    deviceAggregates[device] = (deviceAggregates[device] || 0) + count;
+                });
+                
+                // Aggregate referrer stats
+                const referrerStats = (record.referrerStats as Record<string, number>) || {};
+                Object.entries(referrerStats).forEach(([ref, count]) => {
+                    referrerAggregates[ref] = (referrerAggregates[ref] || 0) + count;
+                });
+                
+                // Aggregate project interactions
+                const pMetrics = (record.projectInteractions as Record<string, number>) || {};
+                Object.entries(pMetrics).forEach(([k, v]) => {
+                    projectCounts[k] = (projectCounts[k] || 0) + v;
+                });
+                
+                // Bounce calculation: avg time < 10s indicates likely bounces
+                const avgTimeThisDay = record.views > 0 ? record.totalDuration / record.views : 0;
+                if (avgTimeThisDay < 10) {
+                    bounceCount += record.views;
+                }
+                
+                return {
+                    date: day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                    views: record.views,
+                    visitors: record.uniqueVisitors.length,
+                    avgTime: record.views > 0 ? Math.round(record.totalDuration / record.views) : 0
+                };
             }
             
+            // Day with no data - return zero values
             return {
-                date: r.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                views: r.views,
-                visitors: r.uniqueVisitors.length,
-                avgTime: r.views > 0 ? Math.round(r.totalDuration / r.views) : 0
+                date: day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                views: 0,
+                visitors: 0,
+                avgTime: 0
             };
         });
 
@@ -280,29 +309,98 @@ export async function getAnalytics(profileId: string, days: number = 7) {
             .map(([name, value]) => ({ name: name.charAt(0).toUpperCase() + name.slice(1), value }))
             .sort((a, b) => b.value - a.value);
             
-        // Format referrer breakdown for charts (top 5)
+        // Format referrer breakdown
         const referrerBreakdown = Object.entries(referrerAggregates)
             .map(([name, value]) => ({ name: name === "direct" ? "Direct" : name, value }))
             .sort((a, b) => b.value - a.value)
             .slice(0, 5);
 
+        // --- NEW: Calculate Trend (vs previous period) ---
+        let viewTrend = 0;
+        if (days > 0) {
+            const previousEndDate = new Date(startDate);
+            previousEndDate.setDate(previousEndDate.getDate() - 1);
+            
+            const previousStartDate = new Date(previousEndDate);
+            previousStartDate.setDate(previousStartDate.getDate() - days);
+            
+            // Set to start of day
+            previousStartDate.setUTCHours(0,0,0,0);
+            previousEndDate.setUTCHours(23,59,59,999);
+
+            const previousRecords = await db.dailyAnalytics.aggregate({
+                _sum: {
+                    views: true
+                },
+                where: {
+                    profileId,
+                    date: {
+                        gte: previousStartDate,
+                        lte: previousEndDate
+                    }
+                }
+            });
+
+            const previousViews = previousRecords._sum.views || 0;
+            
+            if (previousViews === 0) {
+                viewTrend = totalViews > 0 ? 100 : 0; // 100% growth if from 0 to something
+            } else {
+                viewTrend = Math.round(((totalViews - previousViews) / previousViews) * 100);
+            }
+        }
+
+        // --- NEW: Resolve Project Names ---
+        // topProjects currently has { id: string, count: number }
+        // We need to fetch the names for these IDs
+        const projectIds = topProjects.map(p => p.id);
+        const projects = await db.project.findMany({
+            where: {
+                id: { in: projectIds }
+            },
+            select: {
+                id: true,
+                title: true
+            }
+        });
+
+        const projectMap = new Map(projects.map(p => [p.id, p.title]));
+        
+        const namedTopProjects = topProjects.map(p => ({
+            id: projectMap.get(p.id) || "Unknown Project", 
+            count: p.count
+        }));
+
         return {
+            history,
             summary: {
                 totalViews,
-                totalUniques,
-                avgDuration: totalViews > 0 ? Math.round(totalDuration / totalViews) : 0,
-                returningRate,
+                uniqueVisitors: totalUniques,
+                avgTimeOnPage: totalViews > 0 ? Math.round(totalDuration / totalViews) : 0,
                 bounceRate,
+                returningRate,
+                viewTrend // Return the real calculation
             },
-            history,
-
-            topProjects,
             deviceBreakdown,
             referrerBreakdown,
+            topProjects: namedTopProjects // Return named projects
         };
 
     } catch (error) {
-        console.error("Get analytics error:", error);
-        return null;
+        console.error("Error fetching analytics:", error);
+        return {
+            history: [],
+            summary: {
+                totalViews: 0,
+                uniqueVisitors: 0,
+                avgTimeOnPage: 0,
+                bounceRate: 0,
+                returningRate: 0,
+                viewTrend: 0
+            },
+            deviceBreakdown: [],
+            referrerBreakdown: [],
+            topProjects: []
+        };
     }
 }

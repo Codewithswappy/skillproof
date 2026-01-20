@@ -5,10 +5,11 @@
  */
 export interface AnalyticsSummary {
   totalViews: number;
-  totalUniques: number;
-  avgDuration: number;
+  uniqueVisitors: number;
+  avgTimeOnPage: number;
   returningRate: number;
   bounceRate: number;
+  viewTrend: number;
 }
 
 /**

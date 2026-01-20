@@ -11,6 +11,46 @@ interface VisibilitySettingsProps {
   data: FullProfile;
 }
 
+// Toggle component for consistency
+function ToggleItem({
+  id,
+  label,
+  description,
+  defaultChecked,
+}: {
+  id: string;
+  label: string;
+  description: string;
+  defaultChecked: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between p-5">
+      <div className="space-y-1">
+        <Label
+          htmlFor={id}
+          className="text-sm font-medium text-neutral-900 dark:text-neutral-100 cursor-pointer"
+        >
+          {label}
+        </Label>
+        <p className="text-xs text-neutral-500">{description}</p>
+      </div>
+      <label
+        htmlFor={id}
+        className="relative inline-flex items-center cursor-pointer"
+      >
+        <input
+          id={id}
+          name={id}
+          type="checkbox"
+          defaultChecked={defaultChecked}
+          className="peer sr-only"
+        />
+        <div className="w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-neutral-300 dark:peer-focus:ring-neutral-800 rounded-full peer dark:bg-neutral-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-neutral-900 dark:peer-checked:bg-neutral-100 dark:peer-checked:after:bg-neutral-900"></div>
+      </label>
+    </div>
+  );
+}
+
 export function VisibilitySettings({ data }: VisibilitySettingsProps) {
   const router = useRouter();
   const { profileSettings } = data;
@@ -22,9 +62,17 @@ export function VisibilitySettings({ data }: VisibilitySettingsProps) {
     setError(null);
 
     const showEmail = formData.get("showEmail") === "on";
+    const showExperience = formData.get("showExperience") === "on";
+    const showProjects = formData.get("showProjects") === "on";
+    const showTechStack = formData.get("showTechStack") === "on";
+    const showSummary = formData.get("showSummary") === "on";
 
     const result = await updateProfileSettings({
       showEmail,
+      showExperience,
+      showProjects,
+      showTechStack,
+      showSummary,
     });
 
     if (result.success) {
@@ -48,32 +96,44 @@ export function VisibilitySettings({ data }: VisibilitySettingsProps) {
         {/* Toggle Items */}
         <div className="divide-y divide-neutral-200 dark:divide-neutral-800">
           {/* Show Email */}
-          <div className="flex items-center justify-between p-5">
-            <div className="space-y-1">
-              <Label
-                htmlFor="showEmail"
-                className="text-sm font-medium text-neutral-900 dark:text-neutral-100 cursor-pointer"
-              >
-                Show Email Address
-              </Label>
-              <p className="text-xs text-neutral-500">
-                Allow visitors to see your registered email.
-              </p>
-            </div>
-            <label
-              htmlFor="showEmail"
-              className="relative inline-flex items-center cursor-pointer"
-            >
-              <input
-                id="showEmail"
-                name="showEmail"
-                type="checkbox"
-                defaultChecked={profileSettings.showEmail}
-                className="peer sr-only"
-              />
-              <div className="w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-neutral-300 dark:peer-focus:ring-neutral-800 rounded-full peer dark:bg-neutral-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-neutral-900 dark:peer-checked:bg-neutral-100 dark:peer-checked:after:bg-neutral-900"></div>
-            </label>
-          </div>
+          <ToggleItem
+            id="showEmail"
+            label="Show Email Address"
+            description="Allow visitors to see your registered email."
+            defaultChecked={profileSettings.showEmail}
+          />
+
+          {/* Show Experience */}
+          <ToggleItem
+            id="showExperience"
+            label="Show Experience Section"
+            description="Display your work experience on your public profile."
+            defaultChecked={profileSettings.showExperience ?? true}
+          />
+
+          {/* Show Projects */}
+          <ToggleItem
+            id="showProjects"
+            label="Show Projects Section"
+            description="Display your projects on your public profile."
+            defaultChecked={profileSettings.showProjects ?? true}
+          />
+
+          {/* Show Tech Stack */}
+          <ToggleItem
+            id="showTechStack"
+            label="Show Tech Stack"
+            description="Display the tech stack marquee on your public profile."
+            defaultChecked={profileSettings.showTechStack ?? true}
+          />
+
+          {/* Show Summary */}
+          <ToggleItem
+            id="showSummary"
+            label="Show Summary / About"
+            description="Display your bio/summary at the bottom of your profile."
+            defaultChecked={profileSettings.showSummary ?? true}
+          />
         </div>
 
         {error && (

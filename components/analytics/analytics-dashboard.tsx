@@ -23,6 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Loader2,
   TrendingUp,
+  TrendingDown,
   Users,
   Clock,
   Monitor,
@@ -98,8 +99,10 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
 export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [range, setRange] = useState(30);
+  const [range, setRange] = useState(1); // Default to 24H
+  const [onlineCount, setOnlineCount] = useState(0);
 
+  // Fetch analytics data
   useEffect(() => {
     async function load() {
       setLoading(true);
@@ -109,6 +112,26 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
     }
     load();
   }, [profileId, range]);
+
+  // Poll for real-time visitors every 10 seconds
+  useEffect(() => {
+    const fetchOnline = async () => {
+      try {
+        const res = await fetch(`/api/analytics/online?profileId=${profileId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setOnlineCount(data.count || 0);
+        }
+      } catch (e) {
+        // Silently fail
+      }
+    };
+
+    fetchOnline(); // Initial fetch
+    const interval = setInterval(fetchOnline, 10000); // Poll every 10s
+
+    return () => clearInterval(interval);
+  }, [profileId]);
 
   if (loading) {
     return (
@@ -141,26 +164,43 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
             Track your profile performance
           </p>
         </div>
-        <div className="flex items-center gap-1 p-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg">
-          {[
-            { value: 7, label: "7D" },
-            { value: 30, label: "30D" },
-            { value: 90, label: "90D" },
-            { value: 0, label: "All" },
-          ].map(({ value, label }) => (
-            <button
-              key={value}
-              onClick={() => setRange(value)}
-              className={cn(
-                "px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
-                range === value
-                  ? "bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-sm"
-                  : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white",
-              )}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="flex items-center gap-3">
+          {/* Real-time Online Counter */}
+          {onlineCount > 0 && (
+            <div className="flex items-center gap-2 px-3 py-1 rounded-sm bg-emerald-50/40 dark:bg-emerald-200/10 border border-emerald-100 dark:border-emerald-400">
+              <span className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-md bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                {onlineCount} online
+              </span>
+            </div>
+          )}
+
+          {/* Time Range Selector */}
+          <div className="flex items-center gap-1 p-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg">
+            {[
+              { value: 1, label: "24H" },
+              { value: 7, label: "7D" },
+              { value: 30, label: "30D" },
+              { value: 90, label: "90D" },
+              { value: 0, label: "All" },
+            ].map(({ value, label }) => (
+              <button
+                key={value}
+                onClick={() => setRange(value)}
+                className={cn(
+                  "px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
+                  range === value
+                    ? "bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-sm"
+                    : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white",
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -192,7 +232,7 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
               />
             </div>
             <p className="text-2xl font-medium text-neutral-900 dark:text-neutral-100">
-              {summary.totalUniques.toLocaleString()}
+              {summary.uniqueVisitors.toLocaleString()}
             </p>
             <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider mt-1">
               Unique Visitors
@@ -208,7 +248,7 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
               />
             </div>
             <p className="text-2xl font-medium text-neutral-900 dark:text-neutral-100">
-              {summary.avgDuration}
+              {summary.avgTimeOnPage}
               <span className="text-base font-normal text-neutral-400 ml-0.5">
                 s
               </span>
@@ -263,72 +303,352 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
         {/* Row 1: Traffic Chart (2 cols) + Devices (1 col) */}
         <div className="grid lg:grid-cols-3 divide-x divide-neutral-200 dark:divide-neutral-800">
           {/* Traffic Chart */}
-          <div className="lg:col-span-2 p-5">
-            <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider mb-4">
-              Traffic Overview
-            </p>
-            <div className="h-[280px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart
-                  data={history}
-                  margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="#e5e7eb"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="date"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 11, fill: "#71717a" }}
-                    dy={10}
-                    minTickGap={40}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 11, fill: "#71717a" }}
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Legend
-                    iconType="circle"
-                    iconSize={8}
-                    wrapperStyle={{ paddingTop: 16 }}
-                    formatter={(v) => (
-                      <span className="text-xs text-neutral-500 ml-1">{v}</span>
+          <div className="lg:col-span-2 p-6 flex flex-col">
+            <div className="flex items-start justify-between mb-8">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest font-mono">
+                    Traffic Overview
+                  </p>
+                  <span className="flex h-2 w-2 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-lime-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-lime-500"></span>
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-3">
+                  <h3 className="text-4xl font-extrabold text-neutral-900 dark:text-white font-feature-settings-tnum tracking-tight">
+                    {summary.totalViews.toLocaleString()}
+                  </h3>
+                  <div
+                    className={cn(
+                      "flex items-center gap-1 px-2 py-0.5 rounded-full font-bold text-xs",
+                      summary.viewTrend >= 0
+                        ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20"
+                        : "text-rose-600 bg-rose-50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20",
                     )}
-                  />
-                  <Bar
-                    dataKey="views"
-                    name="Views"
-                    fill="#6366f1"
-                    radius={[4, 4, 0, 0]}
-                    barSize={20}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="visitors"
-                    name="Visitors"
-                    stroke="#22c55e"
-                    strokeWidth={2.5}
-                    dot={false}
-                    activeDot={{
-                      r: 5,
-                      fill: "#22c55e",
-                      stroke: "#fff",
-                      strokeWidth: 2,
-                    }}
-                  />
-                </ComposedChart>
+                  >
+                    {summary.viewTrend >= 0 ? (
+                      <TrendingUp className="w-3 h-3" strokeWidth={2.5} />
+                    ) : (
+                      <TrendingDown className="w-3 h-3" strokeWidth={2.5} />
+                    )}
+                    <span>
+                      {summary.viewTrend >= 0 ? "+" : ""}
+                      {summary.viewTrend}%
+                    </span>
+                  </div>
+                </div>
+                <p className="text-xs text-neutral-400 mt-1 font-medium">
+                  Total views over the last{" "}
+                  {range === 0 ? "all time" : `${range} days`}
+                </p>
+              </div>
+
+              {/* Legend / Filter */}
+              <div className="hidden sm:flex items-center gap-2">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm">
+                  <span className="w-2.5 h-2.5 rounded-full bg-lime-500 shadow-[0_0_8px_rgba(132,204,22,0.5)]"></span>
+                  <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+                    Visits
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              className="flex-1 min-h-[280px] w-full outline-none focus:outline-none"
+              style={{ outline: "none" }}
+            >
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
+                style={{ outline: "none" }}
+              >
+                {/* Switch to Area/Line chart for large date ranges (>30 days) */}
+                {history.length > 30 ? (
+                  <AreaChart
+                    data={history}
+                    margin={{ top: 20, right: 10, left: -20, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient
+                        id="areaGradient"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="0%"
+                          stopColor="#84cc16"
+                          stopOpacity={0.4}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#84cc16"
+                          stopOpacity={0.02}
+                        />
+                      </linearGradient>
+                      <filter
+                        id="lineGlow"
+                        height="300%"
+                        width="300%"
+                        x="-100%"
+                        y="-100%"
+                      >
+                        <feGaussianBlur
+                          in="SourceGraphic"
+                          stdDeviation="3"
+                          result="blur"
+                        />
+                        <feColorMatrix
+                          in="blur"
+                          type="matrix"
+                          values="0 0 0 0 0.518  0 0 0 0 0.8  0 0 0 0 0.086  0 0 0 1 0"
+                        />
+                        <feMerge>
+                          <feMergeNode />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                    </defs>
+                    <CartesianGrid
+                      strokeDasharray="4 4"
+                      stroke="#e5e7eb"
+                      vertical={false}
+                      className="stroke-neutral-100 dark:stroke-neutral-800/50"
+                    />
+                    <XAxis
+                      dataKey="date"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 10, fill: "#a3a3a3", fontWeight: 500 }}
+                      dy={12}
+                      minTickGap={60}
+                      interval="preserveStartEnd"
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 11, fill: "#a3a3a3", fontWeight: 500 }}
+                      tickCount={5}
+                    />
+                    <Tooltip
+                      content={({ active, payload, label }) => {
+                        if (!active || !payload?.length) return null;
+                        return (
+                          <div className="relative group z-50">
+                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-neutral-900 rotate-45 transform"></div>
+                            <div className="bg-neutral-900 text-white text-xs rounded-xl py-2.5 px-4 shadow-[0_10px_30px_-10px_rgba(132,204,22,0.4)] min-w-[120px] flex flex-col items-center border border-lime-500/20">
+                              <p className="font-medium text-neutral-400 mb-1">
+                                {label}
+                              </p>
+                              <div className="flex items-baseline gap-1">
+                                <span className="font-bold text-xl tracking-tight text-lime-400">
+                                  {payload[0].value?.toLocaleString()}
+                                </span>
+                                <span className="text-[10px] uppercase tracking-wider font-bold text-neutral-500">
+                                  Visits
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="views"
+                      stroke="#84cc16"
+                      strokeWidth={2.5}
+                      fill="url(#areaGradient)"
+                      filter="url(#lineGlow)"
+                      animationDuration={1500}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="views"
+                      stroke="#84cc16"
+                      strokeWidth={2}
+                      dot={{
+                        fill: "#84cc16",
+                        stroke: "#fff",
+                        strokeWidth: 2,
+                        r: 4,
+                        filter: "url(#lineGlow)",
+                      }}
+                      activeDot={{
+                        fill: "#84cc16",
+                        stroke: "#fff",
+                        strokeWidth: 3,
+                        r: 7,
+                        filter: "url(#lineGlow)",
+                      }}
+                    />
+                  </AreaChart>
+                ) : (
+                  <ComposedChart
+                    data={history}
+                    margin={{ top: 20, right: 0, left: -20, bottom: 0 }}
+                    barSize={
+                      history.length <= 7 ? 36 : history.length <= 14 ? 24 : 16
+                    }
+                  >
+                    <defs>
+                      <linearGradient
+                        id="gelGradient"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop offset="0%" stopColor="#d9f99d" stopOpacity={1} />
+                        <stop
+                          offset="20%"
+                          stopColor="#84cc16"
+                          stopOpacity={1}
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor="#15803d"
+                          stopOpacity={1}
+                        />
+                      </linearGradient>
+                      <filter id="gelShadow" height="200%">
+                        <feDropShadow
+                          dx="0"
+                          dy="8"
+                          stdDeviation="8"
+                          floodColor="#84cc16"
+                          floodOpacity="0.3"
+                        />
+                      </filter>
+                      <filter
+                        id="lineGlowBar"
+                        height="300%"
+                        width="300%"
+                        x="-100%"
+                        y="-100%"
+                      >
+                        <feGaussianBlur
+                          in="SourceGraphic"
+                          stdDeviation="2"
+                          result="blur"
+                        />
+                        <feColorMatrix
+                          in="blur"
+                          type="matrix"
+                          values="0 0 0 0 0.518  0 0 0 0 0.8  0 0 0 0 0.086  0 0 0 0.8 0"
+                        />
+                        <feMerge>
+                          <feMergeNode />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                    </defs>
+                    <CartesianGrid
+                      strokeDasharray="4 4"
+                      stroke="#e5e7eb"
+                      vertical={false}
+                      className="stroke-neutral-100 dark:stroke-neutral-800/50"
+                    />
+                    <XAxis
+                      dataKey="date"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 11, fill: "#a3a3a3", fontWeight: 600 }}
+                      dy={12}
+                      minTickGap={30}
+                      interval="preserveStartEnd"
+                    />
+                    <YAxis
+                      dataKey="views"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 11, fill: "#a3a3a3", fontWeight: 500 }}
+                      tickCount={5}
+                    />
+                    <Tooltip
+                      cursor={{
+                        fill: "rgba(132, 204, 22, 0.1)",
+                        radius: 12,
+                      }}
+                      content={({ active, payload, label }) => {
+                        if (!active || !payload?.length) return null;
+                        return (
+                          <div className="relative group z-50">
+                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-neutral-900 rotate-45 transform"></div>
+                            <div className="bg-neutral-900 text-white text-xs rounded-xl py-2.5 px-4 shadow-[0_10px_30px_-10px_rgba(132,204,22,0.4)] min-w-[120px] flex flex-col items-center border border-lime-500/20">
+                              <p className="font-medium text-neutral-400 mb-1">
+                                {label}
+                              </p>
+                              <div className="flex items-baseline gap-1">
+                                <span className="font-bold text-xl tracking-tight text-lime-400">
+                                  {payload[0].value?.toLocaleString()}
+                                </span>
+                                <span className="text-[10px] uppercase tracking-wider font-bold text-neutral-500">
+                                  Visits
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }}
+                    />
+                    <Bar
+                      dataKey="views"
+                      name="Views"
+                      fill="url(#gelGradient)"
+                      radius={[8, 8, 8, 8]}
+                      filter="url(#gelShadow)"
+                      animationDuration={1500}
+                      animationBegin={0}
+                      background={{
+                        fill: "#f3f4f6",
+                        radius: 8,
+                        className: "fill-neutral-100 dark:fill-neutral-800/80",
+                      }}
+                    >
+                      {history.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill="url(#gelGradient)"
+                          className="transition-all duration-300 hover:brightness-110 focus:outline-none outline-none"
+                          style={{ outline: "none" }}
+                        />
+                      ))}
+                    </Bar>
+                    {/* Flowing line overlay */}
+                    <Line
+                      type="monotone"
+                      dataKey="views"
+                      stroke="#84cc16"
+                      strokeWidth={2.5}
+                      dot={{
+                        fill: "#84cc16",
+                        stroke: "#fff",
+                        strokeWidth: 2,
+                        r: 5,
+                      }}
+                      activeDot={{
+                        fill: "#84cc16",
+                        stroke: "#fff",
+                        strokeWidth: 3,
+                        r: 8,
+                        filter: "url(#lineGlowBar)",
+                      }}
+                      filter="url(#lineGlowBar)"
+                      animationDuration={2000}
+                    />
+                  </ComposedChart>
+                )}
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* Devices */}
           <div className="p-5">
-            <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider mb-4">
+            <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-widest font-mono mb-4">
               Devices
             </p>
             {deviceBreakdown && deviceBreakdown.length > 0 ? (
@@ -336,48 +656,154 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
                 <div className="h-[180px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
+                      <defs>
+                        {/* Desktop: Deep Emerald */}
+                        <linearGradient
+                          id="desktopGrad"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="0%"
+                            stopColor="#10b981"
+                            stopOpacity={1}
+                          />
+                          <stop
+                            offset="100%"
+                            stopColor="#047857"
+                            stopOpacity={1}
+                          />
+                        </linearGradient>
+                        {/* Mobile: Vibrant Lime */}
+                        <linearGradient
+                          id="mobileGrad"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="0%"
+                            stopColor="#d9f99d"
+                            stopOpacity={1}
+                          />
+                          <stop
+                            offset="100%"
+                            stopColor="#84cc16"
+                            stopOpacity={1}
+                          />
+                        </linearGradient>
+                        {/* Tablet: Cool Teal */}
+                        <linearGradient
+                          id="tabletGrad"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="0%"
+                            stopColor="#2dd4bf"
+                            stopOpacity={1}
+                          />
+                          <stop
+                            offset="100%"
+                            stopColor="#0d9488"
+                            stopOpacity={1}
+                          />
+                        </linearGradient>
+                        <filter id="pieShadow" height="130%">
+                          <feDropShadow
+                            dx="0"
+                            dy="3"
+                            stdDeviation="3"
+                            floodColor="#064e3b"
+                            floodOpacity="0.2"
+                          />
+                        </filter>
+                      </defs>
                       <Pie
                         data={deviceBreakdown}
                         cx="50%"
                         cy="50%"
-                        innerRadius={45}
-                        outerRadius={70}
-                        paddingAngle={2}
+                        innerRadius={60}
+                        outerRadius={80}
+                        paddingAngle={4}
                         dataKey="value"
                         nameKey="name"
                         stroke="none"
+                        filter="url(#pieShadow)"
+                        cornerRadius={4}
+                        animationDuration={1500}
                       >
                         {deviceBreakdown.map(
-                          (entry: DeviceBreakdownItem, index: number) => (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={
-                                DEVICE_COLORS[entry.name]?.color || "#94a3b8"
-                              }
-                            />
-                          ),
+                          (entry: DeviceBreakdownItem, index: number) => {
+                            const name = entry.name.toLowerCase();
+                            const gradientId =
+                              name === "desktop"
+                                ? "url(#desktopGrad)"
+                                : name === "mobile"
+                                  ? "url(#mobileGrad)"
+                                  : "url(#tabletGrad)";
+                            return (
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={gradientId}
+                                className="transition-all duration-300 hover:opacity-90 stroke-white dark:stroke-neutral-900 stroke-2"
+                              />
+                            );
+                          },
                         )}
                       </Pie>
-                      <Tooltip content={<CustomTooltip />} />
+                      <Tooltip
+                        content={({ active, payload }) => {
+                          if (!active || !payload?.length) return null;
+                          return (
+                            <div className="bg-white/90 dark:bg-neutral-900/90 backdrop-blur-sm text-neutral-900 dark:text-white text-xs rounded-xl py-2 px-3 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] border border-neutral-200 dark:border-neutral-800">
+                              <p className="font-bold text-sm tracking-tight">
+                                {payload[0].name}
+                              </p>
+                              <div className="flex items-center gap-1.5 mt-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                <p className="text-neutral-500 font-medium">
+                                  {payload[0].value} visits
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        }}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
-                <div className="flex justify-center gap-4 mt-2">
+                <div className="flex justify-center gap-6 mt-4">
                   {deviceBreakdown.map(
                     (entry: DeviceBreakdownItem, index: number) => {
-                      const deviceInfo = DEVICE_COLORS[entry.name] || {
-                        color: "#94a3b8",
-                        icon: Monitor,
+                      const colors: Record<string, string> = {
+                        Desktop: "#10b981", // Emerald
+                        Mobile: "#84cc16", // Lime
+                        Tablet: "#2dd4bf", // Teal
                       };
+                      const color = colors[entry.name] || "#94a3b8";
                       return (
-                        <div key={index} className="flex items-center gap-1.5">
-                          <div
-                            className="w-2 h-2 rounded-full"
-                            style={{ backgroundColor: deviceInfo.color }}
-                          />
-                          <span className="text-[11px] font-medium text-neutral-500">
+                        <div
+                          key={index}
+                          className="flex flex-col items-center gap-1"
+                        >
+                          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
                             {entry.name}
                           </span>
+                          <div className="flex items-center gap-1.5">
+                            <div
+                              className="w-2 h-2 rounded-full"
+                              style={{ backgroundColor: color }}
+                            />
+                            <span className="text-xs font-bold text-neutral-700 dark:text-neutral-200">
+                              {entry.value}
+                            </span>
+                          </div>
                         </div>
                       );
                     },
@@ -390,16 +816,10 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
               </div>
             )}
           </div>
-        </div>
 
-        {/* Divider between rows */}
-        <div className="border-t border-neutral-200 dark:border-neutral-800" />
-
-        {/* Row 2: Sources + Projects */}
-        <div className="grid lg:grid-cols-2 divide-x divide-neutral-200 dark:divide-neutral-800">
           {/* Traffic Sources */}
           <div className="p-5">
-            <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider mb-4">
+            <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-widest font-mono mb-4">
               Traffic Sources
             </p>
             {referrerBreakdown && referrerBreakdown.length > 0 ? (
@@ -409,43 +829,83 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
                     data={referrerBreakdown}
                     layout="vertical"
                     margin={{ left: 0, right: 10 }}
+                    barSize={10}
                   >
+                    <defs>
+                      {/* Matching the main chart's Lime-to-Emerald gradient */}
+                      <linearGradient
+                        id="sourceGrad"
+                        x1="0"
+                        y1="0"
+                        x2="1"
+                        y2="0"
+                      >
+                        <stop offset="0%" stopColor="#d9f99d" stopOpacity={1} />
+                        <stop
+                          offset="50%"
+                          stopColor="#84cc16"
+                          stopOpacity={1}
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor="#15803d"
+                          stopOpacity={1}
+                        />
+                      </linearGradient>
+                    </defs>
                     <CartesianGrid
                       strokeDasharray="3 3"
-                      stroke="#e5e7eb"
                       horizontal={false}
+                      className="stroke-neutral-100 dark:stroke-neutral-800/50"
                     />
                     <XAxis
                       type="number"
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fontSize: 10, fill: "#71717a" }}
+                      tick={{ fontSize: 10, fill: "#a3a3a3", fontWeight: 500 }}
                     />
                     <YAxis
                       type="category"
                       dataKey="name"
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fontSize: 11, fill: "#52525b" }}
-                      width={60}
+                      tick={{ fontSize: 11, fill: "#a3a3a3", fontWeight: 600 }}
+                      width={80}
                     />
-                    <Tooltip content={<CustomTooltip />} />
+                    <Tooltip
+                      cursor={{ fill: "transparent" }}
+                      content={({ active, payload, label }) => {
+                        if (!active || !payload?.length) return null;
+                        return (
+                          <div className="bg-white/90 dark:bg-neutral-900/90 backdrop-blur-sm text-neutral-900 dark:text-white text-xs rounded-xl py-2 px-3 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] border border-neutral-200 dark:border-neutral-800 z-50">
+                            <p className="font-bold mb-0.5">{label}</p>
+                            <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                              {payload[0].value} visits
+                            </span>
+                          </div>
+                        );
+                      }}
+                    />
                     <Bar
                       dataKey="value"
                       name="Visits"
-                      radius={[0, 4, 4, 0]}
-                      barSize={14}
+                      fill="url(#sourceGrad)"
+                      radius={10} // Full pill shape
+                      animationDuration={1500}
+                      // Meter track background
+                      background={{
+                        fill: "#f3f4f6",
+                        radius: 10,
+                        className: "fill-neutral-100 dark:fill-neutral-800/50",
+                      }}
                     >
-                      {referrerBreakdown.map(
-                        (entry: ReferrerBreakdownItem, index: number) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={
-                              REFERRER_COLORS[index % REFERRER_COLORS.length]
-                            }
-                          />
-                        ),
-                      )}
+                      {referrerBreakdown.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill="url(#sourceGrad)"
+                          className="transition-all duration-300 hover:brightness-110"
+                        />
+                      ))}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
@@ -459,7 +919,7 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
 
           {/* Top Projects */}
           <div className="p-5">
-            <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider mb-4">
+            <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-widest font-mono mb-4">
               Top Projects
             </p>
             {topProjects.length > 0 ? (

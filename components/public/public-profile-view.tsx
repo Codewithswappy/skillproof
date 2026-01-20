@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { User } from "lucide-react";
 import Image from "next/image";
 import { PublicProfileData } from "@/lib/actions/public";
@@ -37,14 +38,95 @@ function getTechIcon(techName: string) {
   return iconKey ? TechIcons[iconKey] : null;
 }
 
+// Generate unique session ID
+function generateSessionId(): string {
+  return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+}
+
 export function PublicProfileView({ data }: PublicProfileViewProps) {
-  const { profile, projects, userName } = data;
+  const { profile, projects, userName, profileSettings } = data;
+  const sessionIdRef = useRef<string | null>(null);
+
+  // Real-time presence tracking
+  useEffect(() => {
+    // Generate session ID on mount
+    if (!sessionIdRef.current) {
+      sessionIdRef.current = generateSessionId();
+    }
+    const sessionId = sessionIdRef.current;
+    const profileId = profile.id;
+
+    // Send heartbeat to register presence
+    const sendHeartbeat = async () => {
+      try {
+        await fetch("/api/analytics/online", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ profileId, sessionId }),
+        });
+      } catch (e) {
+        // Silently fail
+      }
+    };
+
+    // Initial heartbeat
+    sendHeartbeat();
+
+    // Heartbeat every 10 seconds
+    const interval = setInterval(sendHeartbeat, 10000);
+
+    // Cleanup on unmount
+    const handleUnload = () => {
+      // Use sendBeacon for reliability on page unload
+      navigator.sendBeacon(
+        `/api/analytics/online?profileId=${profileId}&sessionId=${sessionId}`,
+        "",
+      );
+    };
+
+    window.addEventListener("beforeunload", handleUnload);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("beforeunload", handleUnload);
+      // Also try to remove session on unmount
+      fetch(
+        `/api/analytics/online?profileId=${profileId}&sessionId=${sessionId}`,
+        {
+          method: "DELETE",
+        },
+      ).catch(() => {});
+    };
+  }, [profile.id]);
 
   const allTech = getAllTech(projects);
   const displayName = userName || profile.slug;
 
+  // Section visibility with defaults
+  const showExperience = profileSettings.showExperience ?? true;
+  const showProjects = profileSettings.showProjects ?? true;
+  const showTechStack = profileSettings.showTechStack ?? true;
+  const showSummary = profileSettings.showSummary ?? true;
+
   // Duplicate tech stack for smooth marquee
   const marqueeTech = [...allTech, ...allTech, ...allTech, ...allTech];
+
+  // Handle project interaction tracking
+  const handleProjectInteraction = async (projectId: string) => {
+    try {
+      await fetch("/api/analytics/interaction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slug: profile.slug,
+          type: "project",
+          itemId: projectId,
+        }),
+      });
+    } catch (e) {
+      // Silently fail
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 font-sans selection:bg-neutral-900 selection:text-white dark:selection:bg-white dark:selection:text-black">
@@ -142,52 +224,62 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
           {/* --- MAIN CONTENT --- */}
           <div className="px-4 md:px-6 pt-8 space-y-10 bg-white dark:bg-neutral-950">
             {/* --- EXPERIENCE --- */}
-            <div className="space-y-6">
-              <h2 className="font-bold font-mono text-neutral-400 dark:text-neutral-600 tracking-tight uppercase text-xs">
-                // Experience
-              </h2>
-              <ExperienceSection experiences={data.experiences} />
-              {data.experiences && data.experiences.length === 0 && (
-                <div className="py-8 text-center text-sm text-neutral-500 font-mono">
-                  No experience recorded.
-                </div>
-              )}
-            </div>
+            {showExperience && (
+              <div className="space-y-6">
+                <h2 className="font-bold font-mono text-neutral-400 dark:text-neutral-600 tracking-tight uppercase text-xs">
+                  // Experience
+                </h2>
+                <ExperienceSection experiences={data.experiences} />
+                {data.experiences && data.experiences.length === 0 && (
+                  <div className="py-8 text-center text-sm text-neutral-500 font-mono">
+                    No experience recorded.
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* --- PROJECTS --- */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="font-bold font-mono text-neutral-400 dark:text-neutral-600 tracking-tight uppercase text-xs">
-                  // Projects
-                </h2>
-                <span className="text-[10px] text-neutral-400 font-mono uppercase tracking-wider">
-                  SEQ: 0{projects.length}
-                </span>
+            {showProjects && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-bold font-mono text-neutral-400 dark:text-neutral-600 tracking-tight uppercase text-xs">
+                    // Projects
+                  </h2>
+                  <span className="text-[10px] text-neutral-400 font-mono uppercase tracking-wider">
+                    SEQ: 0{projects.length}
+                  </span>
+                </div>
+
+                {projects.length === 0 ? (
+                  <div className="py-8 text-center text-sm text-neutral-500 font-mono">
+                    No projects initialized.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {projects.map((project) => (
+                      <ProjectCard
+                        key={project.id}
+                        project={project}
+                        onInteraction={() =>
+                          handleProjectInteraction(project.id)
+                        }
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {projects.length > 4 && (
+                  <div className="text-center pt-2">
+                    <button className="text-xs font-mono font-medium text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+                      [LOAD MORE . . .]
+                    </button>
+                  </div>
+                )}
               </div>
-
-              {projects.length === 0 ? (
-                <div className="py-8 text-center text-sm text-neutral-500 font-mono">
-                  No projects initialized.
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {projects.map((project) => (
-                    <ProjectCard key={project.id} project={project} />
-                  ))}
-                </div>
-              )}
-
-              {projects.length > 4 && (
-                <div className="text-center pt-2">
-                  <button className="text-xs font-mono font-medium text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
-                    [LOAD MORE . . .]
-                  </button>
-                </div>
-              )}
-            </div>
+            )}
 
             {/* --- TECH STACK MARQUEE --- */}
-            {allTech.length > 0 && (
+            {showTechStack && allTech.length > 0 && (
               <div className="mt-8">
                 <div className="flex items-center justify-between mb-6">
                   <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 font-mono tracking-tight uppercase">
@@ -227,7 +319,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
             )}
 
             {/* Summary (About) */}
-            {profile.summary && (
+            {showSummary && profile.summary && (
               <div className="pt-8 border-t border-neutral-200 dark:border-neutral-800/50 border-dashed text-center">
                 <p className="text-sm font-mono text-neutral-500 dark:text-neutral-400 leading-relaxed max-w-lg mx-auto">
                   {profile.summary}
