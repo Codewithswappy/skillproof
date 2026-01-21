@@ -279,7 +279,8 @@ export function DashboardOverview({ data, analytics }: DashboardOverviewProps) {
                         fill: "#a3a3a3",
                         fontFamily: "monospace",
                       }}
-                      minTickGap={40}
+                      minTickGap={10}
+                      padding={{ left: 0, right: 0 }}
                       dy={10}
                     />
                     <YAxis
