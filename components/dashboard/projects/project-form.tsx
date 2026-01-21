@@ -182,7 +182,7 @@ export function ProjectForm({
                     alt="Project thumbnail"
                     className="w-full h-full object-cover transition-transform group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-2 bg-neutral-900/40 backdrop-blur-[1px]">
+                  <div className="absolute inset-0 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity gap-2 bg-neutral-900/40 backdrop-blur-[1px]">
                     <div className="relative">
                       <UploadButton
                         endpoint="imageUploader"

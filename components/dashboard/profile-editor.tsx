@@ -227,7 +227,7 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
                   />
                 )}
 
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-2">
+                <div className="absolute inset-0 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity gap-2 bg-neutral-900/40 backdrop-blur-[1px]">
                   <div className="relative">
                     <UploadButton
                       endpoint="imageUploader"
@@ -269,7 +269,7 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
                       onClick={handleRemoveCoverImage}
                       size="sm"
                       variant="destructive"
-                      className="h-8 w-8 p-0 rounded-sm"
+                      className="h-8 w-8 p-0 rounded-sm shadow-sm"
                     >
                       <IconTrash className="w-3.5 h-3.5" />
                     </Button>
@@ -298,7 +298,7 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
                         alt="Avatar"
                         width={80}
                         height={80}
-                        className="w-full h-full object-cover group-hover:opacity-50 transition-opacity"
+                        className="w-full h-full object-cover opacity-90 md:opacity-100 md:group-hover:opacity-50 transition-opacity"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-neutral-400">
@@ -306,7 +306,7 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
                       </div>
                     )}
 
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute inset-0 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-black/20 md:bg-transparent">
                       <div className="relative w-full h-full cursor-pointer flex items-center justify-center">
                         <UploadButton
                           endpoint="imageUploader"
@@ -329,7 +329,7 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
                             setUploadError(error.message);
                           }}
                         />
-                        <IconPhoto className="w-5 h-5 text-neutral-900 dark:text-white" />
+                        <IconPhoto className="w-5 h-5 text-white drop-shadow-md" />
                       </div>
                     </div>
 
@@ -344,7 +344,7 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
                     <button
                       type="button"
                       onClick={handleRemoveImage}
-                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center shadow-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-20"
                     >
                       <IconX className="w-3 h-3" />
                     </button>
