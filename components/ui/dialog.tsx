@@ -103,7 +103,7 @@ export function DialogContent({ children, className }: DialogContentProps) {
       <div className="absolute inset-0 flex items-center justify-center p-4 overflow-y-auto">
         <div
           className={cn(
-            "relative bg-white dark:bg-neutral-900 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden",
+            "relative bg-white dark:bg-neutral-900 rounded-none shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden",
             className,
           )}
           onClick={(e) => e.stopPropagation()}
