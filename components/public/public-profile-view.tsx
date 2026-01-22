@@ -221,7 +221,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
             </div>
 
              {/* Resume & Contact Buttons */}
-              <div className="inline-flex items-center justify-end gap-3 pt-8 relative left-36 md:left-125">
+              <div className="flex items-center justify-end gap-3 pt-8">
                 <ViewfinderButton
                   variant="filled"
                   className="cursor-pointer rounded-lg"
