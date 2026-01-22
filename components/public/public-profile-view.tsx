@@ -220,8 +220,8 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
               {/* Resume & Contact Buttons */}
               <div className="flex items-center gap-3">
                 <ViewfinderButton
-                  variant="outline"
-                  className="cursor-pointer rounded-none"
+                  variant="filled"
+                  className="cursor-pointer rounded-lg"
                 >
                   Resume
                 </ViewfinderButton>
@@ -230,7 +230,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                   <a href={`mailto:${data.email}`}>
                     <ViewfinderButton
                       variant="filled"
-                      className="cursor-pointer rounded-none"
+                      className="cursor-pointer rounded-lg"
                     >
                       Contact
                     </ViewfinderButton>

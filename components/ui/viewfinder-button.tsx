@@ -11,94 +11,78 @@ export const ViewfinderButton = forwardRef<
   HTMLButtonElement,
   ViewfinderButtonProps
 >(({ className, variant = "outline", children, ...props }, ref) => {
-  const isOutline = variant === "outline";
-
   return (
     <button
       ref={ref}
       className={cn(
-        "relative px-4 py-2 text-sm font-medium font-mono transition-all duration-300 group ease-out",
-        "active:scale-95 active:duration-150 outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
-        isOutline
-          ? "text-neutral-800 dark:text-neutral-200 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100/50 dark:hover:bg-neutral-800/50"
-          : "text-white dark:text-neutral-900 bg-neutral-900 dark:bg-white hover:bg-white dark:hover:bg-neutral-900 hover:text-neutral-900 dark:hover:text-white shadow-sm hover:shadow-md",
+        "group relative overflow-hidden rounded-full px-8 py-3 text-sm font-semibold tracking-wide transition-all duration-300 ease-out",
+        "active:scale-[0.98] active:translate-y-0.5",
+
+        variant === "outline"
+          ? [
+              "bg-transparent",
+              "text-neutral-900 dark:text-neutral-100",
+              "border-2 border-neutral-200 dark:border-neutral-800",
+              "hover:bg-neutral-100 dark:hover:bg-neutral-800",
+            ]
+          : [
+              // Filled / "Get Paymint" style - 3D Effect
+              "text-white shadow-xl",
+              // Main Gradient: Lighter top -> Darker bottom
+              "bg-linear-to-b from-neutral-700 via-neutral-800 to-neutral-900",
+              // Dark mode: Deep, rich dark metallic aesthetic instead of white
+              "dark:from-neutral-800 dark:via-neutral-900 dark:to-neutral-950 dark:text-neutral-100",
+
+              // Borders & Highlights
+              // 1. subtle border
+              "border border-neutral-700/50 dark:border-neutral-700/50",
+
+              // 2. High-contrast top inner bevel + Soft bottom shadow
+              "shadow-[inset_0px_1px_1px_0px_rgba(255,255,255,0.35),0px_6px_10px_-2px_rgba(0,0,0,0.4)]",
+              "dark:shadow-[inset_0px_1px_1px_0px_rgba(255,255,255,0.15),0px_6px_15px_-2px_rgba(0,0,0,0.6)]",
+
+              "hover:brightness-110",
+            ],
         className,
       )}
       {...props}
     >
-      <span className="relative z-10 flex items-center gap-2">{children}</span>
+      <span className="relative z-10 flex items-center justify-center gap-2 drop-shadow-md">
+        {children}
+      </span>
 
-      {/* Viewfinder corners SVG */}
-      <svg
-        className={cn(
-          "absolute inset-0 w-full h-full pointer-events-none transition-all duration-300 ease-out",
-          isOutline
-            ? "text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-900 dark:group-hover:text-neutral-100 group-hover:scale-[1.03]"
-            : "text-white dark:text-neutral-900 group-hover:text-neutral-900 dark:group-hover:text-white group-hover:scale-95",
-        )}
-      >
-        {/* Dashed Border - Rect covering whole area */}
-        <rect
-          x="0"
-          y="0"
-          width="100%"
-          height="100%"
+      {/* 3D Glassy Effect Layers */}
+
+      {/* 1. Metallic Rim / Bevel */}
+      <div className="absolute inset-0 rounded-lg border border-white/20 dark:border-white/10 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)] pointer-events-none" />
+
+      {/* 2. Top Gloss Highlight (The "Glass" reflection) */}
+      <div className="absolute inset-x-4 top-0 h-[40%] bg-linear-to-b from-white/20 to-transparent rounded-full opacity-60 pointer-events-none" />
+
+      {/* 3. Bottom Corner SVG Pattern */}
+      <div className="absolute bottom-0 right-0 w-24 h-full pointer-events-none opacity-20 dark:opacity-10 mix-blend-overlay overflow-hidden rounded-r-full">
+        <svg
+          className="absolute bottom-[-10px] right-[-10px] w-full h-full text-white transform rotate-12"
+          viewBox="0 0 100 100"
           fill="none"
-          stroke="currentColor"
-          strokeWidth="1"
-          strokeDasharray="4 4"
-          className={cn(
-            "transition-opacity duration-300",
-            isOutline
-              ? "opacity-50 group-hover:opacity-100"
-              : "opacity-40 group-hover:opacity-100",
-          )}
-        />
-
-        {/* Top Left */}
-        <svg x="0" y="0" className="overflow-visible">
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <path
-            d="M 1 6 V 1 H 6"
-            fill="none"
+            d="M0 100 L100 0 M20 100 L100 20 M40 100 L100 40 M60 100 L100 60 M80 100 L100 80"
             stroke="currentColor"
-            strokeWidth="1.5"
+            strokeWidth="2"
             strokeLinecap="round"
           />
         </svg>
+      </div>
 
-        {/* Top Right */}
-        <svg x="100%" y="0" className="overflow-visible">
-          <path
-            d="M -1 6 V 1 H -6"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-        </svg>
+      {/* 4. Creative Liquid/Glow (Subtle internal movement) */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-700 pointer-events-none mix-blend-overlay">
+        <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+      </div>
 
-        {/* Bottom Left */}
-        <svg x="0" y="100%" className="overflow-visible">
-          <path
-            d="M 1 -6 V -1 H 6"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-        </svg>
-
-        {/* Bottom Right */}
-        <svg x="100%" y="100%" className="overflow-visible">
-          <path
-            d="M -1 -6 V -1 H -6"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-        </svg>
-      </svg>
+      {/* 5. Glowing Beam (Retained but refined) */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/3 h-px bg-linear-to-r from-transparent via-white/50 to-transparent shadow-[0_0_12px_2px_rgba(255,255,255,0.3)] opacity-0 group-hover:opacity-100 transition-all duration-500" />
     </button>
   );
 });
