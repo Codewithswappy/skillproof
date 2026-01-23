@@ -66,8 +66,8 @@ const VERIFICATION_CONFIG: Record<
     label: "Email Verified",
     icon: IconMail,
     description: "Email address has been confirmed",
-    verifiedColor: "text-blue-700",
-    verifiedBg: "bg-blue-50 border-blue-200",
+    verifiedColor: "text-lime-700",
+    verifiedBg: "bg-lime-50 border-lime-200",
     credibilityBonus: 10,
   },
   domain: {
@@ -100,13 +100,13 @@ const VERIFICATION_ORDER: VerificationType[] = [
 // ============================================
 
 export function calculateVerificationBonus(
-  verifications: Verification[]
+  verifications: Verification[],
 ): number {
   return verifications
     .filter((v) => v.verified)
     .reduce(
       (total, v) => total + VERIFICATION_CONFIG[v.type].credibilityBonus,
-      0
+      0,
     );
 }
 
@@ -122,7 +122,7 @@ export function getVerificationTier(verifications: Verification[]): {
   } else if (verifiedCount === 1) {
     return { label: "Basic Trust", level: 1, color: "text-yellow-600" };
   } else if (verifiedCount === 2) {
-    return { label: "Trusted", level: 2, color: "text-blue-600" };
+    return { label: "Trusted", level: 2, color: "text-lime-600" };
   } else if (verifiedCount === 3) {
     return { label: "Highly Trusted", level: 3, color: "text-green-600" };
   } else {
@@ -161,7 +161,7 @@ export function VerificationBadge({
         className={cn(
           "inline-flex items-center rounded-full border font-medium opacity-50",
           sizeClasses[size],
-          "bg-muted/50 text-muted-foreground border-muted"
+          "bg-muted/50 text-muted-foreground border-muted",
         )}
       >
         <Icon className={iconSizes[size]} />
@@ -181,7 +181,7 @@ export function VerificationBadge({
           "inline-flex items-center rounded-full border font-medium",
           sizeClasses[size],
           config.verifiedBg,
-          config.verifiedColor
+          config.verifiedColor,
         )}
       >
         <Icon className={iconSizes[size]} />
@@ -227,7 +227,7 @@ export function VerificationBadges({
 }: VerificationBadgesProps) {
   // Sort by verification order and filter
   const sorted = VERIFICATION_ORDER.map((type) =>
-    verifications.find((v) => v.type === type)
+    verifications.find((v) => v.type === type),
   ).filter((v): v is Verification => v !== undefined);
 
   const visible = showUnverified ? sorted : sorted.filter((v) => v.verified);
@@ -241,7 +241,7 @@ export function VerificationBadges({
       className={cn(
         layout === "inline"
           ? "flex flex-wrap gap-2"
-          : "grid gap-2 grid-cols-2 sm:grid-cols-4"
+          : "grid gap-2 grid-cols-2 sm:grid-cols-4",
       )}
     >
       {visible.map((verification) => (
@@ -333,7 +333,7 @@ export function InlineVerifications({
             key={v.type}
             className={cn(
               "w-6 h-6 rounded-full flex items-center justify-center border",
-              config.verifiedBg
+              config.verifiedBg,
             )}
             title={config.label}
           >

@@ -111,9 +111,41 @@ model Profile {
   dailyAnalytics DailyAnalytics[]
   achievements   Achievement[]
   certificates   Certificate[]
+  resumes        Resume[]
 
   @@index([slug])
   @@index([userId])
+}
+
+// ============================================
+// RESUME (NEW)
+// ============================================
+// Versioned resumes with snapshot data
+// ============================================
+
+model Resume {
+  id          String   @id @default(cuid())
+  profileId   String
+  title       String   @default("My Resume")
+  
+  // Design Snapshot
+  templateId  String   @default("modern") // modern, ats-clean, classic, minimal
+  fontFamily  String   @default("Inter, sans-serif")
+  fontSize    Int      @default(14)
+  lineHeight  Float    @default(1.5)
+  margins     Int      @default(15)
+  primaryColor String  @default("#000000")
+  
+  // Content Snapshot (Full JSON of profile, exp, projs, etc.)
+  // This ensures versions are independent.
+  data        Json     
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
 }
 
 // ============================================
@@ -185,6 +217,9 @@ model ProfileSettings {
   showSummary     Boolean  @default(true)
   showAchievements Boolean @default(true)
   showCertificates Boolean @default(true)
+  
+  // Primary Resume for Public Profile (Optional - falls back to auto-generated)
+  primaryResumeId String?
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

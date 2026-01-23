@@ -228,7 +228,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                       {profileSettings.showEmail && data.email && (
                         <a
                           href={`mailto:${data.email}`}
-                          className="flex items-center px-2.5 py-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors group"
+                          className="flex items-center px-2.5 py-1.5 gap-1 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors group"
                         >
                           <div className="w-4 h-4 flex items-center justify-center group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
                             <svg
@@ -241,6 +241,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                               strokeWidth="2"
                               strokeLinecap="round"
                               strokeLinejoin="round"
+                              className="text-neutral-600 dark:text-neutral-400"
                             >
                               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                               <polyline points="22,6 12,13 2,6" />
@@ -258,10 +259,10 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                   <div className="flex items-center justify-end gap-3 pt-8">
                     <button
                      
-                      className="cursor-pointer flex pr-4 pl-1 py-1 items-center gap-1 border-2 border-dashed border-neutral-300 dark:border-neutral-700 rounded-full"
+                      className="cursor-pointer flex pr-4 pl-1 py-1 items-center gap-1 border-2 border-dashed border-neutral-300 dark:border-neutral-700 rounded-lg"
                       onClick={() => setShowResume(true)}
                     >
-                     <span className="bg-neutral-300 dark:bg-neutral-700 px-4 py-2 rounded-full shadow-sm shadow-black/10  text-neutral-900 dark:text-neutral-100 font-medium">Resume</span>
+                     <span className="bg-neutral-300 dark:bg-neutral-700 px-4 py-2 rounded-lg shadow-sm shadow-black/10  text-neutral-900 dark:text-neutral-100 font-medium">Resume</span>
                       <IconFoldUp className="w-4 h-4" />
                     </button>
 
@@ -269,7 +270,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                       <a href={`mailto:${data.email}`}>
                         <ViewfinderButton
                           variant="filled"
-                          className="cursor-pointer rounded-lg"
+                          className="cursor-pointer rounded-lg px-6"
                         >
                           Contact
                         </ViewfinderButton>

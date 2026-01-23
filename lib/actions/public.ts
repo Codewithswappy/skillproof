@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { ActionResult } from "./profile";
-import { Project, Experience, SocialLink, Achievement, Certificate } from "@prisma/client";
+import { Project, Experience, SocialLink, Achievement, Certificate, Resume } from "@prisma/client";
 import { getUserVerifications, VerificationData } from "./verification";
 
 // Project data type (simplified without evidence)
@@ -13,6 +13,14 @@ export type ProfileCompleteness = {
   overallScore: number;
   projectCount: number;
 };
+
+// Primary Resume data for public view
+export type PrimaryResumeData = {
+  id: string;
+  title: string;
+  templateId: string;
+  data: any; // JSON resume content
+} | null;
 
 // Extended public profile type
 export type PublicProfileData = {
@@ -34,6 +42,7 @@ export type PublicProfileData = {
     showSummary: boolean;
     showAchievements: boolean;
     showCertificates?: boolean;
+    primaryResumeId?: string | null;
   };
   projects: ProjectData[];
   experiences: Experience[];
@@ -44,6 +53,7 @@ export type PublicProfileData = {
   email?: string | null;
   profileCompleteness: ProfileCompleteness;
   verifications: VerificationData[];
+  primaryResume: PrimaryResumeData; // NEW: User's selected resume
 };
 
 // ============================================
@@ -133,6 +143,28 @@ export async function getPublicProfile(slug: string): Promise<ActionResult<Publi
     const verificationsResult = await getUserVerifications(profile.userId);
     const verifications = verificationsResult.success ? verificationsResult.data : [];
 
+    // 6. Fetch primary resume if set
+    let primaryResume: PrimaryResumeData = null;
+    if (profileSettings.primaryResumeId) {
+      const resume = await db.resume.findUnique({
+        where: { id: profileSettings.primaryResumeId },
+        select: {
+          id: true,
+          title: true,
+          templateId: true,
+          data: true,
+        },
+      });
+      if (resume) {
+        primaryResume = {
+          id: resume.id,
+          title: resume.title,
+          templateId: resume.templateId,
+          data: resume.data,
+        };
+      }
+    }
+
     const result: PublicProfileData = {
       profile: {
         id: profile.id,
@@ -151,7 +183,8 @@ export async function getPublicProfile(slug: string): Promise<ActionResult<Publi
         showTechStack: profileSettings.showTechStack,
         showSummary: profileSettings.showSummary,
         showAchievements: profileSettings.showAchievements,
-        showCertificates: profileSettings.showCertificates, 
+        showCertificates: profileSettings.showCertificates,
+        primaryResumeId: profileSettings.primaryResumeId,
       },
       projects: profile.projects,
       experiences: profile.experiences,
@@ -162,6 +195,7 @@ export async function getPublicProfile(slug: string): Promise<ActionResult<Publi
       email: profileSettings.showEmail ? user?.email : undefined,
       profileCompleteness,
       verifications,
+      primaryResume,
     };
 
     return {

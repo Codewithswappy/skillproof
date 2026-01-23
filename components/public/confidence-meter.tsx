@@ -26,7 +26,7 @@ function getConfidenceLevel(confidence: number): {
     };
   }
   if (confidence >= 60) {
-    return { label: "Good", color: "bg-blue-500", bgColor: "bg-blue-100" };
+    return { label: "Good", color: "bg-lime-500", bgColor: "bg-lime-100" };
   }
   if (confidence >= 40) {
     return { label: "Fair", color: "bg-amber-500", bgColor: "bg-amber-100" };
@@ -50,7 +50,7 @@ export function ConfidenceMeter({
       className={cn(
         "flex items-center",
         compact ? "gap-1.5" : "gap-2",
-        className
+        className,
       )}
       title={`Confidence: ${confidence}% (${label})`}
     >
@@ -59,13 +59,13 @@ export function ConfidenceMeter({
         className={cn(
           "relative overflow-hidden rounded-full",
           bgColor,
-          compact ? "w-12 h-1" : "w-16 h-1.5"
+          compact ? "w-12 h-1" : "w-16 h-1.5",
         )}
       >
         <div
           className={cn(
             "absolute inset-y-0 left-0 rounded-full transition-all",
-            color
+            color,
           )}
           style={{ width: `${confidence}%` }}
         />
@@ -76,7 +76,7 @@ export function ConfidenceMeter({
         <span
           className={cn(
             "font-medium text-stone-500 uppercase tracking-wider",
-            compact ? "text-[8px]" : "text-[9px]"
+            compact ? "text-[8px]" : "text-[9px]",
           )}
         >
           {confidence}%

@@ -34,7 +34,7 @@ interface ProjectFormProps {
 }
 
 const STATUS_OPTIONS = [
-  { value: "planning", label: "Planning", color: "bg-blue-500" },
+  { value: "planning", label: "Planning", color: "bg-lime-500" },
   { value: "in_progress", label: "In Progress", color: "bg-yellow-500" },
   { value: "complete", label: "Complete", color: "bg-emerald-500" },
   { value: "archived", label: "Archived", color: "bg-neutral-400" },
@@ -348,7 +348,7 @@ export function ProjectForm({
                       className={cn(
                         "w-1.5 h-1.5 rounded-full",
                         option.value === "planning"
-                          ? "bg-blue-500"
+                          ? "bg-lime-500"
                           : option.value === "in_progress"
                             ? "bg-yellow-500"
                             : option.value === "complete"

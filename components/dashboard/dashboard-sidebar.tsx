@@ -16,6 +16,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   X,
+  FileText,
 } from "lucide-react";
 import { motion } from "motion/react";
 
@@ -39,6 +40,11 @@ const navItems = [
     title: "Analytics",
     href: "/dashboard/analytics",
     icon: TrendingUp,
+  },
+  {
+    title: "Resume",
+    href: "/dashboard/resume",
+    icon: FileText,
   },
 ];
 
@@ -105,7 +111,7 @@ export function DashboardSidebar({
     <motion.div
       initial="expanded"
       animate={isCollapsed ? "collapsed" : "expanded"}
-      variants={onClose ? {} : sidebarVariants} 
+      variants={onClose ? {} : sidebarVariants}
       className={cn(
         "flex flex-col h-full bg-white dark:bg-[#0A0A0A] border-r border-neutral-200 dark:border-neutral-900 z-50 relative",
         className,

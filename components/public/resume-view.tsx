@@ -27,6 +27,9 @@ import {
   IconUser,
 } from "@tabler/icons-react";
 import { useState } from "react";
+import { MinimalTemplate } from "@/components/resume/renderer/minimal-template";
+import { ModernTemplate } from "@/components/resume/renderer/modern-template";
+import { toast } from "sonner";
 
 interface ResumeViewProps {
   data: PublicProfileData;
@@ -83,10 +86,11 @@ const formatBullets = (text: string | null) => {
 };
 
 export function ResumeView({ data, onClose }: ResumeViewProps) {
-  const { profile, experiences, projects, certificates, profileSettings } =
+  const { profile, experiences, projects, profileSettings, primaryResume } =
     data;
   const displayName = data.userName || profile.slug;
   const [isScanning, setIsScanning] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
   const [atsScore, setAtsScore] = useState<{
     score: number;
     status: string;
@@ -96,11 +100,60 @@ export function ResumeView({ data, onClose }: ResumeViewProps) {
     missingKeywords?: string[];
   } | null>(null);
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const handleDownload = async () => {
+    try {
+      const html2pdf = (await import("html2pdf.js")).default;
+      const element = document.getElementById("resume-content-view");
 
-  const [showFeedback, setShowFeedback] = useState(false);
+      if (!element) {
+        toast.error("Resume content not found");
+        return;
+      }
+
+      // Clone the element to avoid manipulating the visible DOM
+      const clone = element.cloneNode(true) as HTMLElement;
+
+      // Create a temporary container for the clone
+      const container = document.createElement("div");
+      container.style.position = "absolute";
+      container.style.top = "-9999px";
+      container.style.left = "0";
+      container.style.width = "210mm"; // Exact A4 width
+      container.style.minHeight = "297mm"; // A4 Height
+      container.style.background = "white";
+      container.style.margin = "0";
+      container.style.padding = "0"; // No padding in container
+
+      // Ensure the clone fills the container and has no transforms
+      clone.style.transform = "none";
+      clone.style.margin = "0";
+      clone.style.padding = "0";
+      clone.style.width = "100%";
+      clone.style.height = "100%";
+
+      container.appendChild(clone);
+      document.body.appendChild(container);
+
+      const opt = {
+        margin: 0,
+        filename: `${displayName.replace(/\s+/g, "_")}_resume.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      };
+
+      await html2pdf()
+        .set(opt as any)
+        .from(clone)
+        .save();
+
+      document.body.removeChild(container);
+      toast.success("Resume downloaded successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to generate PDF");
+    }
+  };
 
   const calculateATS = async () => {
     setIsScanning(true);
@@ -194,7 +247,160 @@ export function ResumeView({ data, onClose }: ResumeViewProps) {
     }, 2500);
   };
 
-  const location = (profile as any).location;
+  const renderResumeContent = () => {
+    if (primaryResume) {
+      if (primaryResume.templateId === "minimal") {
+        return <MinimalTemplate content={primaryResume.data} />;
+      }
+      return <ModernTemplate content={primaryResume.data} />;
+    }
+
+    // Fallback Legacy Layout with Dashed styles
+    return (
+      <div className="w-full max-w-[210mm] min-h-[297mm] h-fit bg-white text-black shadow-xl print:shadow-none mx-auto p-[8mm] flex flex-col gap-6 print:p-0 font-sans relative">
+        {/* RESUME HEADER */}
+        <header className="border-b border-dashed border-neutral-300 pb-6 mb-2">
+          <h1 className="text-4xl font-extrabold uppercase tracking-tight text-neutral-900 mb-1">
+            {displayName}
+          </h1>
+          {profile.headline && (
+            <p className="text-sm font-medium text-neutral-600 uppercase tracking-widest mb-4 font-mono">
+              {profile.headline}
+            </p>
+          )}
+
+          {/* Contact Row */}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-medium text-neutral-600 font-mono">
+            {profile.location && (
+              <div className="flex items-center gap-1.5">
+                <IconMapPin className="w-3.5 h-3.5 text-neutral-400" />
+                <span>{profile.location}</span>
+              </div>
+            )}
+            {data.email && profileSettings.showEmail && (
+              <a
+                href={`mailto:${data.email}`}
+                className="flex items-center gap-1.5 hover:text-black transition-colors"
+              >
+                <IconMail className="w-3.5 h-3.5 text-neutral-400" />
+                <span>Email</span>
+              </a>
+            )}
+            {/* Socials */}
+            {data.socialLinks.slice(0, 4).map((link) => (
+              <a
+                key={link.id}
+                href={link.url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1.5 hover:text-black transition-colors"
+              >
+                <span className="text-neutral-400">
+                  {getSocialIcon(link.platform)}
+                </span>
+                <span>{getSocialLabel(link.platform)}</span>
+              </a>
+            ))}
+          </div>
+        </header>
+
+        {/* SUMMARY */}
+        {profileSettings.showSummary && profile.summary && (
+          <section>
+            <h3 className="flex items-center gap-2 text-lg font-bold uppercase tracking-widest text-neutral-900 border-b border-dashed border-neutral-300 pb-1 mb-2 font-mono">
+              <IconUser className="w-3.5 h-3.5 text-neutral-400" /> Summary
+            </h3>
+            <p className="text-sm leading-relaxed text-neutral-700 text-justify">
+              {profile.summary}
+            </p>
+          </section>
+        )}
+
+        {/* EXPERIENCE */}
+        {profileSettings.showExperience && experiences.length > 0 && (
+          <section>
+            <h3 className="flex items-center gap-2 text-lg font-bold uppercase tracking-widest text-neutral-900 border-b border-dashed border-neutral-300 pb-1 mb-3 font-mono">
+              <IconBriefcase className="w-3.5 h-3.5 text-neutral-400" />{" "}
+              Experience
+            </h3>
+            <div className="space-y-4">
+              {experiences.map((exp) => (
+                <div key={exp.id}>
+                  <div className="flex justify-between items-baseline mb-0.5">
+                    <h4 className="font-bold text-sm text-neutral-900">
+                      {exp.position}
+                    </h4>
+                    <span className="text-xs font-semibold text-neutral-500 font-mono">
+                      {new Date(exp.startDate).getFullYear()} –{" "}
+                      {exp.endDate
+                        ? new Date(exp.endDate).getFullYear()
+                        : "Present"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-neutral-600 mb-1.5 font-mono">
+                    <span className="font-semibold">{exp.company}</span>
+                    <span>•</span>
+                    <span>{exp.location}</span>
+                  </div>
+                  {formatBullets(exp.description)}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* PROJECTS */}
+        {profileSettings.showProjects && projects.length > 0 && (
+          <section>
+            <h3 className="flex items-center gap-2 text-lg font-bold uppercase tracking-widest text-neutral-900 border-b border-dashed border-neutral-300 pb-1 mb-3 font-mono">
+              <IconCode className="w-3.5 h-3.5 text-neutral-400" /> Projects
+            </h3>
+            <div className="space-y-4">
+              {projects.slice(0, 5).map((proj) => (
+                <div key={proj.id}>
+                  <div className="flex justify-between items-baseline mb-0.5">
+                    <h4 className="font-bold text-sm text-neutral-900 flex items-center gap-2">
+                      {proj.title}
+                    </h4>
+                  </div>
+                  {proj.techStack && (
+                    <p className="text-[10px] uppercase tracking-wide text-neutral-500 mb-1.5 font-mono">
+                      {proj.techStack.join(" • ")}
+                    </p>
+                  )}
+                  {formatBullets(proj.description)}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* SKILLS */}
+        {profileSettings.showTechStack && (
+          <section>
+            <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-neutral-900 border-b border-dashed border-neutral-300 pb-1 mb-3 font-mono">
+              <IconCode className="w-3.5 h-3.5 text-neutral-400" /> Technical
+              Skills
+            </h3>
+            <div className="text-sm text-neutral-700 leading-relaxed font-mono text-xs">
+              {(() => {
+                const skills = new Set<string>();
+                projects.forEach((p) =>
+                  p.techStack?.forEach((t) => skills.add(t)),
+                );
+                experiences.forEach((e) =>
+                  e.skills.forEach((s) => skills.add(s)),
+                );
+                return Array.from(skills).length > 0
+                  ? Array.from(skills).join(" • ")
+                  : "No specific skills listed.";
+              })()}
+            </div>
+          </section>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="fixed inset-0 z-50 w-full h-full bg-neutral-100 dark:bg-neutral-900 flex flex-col print:bg-white print:h-auto print:static print:block">
@@ -227,16 +433,16 @@ export function ResumeView({ data, onClose }: ResumeViewProps) {
       {/* FEEDBACK SIDEBAR */}
       <div
         className={cn(
-          "fixed top-0 right-0 z-[70] h-full w-full md:w-[420px] bg-neutral-950 text-white shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] border-l border-neutral-800",
+          "print-hide fixed top-0 right-0 z-[70] h-full w-full md:w-[420px] bg-white dark:bg-neutral-950 text-neutral-900 dark:text-white shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] border-l border-dashed border-neutral-300 dark:border-neutral-700",
           showFeedback && atsScore ? "translate-x-0" : "translate-x-full",
         )}
       >
         {atsScore && (
           <div className="h-full flex flex-col">
             {/* Header */}
-            <div className="p-5 border-b border-neutral-800 flex justify-between items-center bg-neutral-900/50 backdrop-blur-md">
+            <div className="p-5 border-b border-dashed border-neutral-200 dark:border-neutral-800 flex justify-between items-center bg-white/50 dark:bg-neutral-900/50 backdrop-blur-md">
               <div>
-                <h3 className="font-bold text-lg flex items-center gap-2 tracking-tight">
+                <h3 className="font-bold text-lg flex items-center gap-2 tracking-tight font-mono uppercase">
                   <IconScan className="w-5 h-5 text-emerald-500" />
                   ATS Analysis
                 </h3>
@@ -248,14 +454,14 @@ export function ResumeView({ data, onClose }: ResumeViewProps) {
               </div>
               <button
                 onClick={() => setShowFeedback(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-neutral-800 transition-colors text-neutral-400 hover:text-white"
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-neutral-400 hover:text-black dark:hover:text-white"
               >
                 <IconX className="w-5 h-5" />
               </button>
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-transparent">
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 scrollbar-track-transparent">
               {/* Score Display (Circle) */}
               <div className="flex flex-col items-center justify-center py-4">
                 <div className="relative w-40 h-40 flex items-center justify-center">
@@ -267,7 +473,7 @@ export function ResumeView({ data, onClose }: ResumeViewProps) {
                       stroke="currentColor"
                       strokeWidth="8"
                       fill="transparent"
-                      className="text-neutral-800"
+                      className="text-neutral-200 dark:text-neutral-800"
                     />
                     <circle
                       cx="80"
@@ -289,8 +495,8 @@ export function ResumeView({ data, onClose }: ResumeViewProps) {
                       strokeLinecap="round"
                     />
                   </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-4xl font-black">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center font-mono">
+                    <span className="text-4xl font-black text-neutral-900 dark:text-white">
                       {atsScore.score}
                     </span>
                     <span className="text-xs uppercase tracking-widest text-neutral-500">
@@ -298,15 +504,15 @@ export function ResumeView({ data, onClose }: ResumeViewProps) {
                     </span>
                   </div>
                 </div>
-                <div className="mt-4 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-neutral-900 border border-neutral-800">
+                <div className="mt-4 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-neutral-100 dark:bg-neutral-900 border border-dashed border-neutral-300 dark:border-neutral-700 font-mono text-neutral-700 dark:text-neutral-300">
                   Status:{" "}
                   <span
                     className={cn(
                       atsScore.score >= 80
-                        ? "text-emerald-500"
+                        ? "text-emerald-600 dark:text-emerald-500"
                         : atsScore.score >= 50
-                          ? "text-amber-500"
-                          : "text-red-500",
+                          ? "text-amber-600 dark:text-amber-500"
+                          : "text-red-600 dark:text-red-500",
                     )}
                   >
                     {atsScore.status}
@@ -318,20 +524,20 @@ export function ResumeView({ data, onClose }: ResumeViewProps) {
               {atsScore.missingKeywords &&
                 atsScore.missingKeywords.length > 0 && (
                   <div>
-                    <h4 className="flex items-center gap-2 font-bold text-amber-500 uppercase tracking-widest text-xs mb-4">
+                    <h4 className="flex items-center gap-2 font-bold text-amber-600 dark:text-amber-500 uppercase tracking-widest text-xs mb-4 font-mono">
                       <IconCode className="w-4 h-4" /> Missing Keywords
                     </h4>
                     <div className="flex flex-wrap gap-3">
-                      {atsScore.missingKeywords.map((kw, i) => (
+                      {atsScore.missingKeywords.map((kw: string, i: number) => (
                         <div
                           key={i}
-                          className="px-4 py-2 rounded-full border border-amber-900/50 bg-amber-950/20 text-amber-500 text-xs font-bold flex items-center gap-1.5 shadow-[0_0_10px_rgba(245,158,11,0.1)]"
+                          className="px-4 py-2 rounded-full border border-dashed border-amber-300 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-500 text-xs font-bold flex items-center gap-1.5 shadow-[0_0_10px_rgba(245,158,11,0.1)] font-mono"
                         >
                           <span>+</span> {kw}
                         </div>
                       ))}
                     </div>
-                    <p className="text-[10px] text-neutral-500 mt-3 leading-relaxed">
+                    <p className="text-[10px] text-neutral-500 mt-3 leading-relaxed font-mono">
                       * These keywords are commonly found in job descriptions
                       for your profile type. Adding them can improve your
                       visibility.
@@ -341,17 +547,17 @@ export function ResumeView({ data, onClose }: ResumeViewProps) {
 
               {/* Improvements */}
               <div>
-                <h4 className="flex items-center gap-2 font-bold text-neutral-300 uppercase tracking-widest text-xs mb-4">
+                <h4 className="flex items-center gap-2 font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-widest text-xs mb-4 font-mono">
                   <IconBriefcase className="w-4 h-4" /> Improvement Plan
                 </h4>
                 <div className="space-y-3">
-                  {atsScore.feedback.map((item, i) => (
+                  {atsScore.feedback.map((item: string, i: number) => (
                     <div
                       key={i}
-                      className="flex gap-3 p-3 rounded-lg bg-neutral-900/50 border border-neutral-800"
+                      className="flex gap-3 p-3 rounded-lg bg-neutral-50 dark:bg-neutral-900/50 border border-dashed border-neutral-200 dark:border-neutral-800"
                     >
                       <span className="text-red-500 mt-0.5">•</span>
-                      <span className="text-xs text-neutral-400 leading-relaxed">
+                      <span className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed font-mono">
                         {item}
                       </span>
                     </div>
@@ -360,44 +566,39 @@ export function ResumeView({ data, onClose }: ResumeViewProps) {
               </div>
             </div>
 
-            <div className="p-6 border-t border-neutral-800 bg-neutral-950">
-              <button
-                onClick={() => {
-                  setShowFeedback(false);
-                  onClose();
-                }}
-                className="w-full py-3 bg-white text-black font-bold rounded-md hover:bg-neutral-200 transition-colors text-sm uppercase tracking-wide"
-              >
-                Edit Resume
-              </button>
+            {/* Empty footer */}
+            <div className="p-6 border-t border-dashed border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950/50">
+              <p className="text-[10px] text-neutral-400 text-center font-mono">
+                Analysis generated by Skillproof AI
+              </p>
             </div>
           </div>
         )}
       </div>
 
       {/* FLOATING ACTION BAR */}
-      <div className="fixed z-50 bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 print:hidden backdrop-blur-md bg-white/90 dark:bg-neutral-900/90 p-2 rounded-full border border-neutral-200 dark:border-neutral-800 shadow-2xl">
+      <div className="print-hide fixed z-50 bottom-6 left-1/2 -translate-x-1/2 md:top-80 md:bottom-auto md:-right-10 md:left-auto flex items-center gap-2 backdrop-blur-md bg-white/90 dark:bg-neutral-900/90 p-2 rounded-full border border-dashed border-neutral-300 dark:border-neutral-700 shadow-2xl">
         <button
           onClick={calculateATS}
           disabled={isScanning}
-          className="flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900 text-white hover:bg-black transition-all active:scale-95 disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-black hover:bg-black dark:hover:bg-neutral-200 transition-all active:scale-95 disabled:opacity-50"
         >
           {isScanning ? (
             <IconLoader2 className="w-4 h-4 animate-spin" />
           ) : (
             <IconScan className="w-4 h-4" />
           )}
-          <span className="text-xs font-bold uppercase tracking-wide">
+          <span className="text-xs md:hidden font-bold uppercase tracking-wide font-mono">
             Analyze
           </span>
         </button>
         <div className="w-px h-6 bg-neutral-200 dark:bg-neutral-700 mx-1" />
         <button
-          onClick={handlePrint}
+          onClick={handleDownload}
           className="p-2.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-          title="Download"
+          title="Download PDF"
         >
-          <IconDownload className="w-4 h-4" />
+          <IconDownload className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
         </button>
         <button
           onClick={onClose}
@@ -409,160 +610,9 @@ export function ResumeView({ data, onClose }: ResumeViewProps) {
       </div>
 
       {/* MAIN DOCUMENT VIEW */}
-      <div className="flex-1 overflow-y-auto bg-neutral-100 dark:bg-neutral-900/50 flex justify-center py-8 print:p-0 print:m-0 print:overflow-visible print:bg-white">
-        <div className="w-full max-w-[210mm] min-h-[297mm] h-fit bg-white text-black shadow-xl print:shadow-none mx-auto p-[15mm] flex flex-col gap-6 print:p-0 font-sans relative">
-          {/* RESUME HEADER */}
-          <header className="border-b border-neutral-200 pb-6 mb-2">
-            <h1 className="text-4xl font-extrabold uppercase tracking-tight text-neutral-900 mb-1">
-              {displayName}
-            </h1>
-            {profile.headline && (
-              <p className="text-sm font-medium text-neutral-600 uppercase tracking-widest mb-4">
-                {profile.headline}
-              </p>
-            )}
-
-            {/* Contact Row - Clean Icons */}
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-medium text-neutral-600">
-              {profile.location && (
-                <div className="flex items-center gap-1.5">
-                  <IconMapPin className="w-3.5 h-3.5 text-neutral-400" />
-                  <span>{profile.location}</span>
-                </div>
-              )}
-              {data.email && profileSettings.showEmail && (
-                <a
-                  href={`mailto:${data.email}`}
-                  className="flex items-center gap-1.5 hover:text-black transition-colors"
-                >
-                  <IconMail className="w-3.5 h-3.5 text-neutral-400" />
-                  <span>Email</span>
-                </a>
-              )}
-              {/* Socials */}
-              {data.socialLinks.slice(0, 4).map((link) => (
-                <a
-                  key={link.id}
-                  href={link.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-1.5 hover:text-black transition-colors"
-                >
-                  <span className="text-neutral-400">
-                    {getSocialIcon(link.platform)}
-                  </span>
-                  <span>{getSocialLabel(link.platform)}</span>
-                </a>
-              ))}
-            </div>
-          </header>
-
-          {/* SUMMARY */}
-          {profileSettings.showSummary && profile.summary && (
-            <section>
-              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-neutral-900 border-b border-neutral-100 pb-1 mb-2">
-                <IconUser className="w-3.5 h-3.5 text-neutral-400" /> Summary
-              </h3>
-              <p className="text-sm leading-relaxed text-neutral-700 text-justify">
-                {profile.summary}
-              </p>
-            </section>
-          )}
-
-          {/* EXPERIENCE */}
-          {profileSettings.showExperience && experiences.length > 0 && (
-            <section>
-              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-neutral-900 border-b border-neutral-100 pb-1 mb-3">
-                <IconBriefcase className="w-3.5 h-3.5 text-neutral-400" />{" "}
-                Experience
-              </h3>
-              <div className="space-y-4">
-                {experiences.map((exp) => (
-                  <div key={exp.id}>
-                    <div className="flex justify-between items-baseline mb-0.5">
-                      <h4 className="font-bold text-sm text-neutral-900">
-                        {exp.position}
-                      </h4>
-                      <span className="text-xs font-semibold text-neutral-500">
-                        {new Date(exp.startDate).getFullYear()} –{" "}
-                        {exp.endDate
-                          ? new Date(exp.endDate).getFullYear()
-                          : "Present"}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-neutral-600 mb-1.5">
-                      <span className="font-semibold">{exp.company}</span>
-                      <span>•</span>
-                      <span>{exp.location}</span>
-                    </div>
-                    {formatBullets(exp.description)}
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* PROJECTS */}
-          {profileSettings.showProjects && projects.length > 0 && (
-            <section>
-              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-neutral-900 border-b border-neutral-100 pb-1 mb-3">
-                <IconCode className="w-3.5 h-3.5 text-neutral-400" /> Projects
-              </h3>
-              <div className="space-y-4">
-                {projects.slice(0, 5).map((proj) => (
-                  <div key={proj.id}>
-                    <div className="flex justify-between items-baseline mb-0.5">
-                      <h4 className="font-bold text-sm text-neutral-900 flex items-center gap-2">
-                        {proj.title}
-                        <div className="flex gap-1 print:hidden opacity-50 hover:opacity-100 ml-2">
-                          {proj.repoUrl && (
-                            <a href={proj.repoUrl} target="_blank">
-                              <IconBrandGithub className="w-3 h-3" />
-                            </a>
-                          )}
-                          {proj.demoUrl && (
-                            <a href={proj.demoUrl} target="_blank">
-                              <IconLink className="w-3 h-3" />
-                            </a>
-                          )}
-                        </div>
-                      </h4>
-                    </div>
-                    {proj.techStack && (
-                      <p className="text-[10px] uppercase tracking-wide text-neutral-500 mb-1.5">
-                        {proj.techStack.join(" • ")}
-                      </p>
-                    )}
-                    {formatBullets(proj.description)}
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* SKILLS */}
-          {profileSettings.showTechStack && (
-            <section>
-              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-neutral-900 border-b border-neutral-100 pb-1 mb-3">
-                <IconCode className="w-3.5 h-3.5 text-neutral-400" /> Technical
-                Skills
-              </h3>
-              <div className="text-sm text-neutral-700 leading-relaxed">
-                {(() => {
-                  const skills = new Set<string>();
-                  projects.forEach((p) =>
-                    p.techStack?.forEach((t) => skills.add(t)),
-                  );
-                  experiences.forEach((e) =>
-                    e.skills.forEach((s) => skills.add(s)),
-                  );
-                  return Array.from(skills).length > 0
-                    ? Array.from(skills).join(" • ")
-                    : "No specific skills listed.";
-                })()}
-              </div>
-            </section>
-          )}
+      <div className="print-content flex-1 overflow-y-auto bg-neutral-100 dark:bg-neutral-900/50 flex max-w-3xl mx-auto justify-center py-4 print:p-0 print:m-0 print:overflow-visible print:bg-white">
+        <div className="print-content transform origin-top transition-transform print:scale-100 print:w-full">
+          <div id="resume-content-view">{renderResumeContent()}</div>
         </div>
       </div>
     </div>

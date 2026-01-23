@@ -2,6 +2,7 @@ import { SocialLink } from "@prisma/client";
 import Link from "next/link";
 import { TechIcons } from "@/components/TechIcons";
 import { Link as LinkIcon, Globe } from "lucide-react";
+import { IconGlobe, IconGlobeFilled } from "@tabler/icons-react";
 
 interface SocialsSectionProps {
   links: SocialLink[];
@@ -55,13 +56,13 @@ export function SocialsSection({ links }: SocialsSectionProps) {
             href={link.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-center px-2.5 py-1.5 rounded-md hover:bg-neutral-200/50 dark:hover:bg-neutral-800 transition-all"
+            className="group flex items-center px-2.5 py-1.5 gap-1 rounded-md hover:bg-neutral-200/50 dark:hover:bg-neutral-800 transition-all"
           >
             <span className="w-4 h-4 flex items-center justify-center text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-100 transition-colors shrink-0">
               {iconNode ? (
                 iconNode
               ) : isWebsite ? (
-                <Globe className="w-3.5 h-3.5 text-black" />
+                <IconGlobeFilled className="w-3.5 h-3.5" />
               ) : (
                 <LinkIcon className="w-3.5 h-3.5" />
               )}

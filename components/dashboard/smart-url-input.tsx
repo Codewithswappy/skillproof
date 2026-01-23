@@ -50,7 +50,10 @@ interface SmartUrlInputProps {
 // PLATFORM ICON MAPPING
 // ============================================
 
-const PlatformIcon: Record<string, React.ComponentType<{ className?: string }>> = {
+const PlatformIcon: Record<
+  string,
+  React.ComponentType<{ className?: string }>
+> = {
   github: IconBrandGithub,
   npm: IconBrandNpm,
   vercel: IconBrandVercel,
@@ -78,28 +81,30 @@ export function SmartUrlInput({
 }: SmartUrlInputProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [platform, setPlatform] = useState<DetectedPlatform | null>(null);
-  const [inputType, setInputType] = useState<"url" | "code" | "metric" | "text">("text");
+  const [inputType, setInputType] = useState<
+    "url" | "code" | "metric" | "text"
+  >("text");
   const [isDuplicate, setIsDuplicate] = useState(false);
 
   // Detect platform and type when value changes
   useEffect(() => {
     const detected = detectPlatform(value);
     const type = detectInputType(value);
-    
+
     setPlatform(detected);
     setInputType(type);
-    
+
     // Check for duplicates
     if (detected && existingUrls.includes(value)) {
       setIsDuplicate(true);
     } else {
       setIsDuplicate(false);
     }
-    
+
     // Callbacks
     onPlatformDetected?.(detected);
     onTypeDetected?.(type);
-    
+
     // Suggest title for URLs
     if (detected) {
       const suggestedTitle = suggestTitleFromUrl(value);
@@ -107,13 +112,19 @@ export function SmartUrlInput({
         onTitleSuggested?.(suggestedTitle);
       }
     }
-  }, [value, existingUrls, onPlatformDetected, onTitleSuggested, onTypeDetected]);
+  }, [
+    value,
+    existingUrls,
+    onPlatformDetected,
+    onTitleSuggested,
+    onTypeDetected,
+  ]);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       onChange(e.target.value);
     },
-    [onChange]
+    [onChange],
   );
 
   const handleClear = useCallback(() => {
@@ -126,7 +137,7 @@ export function SmartUrlInput({
       const Icon = PlatformIcon[platform.platform] || IconLink;
       return <Icon className="w-4 h-4" />;
     }
-    
+
     switch (inputType) {
       case "code":
         return <IconCode className="w-4 h-4" />;
@@ -146,7 +157,7 @@ export function SmartUrlInput({
         icon: <IconAlertCircle className="w-4 h-4" />,
       };
     }
-    
+
     if (platform?.isVerifiable) {
       return {
         type: "success" as const,
@@ -154,7 +165,7 @@ export function SmartUrlInput({
         icon: <IconCheck className="w-4 h-4" />,
       };
     }
-    
+
     if (value && inputType === "code") {
       return {
         type: "info" as const,
@@ -162,7 +173,7 @@ export function SmartUrlInput({
         icon: <IconCode className="w-4 h-4" />,
       };
     }
-    
+
     if (value && inputType === "metric") {
       return {
         type: "info" as const,
@@ -170,7 +181,7 @@ export function SmartUrlInput({
         icon: <IconChartBar className="w-4 h-4" />,
       };
     }
-    
+
     return null;
   };
 
@@ -185,7 +196,7 @@ export function SmartUrlInput({
           isFocused
             ? "border-neutral-900 dark:border-neutral-100 ring-2 ring-neutral-900/10 dark:ring-neutral-100/10"
             : "border-neutral-200 dark:border-neutral-700",
-          isDuplicate && "border-amber-400 dark:border-amber-500"
+          isDuplicate && "border-amber-400 dark:border-amber-500",
         )}
       >
         {/* Platform Badge */}
@@ -194,7 +205,7 @@ export function SmartUrlInput({
             className={cn(
               "absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium",
               platform.bgColor,
-              platform.color
+              platform.color,
             )}
           >
             {getInputTypeIcon()}
@@ -210,10 +221,14 @@ export function SmartUrlInput({
           onBlur={() => setIsFocused(false)}
           placeholder={placeholder}
           autoFocus={autoFocus}
-          rows={value.split("\n").length > 3 ? Math.min(value.split("\n").length, 8) : 3}
+          rows={
+            value.split("\n").length > 3
+              ? Math.min(value.split("\n").length, 8)
+              : 3
+          }
           className={cn(
             "w-full resize-none bg-transparent px-4 py-3 text-sm outline-none placeholder:text-neutral-400 dark:placeholder:text-neutral-500",
-            platform && value && "pt-12"
+            platform && value && "pt-12",
           )}
         />
 
@@ -234,9 +249,12 @@ export function SmartUrlInput({
         <div
           className={cn(
             "flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium",
-            status.type === "success" && "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400",
-            status.type === "warning" && "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400",
-            status.type === "info" && "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400"
+            status.type === "success" &&
+              "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400",
+            status.type === "warning" &&
+              "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400",
+            status.type === "info" &&
+              "bg-lime-50 text-lime-700 dark:bg-lime-900/20 dark:text-lime-400",
           )}
         >
           {status.icon}

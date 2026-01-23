@@ -71,7 +71,7 @@ export function AIStatusBadge({ className }: AIStatusBadgeProps) {
         status.enabled
           ? "bg-purple-100 text-purple-700 hover:bg-purple-100"
           : "",
-        className
+        className,
       )}
     >
       <IconSparkles className="w-3 h-3" />
@@ -109,8 +109,8 @@ export function QuickSkillSuggester({
         const filtered = result.data.filter(
           (s) =>
             !existingSkills.some(
-              (e) => e.toLowerCase() === s.name.toLowerCase()
-            )
+              (e) => e.toLowerCase() === s.name.toLowerCase(),
+            ),
         );
         setSuggestions(filtered);
       } else {
@@ -234,7 +234,7 @@ export function CodeAnalyzer({ onSkillsDetected }: CodeAnalyzerProps) {
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
-          <IconCode className="w-4 h-4 text-blue-500" />
+          <IconCode className="w-4 h-4 text-lime-500" />
           Code Analyzer
         </CardTitle>
         <CardDescription>
@@ -309,7 +309,7 @@ export function CodeAnalyzer({ onSkillsDetected }: CodeAnalyzerProps) {
                     <Badge
                       key={skill.name}
                       variant="secondary"
-                      className="bg-blue-50 text-blue-700"
+                      className="bg-lime-50 text-lime-700"
                     >
                       {skill.name}
                       <span className="ml-1 opacity-60">
@@ -389,7 +389,7 @@ export function EvidenceSuggester({
       const result = await aiGenerateEvidence(
         skills,
         projectTitle,
-        projectDescription
+        projectDescription,
       );
       if (result.success) {
         setSuggestions(result.data);
@@ -597,7 +597,7 @@ export function ProjectAnalyzer({ onAnalysisComplete }: ProjectAnalyzerProps) {
         )}
 
         {result && (
-          <div className="space-y-4 p-4 bg-linear-to-br from-purple-50 to-blue-50 rounded-lg border">
+          <div className="space-y-4 p-4 bg-linear-to-br from-purple-50 to-lime-50 rounded-lg border">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Badge>{result.projectType}</Badge>
