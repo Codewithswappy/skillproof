@@ -2,6 +2,7 @@
 
 import { PublicProfileData } from "@/lib/actions/public";
 import { aiEvaluateResume } from "@/lib/actions/ai";
+import { trackInteraction } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import {
   IconX,
@@ -26,7 +27,7 @@ import {
   IconBuilding,
   IconUser,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MinimalTemplate } from "@/components/resume/renderer/minimal-template";
 import { ModernTemplate } from "@/components/resume/renderer/modern-template";
 import { toast } from "sonner";
@@ -100,7 +101,19 @@ export function ResumeView({ data, onClose }: ResumeViewProps) {
     missingKeywords?: string[];
   } | null>(null);
 
+  // Track Resume View on mount
+  const viewTracked = useRef(false);
+  useEffect(() => {
+    if (!viewTracked.current) {
+      trackInteraction(profile.slug, "resume", "view");
+      viewTracked.current = true;
+    }
+  }, [profile.slug]);
+
   const handleDownload = async () => {
+    // Track download first
+    trackInteraction(profile.slug, "resume", "download");
+
     try {
       const html2pdf = (await import("html2pdf.js")).default;
       const element = document.getElementById("resume-content-view");

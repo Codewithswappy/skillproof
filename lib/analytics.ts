@@ -131,8 +131,8 @@ export async function trackVisit(slug: string, options: TrackVisitOptions = {}) 
   }
 }
 
-// 2. Track Interaction (Project clicks)
-export async function trackInteraction(slug: string, type: "project", itemId: string) {
+// 2. Track Interaction (Project clicks & Resume)
+export async function trackInteraction(slug: string, type: "project" | "resume", itemId: string) {
   try {
     const profile = await db.profile.findUnique({ where: { slug } });
     if (!profile) return;
@@ -144,10 +144,22 @@ export async function trackInteraction(slug: string, type: "project", itemId: st
       where: { profileId_date: { profileId: profile.id, date: today } },
     });
 
-    if (!record) return;
+    if (!record) {
+      // If no record exists for today (unlikely if trackVisit is called first, but possible),
+      // we should probably create one or just return. 
+      // For now, adhering to existing pattern -> return.
+      // Better: Create if missing to ensure we capture the click? 
+      // The trackVisit usually handles creation. 
+      return; 
+    }
 
     const stats = (record.projectInteractions as Record<string, number>) || {};
-    stats[itemId] = (stats[itemId] || 0) + 1;
+    
+    // For resume, use special keys
+    const key = type === "resume" ? `__resume_${itemId}` : itemId;
+    
+    stats[key] = (stats[key] || 0) + 1;
+    
     await db.dailyAnalytics.update({
       where: { id: record.id },
       data: { projectInteractions: stats }
@@ -161,7 +173,6 @@ export async function trackInteraction(slug: string, type: "project", itemId: st
 
 // 3. Track Duration (Heartbeat)
 export async function trackDuration(slug: string, seconds: number) {
-    // Similar upsert logic...
     try {
         const profile = await db.profile.findUnique({ where: { slug } });
         if (!profile) return;
@@ -212,6 +223,10 @@ export async function getAnalytics(profileId: string, days: number = 7) {
         let totalViews = 0;
         let totalDuration = 0;
         
+        // Resume stats
+        let totalResumeViews = 0;
+        let totalResumeDownloads = 0;
+
         // For accurate unique/returning calculation across period
         const allVisitorHashes = new Set<string>();
         const deviceAggregates: Record<string, number> = {};
@@ -260,13 +275,26 @@ export async function getAnalytics(profileId: string, days: number = 7) {
                     referrerAggregates[ref] = (referrerAggregates[ref] || 0) + count;
                 });
                 
-                // Aggregate project interactions
+                // Aggregate interactions
                 const pMetrics = (record.projectInteractions as Record<string, number>) || {};
+                
+                let dayResumeViews = 0;
+                let dayResumeDownloads = 0;
+
                 Object.entries(pMetrics).forEach(([k, v]) => {
-                    projectCounts[k] = (projectCounts[k] || 0) + v;
+                    if (k === '__resume_view') {
+                        dayResumeViews += v;
+                        totalResumeViews += v;
+                    } else if (k === '__resume_download') {
+                        dayResumeDownloads += v;
+                        totalResumeDownloads += v;
+                    } else {
+                        // Regular project
+                        projectCounts[k] = (projectCounts[k] || 0) + v;
+                    }
                 });
                 
-                // Bounce calculation: avg time < 10s indicates likely bounces
+                // Bounce calculation
                 const avgTimeThisDay = record.views > 0 ? record.totalDuration / record.views : 0;
                 if (avgTimeThisDay < 10) {
                     bounceCount += record.views;
@@ -276,7 +304,9 @@ export async function getAnalytics(profileId: string, days: number = 7) {
                     date: day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
                     views: record.views,
                     visitors: record.uniqueVisitors.length,
-                    avgTime: record.views > 0 ? Math.round(record.totalDuration / record.views) : 0
+                    avgTime: record.views > 0 ? Math.round(record.totalDuration / record.views) : 0,
+                    resumeViews: dayResumeViews,
+                    resumeDownloads: dayResumeDownloads
                 };
             }
             
@@ -285,18 +315,28 @@ export async function getAnalytics(profileId: string, days: number = 7) {
                 date: day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
                 views: 0,
                 visitors: 0,
-                avgTime: 0
+                avgTime: 0,
+                resumeViews: 0,
+                resumeDownloads: 0
             };
         });
 
         const totalUniques = allVisitorHashes.size;
         
-        // Calculate returning visitors (total views - unique visitors = repeat visits)
+        // Calculate returning visitors
         const returningVisits = Math.max(0, totalViews - totalUniques);
         const returningRate = totalViews > 0 ? Math.round((returningVisits / totalViews) * 100) : 0;
         
         // Bounce rate
         const bounceRate = totalViews > 0 ? Math.round((bounceCount / totalViews) * 100) : 0;
+
+        // Resume Stats
+        const resumeStats = {
+            totalViews: totalResumeViews,
+            totalDownloads: totalResumeDownloads,
+            viewRate: totalViews > 0 ? Math.min(100, Math.round((totalResumeViews / totalViews) * 100)) : 0,
+            conversionRate: totalResumeViews > 0 ? Math.min(100, Math.round((totalResumeDownloads / totalResumeViews) * 100)) : 0
+        };
 
         // Sort Top 5 projects
         const topProjects = Object.entries(projectCounts)
@@ -315,7 +355,7 @@ export async function getAnalytics(profileId: string, days: number = 7) {
             .sort((a, b) => b.value - a.value)
             .slice(0, 5);
 
-        // --- NEW: Calculate Trend (vs previous period) ---
+        // --- Calculate Trend (vs previous period) ---
         let viewTrend = 0;
         if (days > 0) {
             const previousEndDate = new Date(startDate);
@@ -344,15 +384,13 @@ export async function getAnalytics(profileId: string, days: number = 7) {
             const previousViews = previousRecords._sum.views || 0;
             
             if (previousViews === 0) {
-                viewTrend = totalViews > 0 ? 100 : 0; // 100% growth if from 0 to something
+                viewTrend = totalViews > 0 ? 100 : 0;
             } else {
                 viewTrend = Math.round(((totalViews - previousViews) / previousViews) * 100);
             }
         }
 
-        // --- NEW: Resolve Project Names ---
-        // topProjects currently has { id: string, count: number }
-        // We need to fetch the names for these IDs
+        // --- Resolve Project Names ---
         const projectIds = topProjects.map(p => p.id);
         const projects = await db.project.findMany({
             where: {
@@ -379,11 +417,12 @@ export async function getAnalytics(profileId: string, days: number = 7) {
                 avgTimeOnPage: totalViews > 0 ? Math.round(totalDuration / totalViews) : 0,
                 bounceRate,
                 returningRate,
-                viewTrend // Return the real calculation
+                viewTrend
             },
             deviceBreakdown,
             referrerBreakdown,
-            topProjects: namedTopProjects // Return named projects
+            topProjects: namedTopProjects,
+            resumeStats
         };
 
     } catch (error) {
@@ -400,7 +439,13 @@ export async function getAnalytics(profileId: string, days: number = 7) {
             },
             deviceBreakdown: [],
             referrerBreakdown: [],
-            topProjects: []
+            topProjects: [],
+            resumeStats: {
+                totalViews: 0,
+                totalDownloads: 0,
+                viewRate: 0,
+                conversionRate: 0
+            }
         };
     }
 }

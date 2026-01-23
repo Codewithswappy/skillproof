@@ -15,11 +15,20 @@ export interface AnalyticsSummary {
 /**
  * Single day's history item for charts
  */
+export interface ResumeStats {
+  totalViews: number;
+  totalDownloads: number;
+  viewRate: number;
+  conversionRate: number;
+}
+
 export interface HistoryItem {
   date: string;
   views: number;
   visitors: number;
   avgTime: number;
+  resumeViews: number;
+  resumeDownloads: number;
 }
 
 /**
@@ -48,15 +57,13 @@ export interface TopItem {
   count: number;
 }
 
-/**
- * Complete analytics data returned from getAnalytics
- */
 export interface AnalyticsData {
   summary: AnalyticsSummary;
   history: HistoryItem[];
   topProjects: TopItem[];
   deviceBreakdown: DeviceBreakdownItem[];
   referrerBreakdown: ReferrerBreakdownItem[];
+  resumeStats: ResumeStats;
 }
 
 /**

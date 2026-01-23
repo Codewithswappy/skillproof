@@ -113,24 +113,27 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
     );
   }
 
-  const { summary, history, topProjects, deviceBreakdown, referrerBreakdown } =
-    data;
+  const {
+    summary,
+    history,
+    topProjects,
+    deviceBreakdown,
+    referrerBreakdown,
+    resumeStats,
+  } = data;
 
-  // Derive Mock Resume Data
   const resumeHistory = history.map((h) => ({
     date: h.date,
-    views: Math.floor(h.views * 0.45),
-    downloads: Math.floor(h.views * 0.12),
+    views: h.resumeViews,
+    downloads: h.resumeDownloads,
   }));
 
-  const totalResumeViews = resumeHistory.reduce(
-    (acc, curr) => acc + curr.views,
-    0,
-  );
-  const totalDownloads = resumeHistory.reduce(
-    (acc, curr) => acc + curr.downloads,
-    0,
-  );
+  const {
+    totalViews: totalResumeViews,
+    totalDownloads,
+    viewRate,
+    conversionRate,
+  } = resumeStats;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -247,7 +250,7 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
                     {totalResumeViews}
                   </span>
                   <span className="text-xs font-mono text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
-                    VIEW RATE: 45%
+                    VIEW RATE: {viewRate}%
                   </span>
                 </div>
                 <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest font-mono">
@@ -261,7 +264,7 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
                     {totalDownloads}
                   </span>
                   <span className="text-xs font-mono text-lime-600 bg-lime-50 px-2 py-0.5 rounded border border-lime-100">
-                    CONV: 12%
+                    CONV: {conversionRate}%
                   </span>
                 </div>
                 <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest font-mono flex items-center gap-2">
@@ -275,8 +278,11 @@ export function AnalyticsDashboard({ profileId }: AnalyticsDashboardProps) {
             <span className="font-bold text-neutral-700 dark:text-neutral-300">
               INSIGHT:
             </span>{" "}
-            Your resume is engaging well. Downloads typically correlate with
-            serious interest from recruiters.
+            {totalResumeViews === 0
+              ? "Share your profile link to start gathering insights from recruiters."
+              : conversionRate >= 10
+                ? "Your resume is engaging well. High download rates typically correlate with serious interest."
+                : "Good visibility. Consider highlighting more key skills or projects to boost downloads."}
           </div>
         </div>
 
