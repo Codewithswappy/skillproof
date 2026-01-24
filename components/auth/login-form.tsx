@@ -44,7 +44,7 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="w-full ">
+    <Card className="w-full border border-dashed border-neutral-300 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md shadow-xl">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-center">
           Welcome back
@@ -70,6 +70,7 @@ export function LoginForm() {
               type="email"
               required
               placeholder="example@email.com"
+              className="border border-dashed rounded-none border-neutral-300 dark:border-neutral-800 focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
           <div className="space-y-2">
@@ -80,6 +81,7 @@ export function LoginForm() {
               type="password"
               placeholder="********"
               required
+              className="border border-dashed rounded-none border-neutral-300 dark:border-neutral-800 focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
 

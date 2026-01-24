@@ -219,14 +219,14 @@ const ResumeVisual = () => {
         <motion.div
           animate={{ rotate: [-4, -6, -4], x: [-10, -12, -10] }}
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute inset-0 bg-white dark:bg-neutral-800 border border-dashed shadow-sm border-neutral-200 dark:border-neutral-700 opacity-60 h-[110%]"
+          className="absolute inset-0 bg-white dark:bg-neutral-800 border border-dashed shadow-sm border-neutral-200 dark:border-neutral-700 opacity-60 h-[90%] md:h-[100%]"
         />
 
         {/* Main Document */}
         <motion.div
           animate={{ y: [0, -10, 0] }}
           transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          className="relative w-full aspect-[1/1.41] bg-white dark:bg-neutral-800 border border-dashed shadow-2xl border-neutral-200 dark:border-neutral-700 p-4 flex flex-col gap-3 overflow-hidden"
+          className="relative w-full aspect-[1/1.2] md:aspect-[1/1.4] bg-white dark:bg-neutral-800 border border-dashed shadow-2xl border-neutral-200 dark:border-neutral-700 p-4 flex flex-col gap-3 overflow-hidden"
         >
           {/* Doc Content */}
           <div className="flex gap-3 items-center border-b border-neutral-100 dark:border-neutral-700 pb-3">

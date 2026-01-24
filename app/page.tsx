@@ -10,6 +10,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { LandingBentoGrid } from "@/components/landing/bento-grid";
+import { GithubStarButton } from "@/components/landing/github-star-button";
 
 export const metadata = {
   title: "SkillDock — Proof Over Claims",
@@ -41,7 +42,9 @@ export default function Home() {
               className="h-8 md:h-10 w-auto object-contain hidden dark:block"
             />
           </div>
+
           <div className="flex items-center gap-2 md:gap-6">
+             {/* <GithubStarButton /> */}
             <Link
               href="/login"
               className="text-sm font-medium text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white transition-colors"
@@ -62,15 +65,18 @@ export default function Home() {
 
       {/* Hero Section */}
       <main className="flex-1 relative z-10 pt-20">
+        
         <section className="py-20 px-6 relative">
           {/* Subtle Glow */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neutral-100 dark:bg-white/[0.02] rounded-full blur-3xl pointer-events-none" />
 
+
           <div className="max-w-4xl mx-auto text-center space-y-6 relative">
-            <div className="inline-flex items-center gap-2 border border-dashed border-neutral-300 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900/50 px-3 py-1 text-xs font-medium text-neutral-600 dark:text-neutral-400 backdrop-blur-sm">
+           <div className="inline-flex items-center gap-2 border border-dashed border-neutral-300 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900/50 px-3 py-1 text-xs font-medium text-neutral-600 dark:text-neutral-400 backdrop-blur-sm">
               <span className="flex h-4 w-4 rounded-full border border-dashed border-neutral-100 bg-neutral-800 dark:bg-neutral-100 dark:border-neutral-900 animate-pulse" />
               v1.0 is now live
             </div>
+           
 
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tighter text-neutral-950 dark:text-white leading-[1.1]">
               One Profile. <br className="hidden sm:block" />
@@ -142,7 +148,7 @@ export default function Home() {
                 className=" px-6 py-2 rounded bg-lime-600 text-neutral-100 font-bold text-md flex items-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-sm shadow-black/10 dark:shadow-lime-500/10"
               >
                 <Rocket className="w-5 h-5" />
-                Register Now 
+                Register Now
               </Link>
             </div>
           </div>
@@ -156,7 +162,16 @@ export default function Home() {
           <div className="w-4 h-4 border border-dashed bg-yellow-400" />
           <div className="w-4 h-4 border border-dashed bg-lime-400" />
         </div>
-        <p>&copy; {new Date().getFullYear()} SkillDock. Build with <span className="text-red-600">&hearts;</span> by <Link href="https://x.com/heyyswap" className="hover:underline hover:text-lime-400 transition-all">heyyswap</Link></p>
+        <p>
+          &copy; {new Date().getFullYear()} SkillDock. Build with{" "}
+          <span className="text-red-600">&hearts;</span> by{" "}
+          <Link
+            href="https://x.com/heyyswap"
+            className="hover:underline hover:text-lime-400 transition-all"
+          >
+            heyyswap
+          </Link>
+        </p>
       </footer>
     </div>
   );
