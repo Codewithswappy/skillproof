@@ -15,7 +15,26 @@ import {
   Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { IconBrandTwitterFilled, IconMan, IconPacman, IconSocial, IconUser, IconUserFilled, IconX } from "@tabler/icons-react";
+import {
+  IconBrandGoogle,
+  IconBrandGoogleFilled,
+  IconBrandLinkedinFilled,
+  IconBrandTwitter,
+  IconBrandTwitterFilled,
+  IconBrandWebflow,
+  IconBrandWhatsapp,
+  IconFileText,
+  IconLayout,
+  IconLayout2,
+  IconMan,
+  IconPacman,
+  IconShare,
+  IconShare2,
+  IconSocial,
+  IconUser,
+  IconUserFilled,
+  IconX,
+} from "@tabler/icons-react";
 import { NewTwitterIcon } from "@hugeicons/core-free-icons";
 
 // --- Visual Components ---
@@ -71,7 +90,6 @@ const PortfolioVisual = () => {
                 transition={{ duration: 2, repeat: Infinity }}
                 className="absolute bottom-1 right-1 w-4 h-4 bg-lime-400 rounded-full border-2 border-white dark:border-neutral-800"
               />
-              
             </div>
             <div className="space-y-2 text-center w-full max-w-xs">
               <div className="h-4 bg-neutral-800 dark:bg-white rounded w-3/4 mx-auto" />
@@ -195,7 +213,7 @@ const AnalyticsVisual = () => {
 
 const ResumeVisual = () => {
   return (
-    <div className="absolute inset-0 bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center p-6 overflow-hidden">
+    <div className="absolute inset-0 bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center p-6 overflow-hidden bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#262626_1px,transparent_1px)] [background-size:16px_16px]">
       <div className="relative w-48 perspective-[1000px]">
         {/* Background Docs */}
         <motion.div
@@ -249,7 +267,7 @@ const ResumeVisual = () => {
         <motion.div
           animate={{ scale: [0.9, 1, 0.9], opacity: [0.8, 1, 0.8] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="absolute -bottom-4 -right-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-lg py-2 px-3 shadow-xl flex items-center gap-2 border border-white/20"
+          className="absolute -bottom-1 -right-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-lg py-2 px-3 shadow-xl flex items-center gap-2 border border-dashed border-white/20"
         >
           <Download className="w-4 h-4" />
           <span className="text-[10px] font-bold">Export PDF</span>
@@ -261,15 +279,22 @@ const ResumeVisual = () => {
 
 const ShareVisual = () => {
   return (
-    <div className="absolute inset-0 bg-neutral-50 dark:bg-neutral-900/50 flex items-center justify-center p-8 overflow-hidden">
+    <div className="absolute inset-0 bg-neutral-50 dark:bg-neutral-900/50 flex items-center justify-center p-8 overflow-hidden bg-[linear-gradient(rgba(0,0,0,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.05)_1px,transparent_1px)] bg-[size:18px_18px]">
       {/* Floating Particles/Connections */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
           animate={{ y: [0, -20, 0], opacity: [0, 1, 0] }}
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/4 left-1/4 w-12 h-12 rounded border border-dashed border-neutral-300 dark:border-neutral-700 flex items-center justify-center"
+          className="absolute top-1/4 left-1/4 w-12 h-12 rounded-full border border-dashed border-neutral-300 dark:border-neutral-700 flex items-center justify-center"
         >
-          <Linkedin className="w-5 h-5 text-blue-600" />
+          <IconBrandLinkedinFilled className="w-5 h-5 text-blue-600" />
+        </motion.div>
+        <motion.div
+          animate={{ y: [0, -20, 0], opacity: [0, 1, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/4 right-1/4 w-12 h-12 rounded border border-dashed border-neutral-300 dark:border-neutral-700 flex items-center justify-center"
+        >
+          <IconBrandWhatsapp className="w-5 h-5 text-green-600" />
         </motion.div>
         <motion.div
           animate={{ y: [0, 20, 0], opacity: [0, 1, 0] }}
@@ -282,6 +307,18 @@ const ShareVisual = () => {
           className="absolute bottom-1/4 right-1/4 w-12 h-12 rounded-full border border-dashed border-neutral-300 dark:border-neutral-700 flex items-center justify-center"
         >
           <IconBrandTwitterFilled className="w-5 h-5 text-black dark:text-white" />
+        </motion.div>
+          <motion.div
+          animate={{ y: [0, 20, 0], opacity: [0, 1, 0] }}
+          transition={{
+            duration: 5,
+            delay: 2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="absolute bottom-1/4 left-1/4 w-12 h-12 border border-dashed border-neutral-300 dark:border-neutral-700 flex items-center justify-center"
+        >
+          <IconBrandGoogleFilled className="w-5 h-5" />
         </motion.div>
       </div>
 
@@ -383,12 +420,12 @@ const BentoItem = ({
 export function LandingBentoGrid() {
   return (
     <div className="max-w-6xl mx-auto px-6 py-24">
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-6 md:auto-rows-[420px]">
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-6 auto-rows-[350px] md:auto-rows-[420px]">
         {/* 1. Portfolio (Large Left) */}
         <BentoItem
           title="One Page Portfolio"
           description="Your work, skills, and identity hosted on a stunning personal site."
-          icon={<Layout className="w-6 h-6" />}
+          icon={<IconLayout2 className="w-6 h-6" />}
           className="md:col-span-4"
         >
           <PortfolioVisual />
@@ -398,7 +435,7 @@ export function LandingBentoGrid() {
         <BentoItem
           title="Smart Resume Builder"
           description="Transform your profile into ATS-ready PDFs instantly."
-          icon={<FileText className="w-6 h-6" />}
+          icon={<IconFileText className="w-6 h-6" />}
           className="md:col-span-2"
         >
           <ResumeVisual />
@@ -418,7 +455,7 @@ export function LandingBentoGrid() {
         <BentoItem
           title="Personal Shareable URL"
           description="Claim your unique username and share it everywhere."
-          icon={<Share2 className="w-6 h-6" />}
+          icon={<IconShare2 className="w-6 h-6" />}
           className="md:col-span-4"
         >
           <ShareVisual />
