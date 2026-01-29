@@ -541,8 +541,8 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
 
                   {/* --- TECH STACK MARQUEE --- */}
                   {showTechStack && allTech.length > 0 && (
-                    <div className="">
-                      <div className="flex items-center justify-between md:justify-start gap-4 mb-6">
+                    <div className="mb-0">
+                      <div className="flex items-center justify-between md:justify-start gap-4">
                         <h2 className="font-mono text-xs font-bold text-neutral-500 dark:text-neutral-500 tracking-wider uppercase flex items-center gap-2">
                           // Tech Stack
                         </h2>
@@ -570,7 +570,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                                   className="flex-shrink-0 relative transition-all duration-300 group-hover:blur-[2px] group-hover:opacity-40 hover:blur-none! hover:opacity-100! hover:scale-110! z-10"
                                 >
                                   <div
-                                    className="flex items-center justify-center p-2 px-6 border-[0.5px] border-dashed border-neutral-300 dark:border-neutral-700 transition-all duration-300 cursor-pointer text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 scale-[1.5] bg-white dark:bg-neutral-950 grayscale hover:grayscale-0"
+                                    className="flex items-center justify-center p-2 px-6 border-[0.5px] border-dashed border-neutral-300 dark:border-neutral-700 transition-all duration-300 cursor-pointer text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 scale-[1.6] bg-white dark:bg-neutral-950 grayscale hover:grayscale-0"
                                     title={tech}
                                   >
                                     {Icon ? (

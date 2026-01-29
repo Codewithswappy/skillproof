@@ -2,7 +2,7 @@ import { SocialLink } from "@prisma/client";
 import Link from "next/link";
 import { TechIcons } from "@/components/TechIcons";
 import { Link as LinkIcon, Globe } from "lucide-react";
-import { IconGlobe, IconGlobeFilled } from "@tabler/icons-react";
+import { IconGlobe, IconGlobeFilled, IconWorld } from "@tabler/icons-react";
 
 import { cn } from "@/lib/utils";
 
@@ -70,7 +70,7 @@ export function SocialsSection({ links, className }: SocialsSectionProps) {
               {iconNode ? (
                 iconNode
               ) : isWebsite ? (
-                <IconGlobeFilled className="w-3.5 h-3.5" />
+                <IconWorld className="w-3.5 h-3.5" />
               ) : (
                 <LinkIcon className="w-3.5 h-3.5" />
               )}
