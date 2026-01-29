@@ -196,14 +196,44 @@ function RoleItem({
           >
             <div className="pt-2 space-y-4">
               {experience.description && (
-                <div className="text-[12px] text-neutral-600 dark:text-neutral-400 leading-relaxed space-y-2">
-                  {/* Split description by newlines and render mostly used bullet points or paragraphs */}
-                  {experience.description.split("\n").map((line, i) => (
-                    <p
-                      key={i}
-                      dangerouslySetInnerHTML={{ __html: parseLinks(line) }}
-                    />
-                  ))}
+                <div className="text-[12px] text-neutral-600 dark:text-neutral-400 leading-relaxed font-sans">
+                  {experience.description.split("\n").map((line, i) => {
+                    const trimmed = line.trim();
+                    const isBullet =
+                      trimmed.startsWith("- ") ||
+                      trimmed.startsWith("* ") ||
+                      trimmed.startsWith("• ");
+
+                    if (isBullet) {
+                      const content = trimmed.substring(1).trim();
+                      return (
+                        <div
+                          key={i}
+                          className="flex items-start gap-2 mb-1.5 pl-2"
+                        >
+                          <span className="w-1 h-1 rounded-full bg-neutral-400 dark:bg-neutral-600 mt-2 shrink-0 opacity-80" />
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: parseLinks(content),
+                            }}
+                          />
+                        </div>
+                      );
+                    }
+
+                    // Handle empty lines as spacers
+                    if (!trimmed) {
+                      return <div key={i} className="h-2" />;
+                    }
+
+                    return (
+                      <p
+                        key={i}
+                        className="mb-1.5 last:mb-0"
+                        dangerouslySetInnerHTML={{ __html: parseLinks(line) }}
+                      />
+                    );
+                  })}
                 </div>
               )}
 

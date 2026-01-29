@@ -52,7 +52,9 @@ export async function POST(request: NextRequest) {
     } catch {
       body = {};
     }
-    const { profileId, sessionId } = body;
+    const { searchParams } = new URL(request.url);
+    const profileId = body.profileId || searchParams.get("profileId");
+    const sessionId = body.sessionId || searchParams.get("sessionId");
 
     if (!profileId || !sessionId) {
       return NextResponse.json(

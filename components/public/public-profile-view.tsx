@@ -221,10 +221,10 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
             style={{ transformStyle: "preserve-3d" }}
           >
             {/* <ViewfinderFrame className="max-w-3xl mx-auto"> */}
-            <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 font-sans selection:bg-neutral-900 selection:text-white dark:selection:bg-white dark:selection:text-black py-2 md:py-4 lg:py-4">
+            <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 font-sans selection:bg-neutral-900 selection:text-white dark:selection:bg-white dark:selection:text-black p-1 md:py-4 lg:py-4">
               <div className="max-w-3xl mx-auto bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 shadow-2xl shadow-neutral-200/50 dark:shadow-none border-dashed overflow-hidden relative">
                 {/* Top Status Bar Decoration */}
-                <div className="hidden md:flex h-6 bg-neutral-100 dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 px-3 items-center justify-between">
+                <div className="flex h-6 bg-neutral-100 dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 px-3 items-center justify-between">
                   <div className="flex gap-1.5">
                     <div className="w-2.5 h-2.5 rounded-full bg-neutral-300 dark:bg-neutral-700" />
                     <div className="w-2.5 h-2.5 rounded-full bg-neutral-300 dark:bg-neutral-700" />

@@ -164,7 +164,7 @@ export function DashboardSidebar({
         </Link>
 
         {!isCollapsed && (
-          <div className="text-lg font-semibold font-serif italic tracking-wide text-neutral-800 dark:text-neutral-200 border-b border-dashed border-neutral-300 dark:border-neutral-700 relative -left-7 top-3">
+          <div className="text-md font-semibold font-serif tracking-tighter  text-neutral-800 dark:text-neutral-200 border-b border-dashed border-neutral-300 dark:border-neutral-700 relative -left-12 top-3">
             ProfileBase
           </div>
         )}

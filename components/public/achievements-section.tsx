@@ -185,20 +185,88 @@ function AchievementItem({ item }: { item: Achievement }) {
               transition={{ duration: 0.2 }}
               className="overflow-hidden w-full pl-[48px]"
             >
-              <div className="pt-3 pb-1">
-                <ul className="space-y-2 list-none text-[12px] text-neutral-600 dark:text-neutral-400">
-                  {item.description.map((desc: string, i: number) => (
-                    <li
-                      key={i}
-                      className="flex items-start gap-2 leading-relaxed"
-                    >
-                      <span className="w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700 mt-2 shrink-0" />
-                      <span
-                        dangerouslySetInnerHTML={{ __html: parseLinks(desc) }}
-                      />
-                    </li>
-                  ))}
-                </ul>
+              <div className="space-y-1 text-[12px] text-neutral-600 dark:text-neutral-400">
+                {item.description.map(
+                  (descBlock: string, blockIndex: number) => (
+                    <div key={blockIndex} className="block">
+                      {descBlock.split("\n").map((line, lineIndex) => {
+                        const trimmed = line.trim();
+                        const isBullet =
+                          trimmed.startsWith("- ") ||
+                          trimmed.startsWith("* ") ||
+                          trimmed.startsWith("• ");
+
+                        // If it's the very first line of a block and NOT a bullet, treat it as a main list item (default behavior)
+                        // OR if the user explicitly used bullets, respect them.
+                        // Current behavior: Every `descBlock` was a list item.
+                        // New behavior: We preserve that wrapping unless we detect internal structure.
+
+                        // Actually, simpler approach:
+                        // Treat every `descBlock` as a potential multi-line content.
+                        // If a line is a bullet, render bullet.
+                        // If it's not, renders as text.
+                        // But we want to maintain the "list" look of the Achievements section.
+
+                        if (isBullet) {
+                          const content = trimmed.substring(1).trim();
+                          return (
+                            <div
+                              key={`${blockIndex}-${lineIndex}`}
+                              className="flex items-start gap-2 leading-relaxed mb-1"
+                            >
+                              <span className="w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700 mt-2 shrink-0" />
+                              <span
+                                dangerouslySetInnerHTML={{
+                                  __html: parseLinks(content),
+                                }}
+                              />
+                            </div>
+                          );
+                        }
+
+                        // Non-bullet line
+                        // If this is the start of the block and it's not a bullet, should we force a bullet?
+                        // The original code forced a bullet for every item.
+                        // If we stop forcing it, we might break existing designs unless we check.
+                        // Let's force a bullet ONLY if the user didn't provide one, strictly for the first line?
+                        // Or imply that `description` array IS the list.
+
+                        // Decision: Let's render it as a bullet item IF it's the root line, otherwise indented text?
+                        // Actually, if we just render lines, "Main Title" becomes a text.
+                        // The user expects the array items to be distinct points.
+
+                        return (
+                          <div
+                            key={`${blockIndex}-${lineIndex}`}
+                            className="flex items-start gap-2 leading-relaxed mb-1"
+                          >
+                            {
+                              /* Always add bullet for the first line of the block if it doesn't have one? */
+                              lineIndex === 0 && !isBullet ? (
+                                <>
+                                  <span className="w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700 mt-2 shrink-0" />
+                                  <span
+                                    dangerouslySetInnerHTML={{
+                                      __html: parseLinks(line),
+                                    }}
+                                  />
+                                </>
+                              ) : (
+                                // Sub-text or indented?
+                                <span
+                                  className="pl-3 block"
+                                  dangerouslySetInnerHTML={{
+                                    __html: parseLinks(line),
+                                  }}
+                                />
+                              )
+                            }
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ),
+                )}
               </div>
             </motion.div>
           )}
