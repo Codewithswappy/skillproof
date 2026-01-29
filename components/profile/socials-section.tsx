@@ -4,11 +4,14 @@ import { TechIcons } from "@/components/TechIcons";
 import { Link as LinkIcon, Globe } from "lucide-react";
 import { IconGlobe, IconGlobeFilled } from "@tabler/icons-react";
 
+import { cn } from "@/lib/utils";
+
 interface SocialsSectionProps {
   links: SocialLink[];
+  className?: string;
 }
 
-export function SocialsSection({ links }: SocialsSectionProps) {
+export function SocialsSection({ links, className }: SocialsSectionProps) {
   if (!links || links.length === 0) return null;
 
   // Map platform to TechIcon key
@@ -43,7 +46,12 @@ export function SocialsSection({ links }: SocialsSectionProps) {
   }
 
   return (
-    <div className="inline-flex flex-row flex-wrap items-center  w-fit animate-in fade-in slide-in-from-bottom-2 duration-700 delay-300">
+    <div
+      className={cn(
+        "inline-flex flex-row flex-wrap items-center w-fit animate-in fade-in slide-in-from-bottom-2 duration-700 delay-300",
+        className,
+      )}
+    >
       {links.map((link) => {
         const iconNode = getIcon(link.platform);
         // Fallback for website/other

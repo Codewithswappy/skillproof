@@ -67,13 +67,25 @@ export function DashboardOverview({ data, analytics }: DashboardOverviewProps) {
 
   const profileScore = calculateProfileScore();
 
-  // Aggregate skills/tech stack
+  // Aggregate skills/tech stack ONLY from Projects as per user request
+  // Also normalize to deduplicate better (e.g. Next.js vs NextJS is hard to solve automatically without a map,
+  // but we can at least do case-insensitive deduplication).
   const allSkills = Array.from(
-    new Set([
-      ...projects.flatMap((p) => p.techStack || []),
-      ...data.experiences.flatMap((e) => e.skills || []),
-    ]),
-  ).slice(0, 15);
+    new Set(
+      projects.flatMap((p) => p.techStack || []).map((skill) => skill.trim()), // simple cleanup
+    ),
+  )
+    .filter(
+      (skill, index, self) =>
+        // specific deduplication for Next.js/NextJS
+        index ===
+        self.findIndex(
+          (t) =>
+            t.toLowerCase().replace(/[^a-z0-9]/g, "") ===
+            skill.toLowerCase().replace(/[^a-z0-9]/g, ""),
+        ),
+    )
+    .slice(0, 15);
 
   // Determine optimization tip based on profile state
   const getOptimizationTip = () => {
@@ -375,28 +387,30 @@ export function DashboardOverview({ data, analytics }: DashboardOverviewProps) {
           {/* Top Skills / Tech Stack (New) */}
           <div className="rounded-sm border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm overflow-hidden">
             <div className="p-4 border-b border-dashed border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
-              <h3 className="font-bold text-neutral-900 dark:text-neutral-100 text-xs font-mono uppercase tracking-wider">
+              <h3 className="font-bold text-neutral-900 dark:text-neutral-100 text-sm font-mono uppercase tracking-wider">
                 Tech Stack
               </h3>
             </div>
-            <div className="p-4 flex flex-wrap gap-2">
-              {allSkills.length > 0 ? (
-                allSkills.map((skill, index) => (
-                  <span
-                    key={index}
-                    className="px-2 py-1 rounded-sm bg-neutral-100 dark:bg-neutral-900 text-[10px] font-mono text-neutral-600 dark:text-neutral-400 border border-dashed border-neutral-300 dark:border-neutral-700"
-                  >
-                    {skill}
-                  </span>
-                ))
-              ) : (
-                <p className="text-[10px] text-neutral-400 italic">
-                  No skills listed yet.
-                </p>
-              )}
+            <div className="p-4">
+              <div className="flex flex-wrap gap-2.5">
+                {allSkills.length > 0 ? (
+                  allSkills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1.5 rounded-md bg-neutral-100/50 dark:bg-neutral-800/50 text-[10px] font-mono text-neutral-600 dark:text-neutral-400 border border-dashed border-neutral-300 dark:border-neutral-700 select-none hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                    >
+                      {skill}
+                    </span>
+                  ))
+                ) : (
+                  <p className="text-[10px] text-neutral-400 italic">
+                    Add technologies to your projects to populate this stack.
+                  </p>
+                )}
+              </div>
             </div>
             {/* Decorative dotted line at bottom */}
-            <div className="h-px w-full bg-gradient-to-r from-transparent via-neutral-200 dark:via-neutral-800 to-transparent border-t border-dashed border-neutral-300 dark:border-neutral-700 opacity-50 block" />
+            <div className="h-px w-full bg-linear-to-r from-transparent via-neutral-200 dark:via-neutral-800 to-transparent border-t border-dashed border-neutral-300 dark:border-neutral-700 opacity-50 block" />
           </div>
 
           {/* Recent Projects */}
@@ -439,7 +453,7 @@ export function DashboardOverview({ data, analytics }: DashboardOverviewProps) {
               )}
             </div>
             {/* Decorative dotted line at bottom */}
-            <div className="h-px w-full bg-gradient-to-r from-transparent via-neutral-200 dark:via-neutral-800 to-transparent border-t border-dashed border-neutral-300 dark:border-neutral-700 opacity-50 block" />
+            <div className="h-px w-full bg-linear-to-r from-transparent via-neutral-200 dark:via-neutral-800 to-transparent border-t border-dashed border-neutral-300 dark:border-neutral-700 opacity-50 block" />
           </div>
 
           {/* Pro Tip */}

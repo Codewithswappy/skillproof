@@ -71,6 +71,7 @@ export function VisibilitySettings({ data }: VisibilitySettingsProps) {
     const showSummary = formData.get("showSummary") === "on";
     const showAchievements = formData.get("showAchievements") === "on";
     const showCertificates = formData.get("showCertificates") === "on";
+    const showContact = formData.get("showContact") === "on";
 
     const result = await updateProfileSettings({
       showEmail,
@@ -80,6 +81,7 @@ export function VisibilitySettings({ data }: VisibilitySettingsProps) {
       showSummary,
       showAchievements,
       showCertificates,
+      showContact,
     });
 
     if (result.success) {
@@ -157,6 +159,14 @@ export function VisibilitySettings({ data }: VisibilitySettingsProps) {
             label="Show Certifications"
             description="Display your professional certifications."
             defaultChecked={profileSettings.showCertificates ?? true}
+          />
+
+          {/* Show Contact / CTA */}
+          <ToggleItem
+            id="showContact"
+            label="Show Contact / CTA Section"
+            description="Display the 'Book a Free Call' section at the bottom."
+            defaultChecked={(profileSettings as any).showContact ?? true}
           />
         </div>
 

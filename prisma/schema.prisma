@@ -98,6 +98,8 @@ model Profile {
   image     String?  // Profile picture URL
   coverImage String? // Profile cover/banner image URL
   location   String?
+  ctaMessage String? // Custom Call-to-Action message
+  meetingUrl String? // Custom meeting URL (e.g. Cal.com)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -217,6 +219,7 @@ model ProfileSettings {
   showSummary     Boolean  @default(true)
   showAchievements Boolean @default(true)
   showCertificates Boolean @default(true)
+  showContact     Boolean  @default(true)
   
   // Primary Resume for Public Profile (Optional - falls back to auto-generated)
   primaryResumeId String?

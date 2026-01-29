@@ -426,18 +426,55 @@ export function ProjectForm({
                 <IconPlus className="w-3.5 h-3.5" />
               </Button>
             </div>
+
+            {/* Quick Add Suggestions */}
+            <div className="pt-2">
+              <p className="text-[10px] uppercase font-mono text-neutral-400 mb-1.5 font-bold">
+                Quick Add:
+              </p>
+              <div className="flex flex-wrap gap-1.5 opacity-80">
+                {[
+                  "React",
+                  "Next.js",
+                  "TypeScript",
+                  "TailwindCSS",
+                  "Node.js",
+                  "MongoDB",
+                  "Express",
+                  "GitHub",
+                  "Vercel",
+                ].map(
+                  (t) =>
+                    !techStack.includes(t) && (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => {
+                          if (!techStack.includes(t)) {
+                            setTechStack([...techStack, t]);
+                          }
+                        }}
+                        className="px-2 py-1 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-sm text-[10px] font-mono text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-200 hover:border-neutral-900 dark:hover:border-neutral-200 transition-colors"
+                      >
+                        + {t}
+                      </button>
+                    ),
+                )}
+              </div>
+            </div>
+
             {techStack.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 pt-1">
+              <div className="flex flex-wrap gap-1.5 pt-3">
                 {techStack.map((tech) => (
                   <span
                     key={tech}
-                    className="inline-flex items-center gap-1.5 px-2 py-1 bg-neutral-100 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-800 rounded-sm text-[10px] font-mono uppercase font-bold"
+                    className="inline-flex items-center gap-1.5 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 border border-neutral-900 dark:border-neutral-100 rounded-sm text-[10px] font-mono uppercase font-bold shadow-sm"
                   >
                     {tech}
                     <button
                       type="button"
                       onClick={() => removeTech(tech)}
-                      className="hover:text-red-500 transition-colors"
+                      className="hover:text-red-300 dark:hover:text-red-500 transition-colors"
                     >
                       <IconX className="w-3 h-3" />
                     </button>

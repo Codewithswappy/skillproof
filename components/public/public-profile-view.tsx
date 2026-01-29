@@ -16,7 +16,17 @@ import { CertificatesSection } from "@/components/public/certificates-section";
 import { ProjectDetailsDialog } from "@/components/public/project-details-dialog";
 import { ResumeView } from "@/components/public/resume-view";
 import { AnimatePresence, motion } from "motion/react";
-import { Icon3dRotate, IconArcheryArrow, IconArchive, IconCurlyLoop, IconFoldUp, IconInfinity, IconRotate, IconRotate360, IconRotate3d } from "@tabler/icons-react";
+import {
+  Icon3dRotate,
+  IconArcheryArrow,
+  IconArchive,
+  IconCurlyLoop,
+  IconFoldUp,
+  IconInfinity,
+  IconRotate,
+  IconRotate360,
+  IconRotate3d,
+} from "@tabler/icons-react";
 
 // Props definition
 
@@ -36,18 +46,65 @@ function getAllTech(projects: Project[]): string[] {
 }
 
 // Helper to get tech icon (case-insensitive)
+// Helper to get tech icon (case-insensitive)
 function getTechIcon(techName: string) {
-  // Find matching key in TechIcons (case-insensitive)
+  // 1. Try local TechIcons map first (for custom designed icons)
   const iconKey = Object.keys(TechIcons).find(
     (key) => key.toLowerCase() === techName.toLowerCase(),
   );
-  return iconKey ? TechIcons[iconKey] : null;
+
+  if (iconKey) {
+    return TechIcons[iconKey];
+  }
+
+  // 2. Fallback to Simple Icons CDN
+  // We need to normalize the name: 'C++' -> 'cplusplus', 'Node.js' -> 'nodedotjs', etc.
+  // Simple normalization for common cases
+  let slug = techName
+    .toLowerCase()
+    .replace(/\+/g, "plus")
+    .replace(/\./g, "dot")
+    .replace(/\s/g, "");
+
+  return (
+    <img
+      src={`https://cdn.simpleicons.org/${slug}/000000`}
+      onError={(e) => {
+        // If CDN fails, hide image so text fallback shows (parent handles this check theoretically,
+        // but parent checks "if (Icon)". Since this IS an element, parent sees it as true.
+        // We need a way to tell parent "image failed".
+        // Actually, for the Marquee, we can just hide this img and let the text stay?
+        // The parent logic was: {Icon ? Icon : Text}.
+        // If we return an <img>, Icon is truthy.
+        // So we style this img to hide on error.
+        (e.target as HTMLImageElement).style.display = "none";
+        // We can't easily swap to text state from here without component state.
+        // A better approach is to make this a proper component.
+      }}
+      alt={techName}
+      className="w-[14px] h-[14px] dark:invert"
+    />
+  );
 }
 
 // Generate unique session ID
 function generateSessionId(): string {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 }
+
+const fadeIn = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5, ease: "easeOut" },
+};
+
+const stagger = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
 
 export function PublicProfileView({ data }: PublicProfileViewProps) {
   const { profile, projects, userName, profileSettings } = data;
@@ -138,7 +195,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
 
   return (
     <div className="relative min-h-screen bg-neutral-950 overflow-hidden perspective-1000">
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence mode="wait" initial={true}>
         {!showResume ? (
           <motion.div
             key="profile"
@@ -150,26 +207,54 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
             style={{ transformStyle: "preserve-3d" }}
           >
             {/* <ViewfinderFrame className="max-w-3xl mx-auto"> */}
-            <div className="min-h-screen bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 font-sans selection:bg-neutral-900 selection:text-white dark:selection:bg-white dark:selection:text-black">
-              <div className="max-w-3xl mx-auto border border-dashed border-neutral-200 dark:border-neutral-800">
+            <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 font-sans selection:bg-neutral-900 selection:text-white dark:selection:bg-white dark:selection:text-black py-2 md:py-4 lg:py-4">
+              <div className="max-w-3xl mx-auto bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 shadow-2xl shadow-neutral-200/50 dark:shadow-none border-dashed overflow-hidden relative">
+                {/* Top Status Bar Decoration */}
+                <div className="hidden md:flex h-6 bg-neutral-100 dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 px-3 items-center justify-between">
+                  <div className="flex gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-neutral-300 dark:bg-neutral-700" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-neutral-300 dark:bg-neutral-700" />
+                  </div>
+                  <div className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest">
+                    Profile_Base_v1.0
+                  </div>
+                </div>
                 {/* --- COVER IMAGE --- */}
-                <div className="w-full h-[120px] md:h-[160px] relative overflow-hidden">
-                  <div className="absolute inset-0 bg-neutral-900/10 dark:bg-neutral-900/30 pointer-events-none"></div>
+                <div className="w-full h-[120px] md:h-[180px] relative overflow-hidden bg-neutral-100 dark:bg-neutral-900">
+                  <div className="absolute inset-0 bg-neutral-900/10 dark:bg-neutral-900/30 z-10 pointer-events-none mix-blend-overlay"></div>
+
+                  {/* Grid Pattern Overlay */}
+                  <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 z-10 pointer-events-none mix-blend-soft-light"></div>
+
                   {profile.coverImage ? (
-                    <img
+                    <Image
                       src={profile.coverImage}
                       alt="Cover"
-                      className="w-full h-full object-cover"
+                      fill
+                      priority
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 800px"
                     />
                   ) : (
-                    <div className="w-full h-full bg-linear-to-br from-neutral-300 to-neutral-500 dark:from-neutral-700 dark:to-neutral-900" />
+                    <div className="w-full h-full bg-linear-to-br from-neutral-200 to-neutral-400 dark:from-neutral-800 dark:to-neutral-900" />
                   )}
+
+                  {/* Decorative Tech Lines */}
+                  <div className="absolute bottom-0 left-0 w-full h-px bg-linear-to-r from-transparent via-neutral-500/50 to-transparent z-20" />
                 </div>
 
                 {/* --- HEADER SECTION (Below cover) --- */}
-                <div className="px-4 md:px-6 py-4">
+                <motion.div
+                  className="px-4 md:px-6 py-4"
+                  initial="initial"
+                  animate="animate"
+                  variants={stagger}
+                >
                   {/* Avatar + Name/Headline Row */}
-                  <div className="flex items-center gap-4 -mt-12 md:-mt-14">
+                  <motion.div
+                    variants={fadeIn}
+                    className="flex items-center gap-4 -mt-12 md:-mt-14"
+                  >
                     {/* Avatar - overlaps cover image */}
                     <div className="shrink-0 relative z-20">
                       <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden bg-white dark:bg-neutral-800  border-4 border-white dark:border-neutral-950 ring-1 ring-black/5 dark:ring-white/10">
@@ -191,7 +276,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
 
                     {/* Name & Headline - Right of Avatar */}
                     <div className="min-w-0 pt-10 md:pt-12">
-                      <h1 className="text-xl md:text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
+                      <h1 className="text-xl md:text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 text-balance leading-tight">
                         {displayName}
                       </h1>
                       <p className="text-sm md:text-base text-neutral-500 dark:text-neutral-400 font-medium">
@@ -216,10 +301,13 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                         </p>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
 
                   {/* Socials + Buttons Row */}
-                  <div className="flex items-center justify-between pt-4">
+                  <motion.div
+                    variants={fadeIn}
+                    className="flex items-center justify-between pt-4"
+                  >
                     {/* Socials */}
                     <div className="flex flex-wrap items-center ">
                       <SocialsSection links={data.socialLinks} />
@@ -253,38 +341,49 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                         </a>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
 
                   {/* Resume & Contact Buttons */}
-                  <div className="flex items-center justify-end gap-3 pt-8">
-                    <button
-                     
-                      className="cursor-pointer flex pr-4 items-center gap-1 border-2 border-dashed border-neutral-300 dark:border-neutral-700 rounded-lg"
+                  <motion.div
+                    variants={fadeIn}
+                    className="flex items-center justify-end gap-3 pt-8"
+                  >
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => setShowResume(true)}
+                      className="group flex items-center gap-2 px-4 py-2 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors cursor-pointer shadow-sm hover:shadow-md"
                     >
-                     <span className="bg-neutral-300 dark:bg-neutral-700 px-3 py-2 rounded-lg shadow-sm shadow-black/10  text-neutral-900 dark:text-neutral-100 font-medium">Resume</span>
-                      <IconFoldUp className="w-5 h-5" />
-                    </button>
+                      <span className="text-sm font-medium text-neutral-600 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
+                        Resume
+                      </span>
+                      <IconFoldUp className="w-4 h-4 text-neutral-400 group-hover:text-neutral-600 dark:text-neutral-500 dark:group-hover:text-neutral-300 transition-colors" />
+                    </motion.button>
 
-                    {profileSettings.showEmail && data.email ? (
-                      <a href={`mailto:${data.email}`}>
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {profileSettings.showEmail && data.email ? (
+                        <a href={`mailto:${data.email}`}>
+                          <ViewfinderButton
+                            variant="filled"
+                            className="cursor-pointer rounded-lg px-6 h-[42px]"
+                          >
+                            Contact
+                          </ViewfinderButton>
+                        </a>
+                      ) : (
                         <ViewfinderButton
                           variant="filled"
-                          className="cursor-pointer rounded-lg px-6"
+                          className="cursor-pointer rounded-none opacity-50 h-[42px]"
+                          title="Contact info hidden"
                         >
                           Contact
                         </ViewfinderButton>
-                      </a>
-                    ) : (
-                      <ViewfinderButton
-                        variant="filled"
-                        className="cursor-pointer rounded-none opacity-50 "
-                        title="Contact info hidden"
-                      >
-                        Contact
-                      </ViewfinderButton>
-                    )}
-                  </div>
+                      )}
+                    </motion.div>
+                  </motion.div>
 
                   {/* Dotted Line Divider */}
                   <div className="flex justify-center pt-6">
@@ -301,16 +400,19 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                       />
                     </svg>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* --- MAIN CONTENT --- */}
                 <div className="px-4 md:px-6 pt-8 space-y-10 bg-white dark:bg-neutral-950">
                   {/* --- EXPERIENCE --- */}
                   {showExperience && (
-                    <div className="space-y-6">
-                      <h2 className="font-bold font-mono text-neutral-400 dark:text-neutral-600 tracking-tight uppercase text-md">
-                        // Experience
-                      </h2>
+                    <div className="space-y-6 relative">
+                      {/* Section Header */}
+                      <div className="flex items-center justify-between md:justify-start gap-4 mb-6">
+                        <h2 className="font-mono text-xs font-bold text-neutral-500 dark:text-neutral-500 tracking-wider uppercase flex items-center gap-2">
+                          // Experience
+                        </h2>
+                      </div>
                       <ExperienceSection experiences={data.experiences} />
                       {data.experiences && data.experiences.length === 0 && (
                         <div className="py-8 text-center text-sm text-neutral-500 font-mono">
@@ -338,14 +440,13 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
 
                   {showProjects && (
                     <div className="relative px-0 md:px-6">
-                      {/* Corner Boxes */}
-                      {/* <div className="absolute -top-5 -left-5 w-5 h-5 border border-dashed border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-950" />
-                <div className="absolute -top-5 -right-5 w-5 h-5 border border-dashed border-neutral-400 dark:border-neutral-600 bg-white dark:bg-neutral-950" />
-                <div className="absolute -bottom-5 -left-5 w-5 h-5 border border-dashed border-neutral-400 dark:border-neutral-600 bg-white dark:bg-neutral-950" />
-                <div className="absolute -bottom-5 -right-5 w-5 h-5 border border-dashed border-neutral-400 dark:border-neutral-600 bg-white dark:bg-neutral-950" /> */}
-                      <div className="flex items-center justify-between md:justify-start gap-4">
-                        <h2 className="font-bold font-mono text-neutral-400 dark:text-neutral-600 tracking-tight uppercase text-md">
-                          // Projects
+                      {/* Technical Corner Markers - Viewfinder Aesthetic */}
+                      <div className="absolute -top-6 -left-2 w-4 h-4 border-t border-l border-neutral-300 dark:border-neutral-700 hidden md:block" />
+                      <div className="absolute -top-6 -right-2 w-4 h-4 border-t border-r border-neutral-300 dark:border-neutral-700 hidden md:block" />
+
+                      <div className="flex items-center justify-between md:justify-start gap-4 mb-6">
+                        <h2 className="font-mono text-xs font-bold text-neutral-500 dark:text-neutral-500 tracking-wider uppercase flex items-center gap-2">
+                          // Selected Work
                         </h2>
                       </div>
                       <div className="w-full flex items-center md:justify-end justify-start py-10">
@@ -364,15 +465,26 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                             No projects initialized.
                           </div>
                         ) : (
-                          projects.map((project) => (
-                            <ProjectCard
+                          projects.map((project, index) => (
+                            <motion.div
                               key={project.id}
-                              project={project}
-                              onInteraction={() =>
-                                handleProjectInteraction(project.id)
-                              }
-                              onClick={() => setSelectedProject(project)}
-                            />
+                              initial={{ opacity: 0, y: 20 }}
+                              whileInView={{ opacity: 1, y: 0 }}
+                              viewport={{ once: true, margin: "-50px" }}
+                              transition={{ duration: 0.4, delay: index * 0.1 }}
+                              whileHover={{
+                                y: -5,
+                                transition: { duration: 0.2 },
+                              }}
+                            >
+                              <ProjectCard
+                                project={project}
+                                onInteraction={() =>
+                                  handleProjectInteraction(project.id)
+                                }
+                                onClick={() => setSelectedProject(project)}
+                              />
+                            </motion.div>
                           ))
                         )}
                       </div>
@@ -406,33 +518,38 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                   {/* --- TECH STACK MARQUEE --- */}
                   {showTechStack && allTech.length > 0 && (
                     <div className="">
-                      <div className="flex items-center justify-between mb-6">
-                        <span className="text-md font-semibold text-neutral-400 dark:text-neutral-600 font-mono tracking-tight uppercase">
+                      <div className="flex items-center justify-between md:justify-start gap-4 mb-6">
+                        <h2 className="font-mono text-xs font-bold text-neutral-500 dark:text-neutral-500 tracking-wider uppercase flex items-center gap-2">
                           // Tech Stack
-                        </span>
-                        {/* <div className="h-px flex-1 bg-neutral-200 dark:bg-neutral-800 ml-4 border-b border-dashed border-neutral-300 dark:border-neutral-700/30"></div> */}
+                        </h2>
                       </div>
 
                       <div className="relative w-full mt-4 overflow-visible">
                         <div className="relative flex overflow-x-hidden w-full">
                           {/* Left Fade Mask */}
-                          <div className="absolute left-0 top-0 bottom-0 w-20 z-20 bg-gradient-to-r from-white dark:from-neutral-950 to-transparent pointer-events-none"></div>
+                          <div className="absolute left-0 top-0 bottom-0 w-24 z-20 bg-linear-to-r from-white dark:from-neutral-950 to-transparent pointer-events-none"></div>
                           {/* Right Fade Mask */}
-                          <div className="absolute right-0 top-0 bottom-0 w-20 z-20 bg-gradient-to-l from-white dark:from-neutral-950 to-transparent pointer-events-none"></div>
+                          <div className="absolute right-0 top-0 bottom-0 w-24 z-20 bg-linear-to-l from-white dark:from-neutral-950 to-transparent pointer-events-none"></div>
 
-                          <div className="flex animate-marquee whitespace-nowrap gap-12 py-4">
+                          <div className="flex animate-marquee whitespace-nowrap gap-8 py-4 group">
                             {marqueeTech.map((tech, index) => {
                               const Icon = getTechIcon(tech);
                               return (
                                 <div
                                   key={`${tech}-${index}`}
-                                  className="flex-shrink-0 group relative"
+                                  className="flex-shrink-0 relative transition-all duration-300 group-hover:blur-[2px] group-hover:opacity-40 hover:blur-none! hover:opacity-100! hover:scale-110! z-10"
                                 >
                                   <div
-                                    className="flex items-center justify-center p-1 transition-all duration-300 cursor-pointer text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 scale-[1.5] hover:scale-[1.8] grayscale hover:grayscale-0 opacity-70 hover:opacity-100"
+                                    className="flex items-center justify-center p-2 px-6 border-[0.5px] border-dashed border-neutral-300 dark:border-neutral-700 transition-all duration-300 cursor-pointer text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 scale-[1.5] bg-white dark:bg-neutral-950 grayscale hover:grayscale-0"
                                     title={tech}
                                   >
-                                    {Icon}
+                                    {Icon ? (
+                                      Icon
+                                    ) : (
+                                      <span className="text-[10px] font-mono font-bold uppercase tracking-widest">
+                                        {tech}
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
                               );
@@ -460,7 +577,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                   </div>
 
                   {/* --- ACHIEVEMENTS --- */}
-                  <div className="px-0 md:px-6">
+                  <div className="">
                     <AchievementsSection
                       achievements={data.achievements}
                       showAchievements={data.profileSettings.showAchievements}
@@ -487,7 +604,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                   {data.profileSettings.showCertificates !== false &&
                     data.certificates &&
                     data.certificates.length > 0 && (
-                      <div className="px-0 md:px-6">
+                      <div className="">
                         <CertificatesSection certificates={data.certificates} />
                       </div>
                     )}
@@ -510,17 +627,147 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
 
                   {/* Summary (About) */}
                   {showSummary && profile.summary && (
-                    <div className="flex flex-col gap-4  text-center pb-10 pt-0 px-0 md:px-6">
-                      <div className="flex items-center justify-between">
-                        <h2 className="font-bold font-mono text-neutral-400 dark:text-neutral-600 tracking-tight uppercase text-md">
-                          // About me
+                    <div className="space-y-6 ">
+                      <div className="flex items-center justify-between md:justify-start gap-4 mb-2">
+                        <h2 className="font-mono text-xs font-bold text-neutral-500 dark:text-neutral-500 tracking-wider uppercase flex items-center gap-2">
+                          // About Me
                         </h2>
                       </div>
-                      <p className="text-sm text-left text-neutral-500 dark:text-neutral-400 leading-relaxed">
-                        {profile.summary}
-                      </p>
+
+                      <div className="relative pl-0 md:pl-0">
+                        {/* Leaf Node Connector: L-Shape from top to text */}
+                        <div className="absolute left-[18px] top-[-10px] h-[30px] w-px bg-neutral-200 dark:bg-neutral-800" />
+                        <div className="absolute left-[18px] top-[20px] w-[20px] h-px bg-neutral-200 dark:bg-neutral-800" />
+
+                        {/* Terminal Square Node at end of connector */}
+                        <div className="absolute left-[39px] top-[17px] w-1.5 h-1.5 bg-neutral-200 dark:bg-neutral-800" />
+
+                        <div className="relative pl-12 md:pl-14">
+                          <div className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed font-sans text-left border-l-2 border-neutral-100 dark:border-neutral-800 pl-2 py-1">
+                            {profile.summary}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
+
+                  {/* --- CTA SECTION --- */}
+                  {data.profileSettings.showContact !== false && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      className=" py-6 text-center space-y-8 border max-w-2xl mx-auto border-dashed border-neutral-200 dark:border-neutral-800 relative"
+                    >
+                      {/* Decorative Background Blur */}
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--tw-gradient-stops))] from-neutral-100/50 via-transparent to-transparent dark:from-neutral-900/20 opacity-50 pointer-events-none" />
+
+                      <h2 className="relative text-xl md:text-2xl font-semibold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-neutral-800 to-neutral-500 dark:from-neutral-100 dark:to-neutral-500 max-w-lg mx-auto leading-tight">
+                        &ldquo;
+                        {profile.ctaMessage ||
+                          "Heyy, If you made it this far, let's chat."}
+                        &rdquo;
+                      </h2>
+
+                      {/* CTA Section Container with Node Lines */}
+                      <div className="relative flex justify-center py-8">
+                        {/* Decorative Node Lines Removed */}
+
+                        {/* CTA Button with Avatar */}
+                        <motion.div
+                          className="relative z-10 p-px rounded-full bg-linear-to-b from-neutral-200 to-neutral-300 dark:from-neutral-800 dark:to-neutral-900 group overflow-hidden"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          {/* Animated Border Gradient - Pure Black in Light, Pure White in Dark */}
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300%] h-[500%] bg-[conic-gradient(from_90deg_at_50%_50%,transparent_0%,#000000_50%,transparent_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,transparent_0%,#ffffff_50%,transparent_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-[spin_4s_linear_infinite]" />
+
+                          <a
+                            href={
+                              (profile as any).meetingUrl ||
+                              (data.email ? `mailto:${data.email}` : "#")
+                            }
+                            target={
+                              (profile as any).meetingUrl ? "_blank" : undefined
+                            }
+                            rel={
+                              (profile as any).meetingUrl
+                                ? "noopener noreferrer"
+                                : undefined
+                            }
+                            className="relative flex items-center gap-4 bg-white dark:bg-neutral-950 px-2 pl-2 pr-8 py-2 rounded-full border-[0.5px] border-neutral-200 dark:border-neutral-800 group-hover:border-transparent transition-colors duration-300 overflow-hidden"
+                          >
+                            {/* Shimmer Effect */}
+                            <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_2s_infinite] bg-linear-to-r from-transparent via-neutral-100/50 dark:via-neutral-800/50 to-transparent z-0 pointer-events-none" />
+
+                            {/* Subtle Inner Pattern */}
+                            <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat rounded-full" />
+                            <div
+                              className="absolute inset-0 opacity-[0.05] dark:opacity-[0.1] pointer-events-none rounded-full"
+                              style={{
+                                backgroundImage:
+                                  "radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)",
+                                backgroundSize: "12px 12px",
+                              }}
+                            />
+
+                            {/* Node Connectors (Top/Bottom/Left/Right) - On the EDGE of the button */}
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-neutral-50 dark:bg-neutral-950 rounded-full border border-neutral-300 dark:border-neutral-700 z-20 group-hover:border-neutral-500 dark:group-hover:border-neutral-400 transition-colors shadow-sm" />
+                            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-1.5 h-1.5 bg-neutral-50 dark:bg-neutral-950 rounded-full border border-neutral-300 dark:border-neutral-700 z-20 group-hover:border-neutral-500 dark:group-hover:border-neutral-400 transition-colors shadow-sm" />
+                            <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-neutral-50 dark:bg-neutral-950 rounded-full border border-neutral-300 dark:border-neutral-700 z-20 group-hover:border-neutral-500 dark:group-hover:border-neutral-400 transition-colors shadow-sm" />
+                            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-1.5 h-1.5 bg-neutral-50 dark:bg-neutral-950 rounded-full border border-neutral-300 dark:border-neutral-700 z-20 group-hover:border-neutral-500 dark:group-hover:border-neutral-400 transition-colors shadow-sm" />
+
+                            {/* Avatar Container */}
+                            <div className="w-10 h-10 rounded-full overflow-hidden bg-neutral-100 ring-2 ring-neutral-100 dark:ring-neutral-900 group-hover:ring-neutral-200 dark:group-hover:ring-neutral-700 transition-all flex items-center justify-center shrink-0 relative z-10 shadow-inner">
+                              {profile.image ? (
+                                <Image
+                                  src={profile.image}
+                                  alt={displayName}
+                                  width={40}
+                                  height={40}
+                                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300"
+                                />
+                              ) : (
+                                <User className="w-5 h-5 text-neutral-400" />
+                              )}
+                            </div>
+
+                            {/* Text Content */}
+                            <div className="flex flex-col items-start relative z-10 gap-0.5">
+                              <span className="font-bold text-sm text-neutral-800 dark:text-neutral-200 leading-none group-hover:text-black dark:group-hover:text-white transition-colors">
+                                Book a Free Call
+                              </span>
+                              {/* Smooth Reveal Subtitle */}
+                              <div className="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-[grid-template-rows] duration-300 ease-out">
+                                <span className="text-[10px] text-neutral-500 font-mono tracking-tight overflow-hidden flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                                  {(profile as any).meetingUrl
+                                    ? "Schedule meeting"
+                                    : "Send me an email"}
+                                  <span className="opacity-0 group-hover:opacity-100 transition-opacity delay-200">
+                                    &gt;
+                                  </span>
+                                </span>
+                              </div>
+                            </div>
+                          </a>
+                        </motion.div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* --- FOOTER --- */}
+                  <footer className="border-t border-dashed border-neutral-200 dark:border-neutral-800 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-neutral-400 dark:text-neutral-600 text-[10px] font-mono uppercase tracking-wider">
+                    <div>
+                      &copy; {new Date().getFullYear()} {displayName}. All
+                      Rights Reserved.
+                    </div>
+                    <div className="flex items-center gap-4 opacity-70 hover:opacity-100 transition-opacity">
+                      <SocialsSection
+                        links={data.socialLinks}
+                        className="scale-90"
+                      />
+                    </div>
+                  </footer>
                 </div>
               </div>
             </div>

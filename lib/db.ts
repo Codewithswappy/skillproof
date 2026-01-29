@@ -1,4 +1,5 @@
 import { PrismaNeon } from "@prisma/adapter-neon";
+// Force client refresh: 2
 import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as unknown as {

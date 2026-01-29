@@ -45,7 +45,13 @@ export async function GET(request: NextRequest) {
 // POST: Register/heartbeat a visitor session
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    let body;
+    try {
+      const text = await request.text();
+      body = text ? JSON.parse(text) : {};
+    } catch {
+      body = {};
+    }
     const { profileId, sessionId } = body;
 
     if (!profileId || !sessionId) {

@@ -1,12 +1,13 @@
 "use client";
 
 import { Certificate } from "@prisma/client";
-import { ExternalLink, Award } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ChevronDown } from "lucide-react";
+import { IconArrowUpRight } from "@tabler/icons-react";
 
 interface CertificatesSectionProps {
   certificates: Certificate[];
@@ -28,34 +29,47 @@ export function CertificatesSection({
 
   return (
     <section className="space-y-6">
-      <div className="flex items-center gap-2">
-        <h2 className="font-bold font-mono text-neutral-400 dark:text-neutral-600 tracking-tight uppercase text-md">
+      <div className="flex items-center justify-between md:justify-start gap-4 mb-6">
+        <h2 className="font-mono text-xs font-bold text-neutral-500 dark:text-neutral-500 tracking-wider uppercase flex items-center gap-2">
           // Certifications
         </h2>
-        <span className="text-[10px] font-medium font-mono text-neutral-500">
-          ({certificates.length})
+        <span className="text-[10px] font-medium font-mono text-neutral-400 dark:text-neutral-600">
+          // {certificates.length}
         </span>
       </div>
 
-      <div className="grid gap-2">
-        {displayed.map((item) => (
-          <CertificateItem key={item.id} item={item} />
-        ))}
+      <div className="relative pl-0 md:pl-0">
+        {/* Vertical Timeline Line */}
+        <div className="absolute left-[19px] top-[10px] bottom-0 w-px bg-linear-to-b from-neutral-200 via-neutral-200 to-transparent dark:from-neutral-800 dark:via-neutral-800 h-full" />
+
+        <div className="space-y-6 relative">
+          {displayed.map((item, index) => (
+            <motion.div
+              key={item.id}
+              className="relative pl-12 md:pl-14"
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1, duration: 0.4 }}
+            >
+              {/* Horizontal Connector */}
+              <div className="absolute left-[20px] top-[24px] w-[20px] md:w-[28px] h-px bg-neutral-200 dark:bg-neutral-800" />
+              {/* Connector Node */}
+              <div className="absolute left-[18px] top-[22px] w-1.5 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800 ring-2 ring-white dark:ring-neutral-950" />
+
+              <CertificateItem item={item} />
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       {certificates.length > 5 && (
-        <div className="flex justify-center pt-2">
+        <div className="flex justify-center pt-4">
           <button
             onClick={() => setShowAll(!showAll)}
-            className="flex items-center gap-2 text-sm font-medium text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-full px-4 py-1.5 shadow-sm hover:shadow active:scale-95 duration-200"
+            className="text-xs font-mono font-medium text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors flex items-center gap-2"
           >
-            {showAll ? "Show Less" : "Show More"}
-            <ChevronDown
-              className={cn(
-                "w-4 h-4 transition-transform",
-                showAll && "rotate-180",
-              )}
-            />
+            [{showAll ? "SHOW LESS" : "SHOW MORE"}]
           </button>
         </div>
       )}
@@ -75,24 +89,29 @@ function CertificateItem({ item }: { item: Certificate }) {
     .join(".");
 
   return (
-    <div className="group relative flex items-center justify-between p-2 border border-dashed hover:border-neutral-200 dark:hover:border-neutral-800 transition-all duration-300">
+    <div className="group relative flex items-center justify-between p-2 border border-dashed border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-all duration-300">
       <div className="flex items-center gap-4 text-left">
-        {/* Placeholder Icon - could be dynamic if we had logos */}
-        <div className="w-8 h-8 rounded-lg bg-neutral-200 dark:bg-neutral-900 flex items-center justify-center shrink-0 text-neutral-500 dark:text-neutral-400 font-bold text-xs">
+        {/* Initials Icon Block */}
+        <div className="w-8 h-8 rounded-sm bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center shrink-0 text-neutral-500 dark:text-neutral-400 font-bold text-sm tracking-tighter shadow-sm border border-neutral-200 dark:border-neutral-800">
           {item.issuer.substring(0, 2).toUpperCase()}
         </div>
 
-        <div className="border-l  pl-2">
-          <h3 className="font-bold text-neutral-900 dark:text-neutral-100 text-[13px]">
+        <div className="flex flex-col">
+          <h3 className="font-bold text-neutral-900 dark:text-neutral-100 text-[13px] leading-tight">
             {item.name}
           </h3>
-          <div className="flex flex-wrap items-center gap-2 text-[10px] font-medium text-neutral-500 mt-1">
-            <span className="text-neutral-600 dark:text-neutral-400">
+          <div className="flex flex-wrap items-center gap-2 text-[11px] text-neutral-500 mt-1 font-mono">
+            <span className="text-neutral-600 dark:text-neutral-400 font-medium">
               @{item.issuer}
             </span>
             <span className="opacity-30">|</span>
-            <span className="font-mono">{formattedDate}</span>
+            <span className="">{formattedDate}</span>
           </div>
+          {/* {item.credentialId && (
+            <div className="text-[10px] text-neutral-400 dark:text-neutral-500 font-mono mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              ID: {item.credentialId}
+            </div>
+          )} */}
         </div>
       </div>
 
@@ -100,24 +119,9 @@ function CertificateItem({ item }: { item: Certificate }) {
         <Link
           href={item.url}
           target="_blank"
-          className="p-2 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+          className="p-2 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors transform group-hover:translate-x-1 duration-300 group-hover:-translate-y-1"
         >
-          <svg
-            width="10"
-            height="10"
-            viewBox="0 0 12 12"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-3 h-3"
-          >
-            <path
-              d="M1 11L11 1M11 1H3M11 1V9"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <IconArrowUpRight className="w-4 h-4 opacity-50 group-hover:opacity-100" />
         </Link>
       )}
     </div>

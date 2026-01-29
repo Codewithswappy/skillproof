@@ -50,28 +50,38 @@ export function AchievementsSection({
 
   return (
     <section className="space-y-6">
-      <div className="flex items-center gap-2">
-        <h2 className="font-bold font-mono text-neutral-400 dark:text-neutral-600 tracking-tight uppercase text-md">
+      <div className="flex items-center justify-between md:justify-start gap-4 mb-6">
+        <h2 className="font-mono text-xs font-bold text-neutral-500 dark:text-neutral-500 tracking-wider uppercase flex items-center gap-2">
           // Honors & Awards
         </h2>
-        <span className="text-[10px] font-medium font-mono text-neutral-500">
-          ({achievements.length})
+        <span className="text-[10px] font-medium font-mono text-neutral-400 dark:text-neutral-600">
+          // {achievements.length}
         </span>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-8">
         {sortedTypes.map((type) => (
-          <div key={type} className="relative group/section">
-            <div className="grid gap-2 relative">
+          <div key={type} className="relative group/section pl-0 md:pl-0">
+            {/* Vertical Timeline Line (Dashed for Achievements) */}
+            <div className="absolute left-[19px] top-[10px] bottom-0 w-px border-l border-dashed border-neutral-300 dark:border-neutral-700 h-full" />
+
+            <div className="space-y-6 relative">
               {groupedAchievements[type].map((item, index) => (
-                <AchievementItem
+                <motion.div
                   key={item.id}
-                  item={item}
-                  index={index}
-                  isFirst={index === 0}
-                  isLast={index === groupedAchievements[type].length - 1}
-                  groupSize={groupedAchievements[type].length}
-                />
+                  className="relative pl-12 md:pl-14"
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.4 }}
+                >
+                  {/* Horizontal Connector (Dashed) */}
+                  <div className="absolute left-[20px] top-[24px] w-[20px] md:w-[28px] h-px border-t border-dashed border-neutral-300 dark:border-neutral-700" />
+                  {/* Connector Node (Diamond) */}
+                  <div className="absolute left-[16px] top-[20px] w-2 h-2 rotate-45 bg-white dark:bg-neutral-950 border border-neutral-400 dark:border-neutral-600 z-10" />
+
+                  <AchievementItem item={item} />
+                </motion.div>
               ))}
             </div>
           </div>
@@ -81,19 +91,7 @@ export function AchievementsSection({
   );
 }
 
-function AchievementItem({
-  item,
-  index,
-  isFirst,
-  isLast,
-  groupSize,
-}: {
-  item: Achievement;
-  index: number;
-  isFirst: boolean;
-  isLast: boolean;
-  groupSize: number;
-}) {
+function AchievementItem({ item }: { item: Achievement }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const icons: Record<string, React.ElementType> = {
@@ -123,92 +121,53 @@ function AchievementItem({
   const typeLabel = typeLabels[item.type] || item.type;
 
   return (
-    <div className="relative">
-      {/* Connector Lines - Dotted SVG */}
-      {groupSize > 1 && (
-        <div
-          className="absolute left-[30px] top-0 bottom-0 flex flex-col items-center justify-center w-px pointer-events-none"
-          style={{ zIndex: 0 }}
-        >
-          {/* Top segment */}
-          {!isFirst && (
-            <svg className="absolute -top-3 h-[42px] w-px overflow-visible">
-              <line
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="42"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeDasharray="4 4"
-                className="text-neutral-200 dark:text-neutral-800"
-              />
-            </svg>
-          )}
-
-          {/* Bottom segment */}
-          {!isLast && (
-            <svg className="absolute top-[30px] -bottom-3 w-px h-[calc(100%-18px)] overflow-visible">
-              <line
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="100%"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeDasharray="4 4"
-                className="text-neutral-200 dark:text-neutral-800"
-              />
-            </svg>
-          )}
-        </div>
-      )}
-
+    <div className="relative group/role">
       <div
-        className="group relative flex flex-col items-start gap-1 p-4 cursor-pointer select-none "
+        className="group relative flex flex-col items-start gap-1 cursor-pointer select-none"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <div className="w-full flex items-start justify-between gap-4">
-          <div className="flex items-start gap-4">
+        <div className="w-full flex items-start justify-between gap-4 group-hover:translate-x-1 transition-transform duration-300">
+          <div className="flex items-start gap-4 flex-1">
             <div className="relative z-30">
-              {/* Icon Wrapper z-30 to cover line */}
-              <div className="mt-0.5 w-[28px] h-[28px] flex items-center justify-center rounded-md bg-neutral-200 dark:bg-neutral-900 ring-4 ring-neutral-50 dark:ring-[#0a0a0a]">
+              {/* Icon Wrapper */}
+              <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-neutral-200 dark:border-neutral-800 shrink-0 shadow-sm overflow-hidden ring-4 ring-neutral-50 dark:ring-neutral-950">
                 <Icon className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
               </div>
             </div>
 
-            <div className="flex-1">
-              <h3 className="font-bold text-neutral-900 dark:text-neutral-100 text-base flex items-center gap-2">
+            <div className="flex-1 pt-1">
+              <h3 className="font-bold text-neutral-900 dark:text-neutral-100 text-sm leading-none">
                 {item.title}
               </h3>
-              <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-neutral-500 mt-0.5 font-mono">
+              <div className="flex flex-wrap items-center gap-2 text-[10px] text-neutral-500 mt-1.5 font-mono uppercase tracking-wide">
                 {item.subtitle && <span>{item.subtitle}</span>}
                 {item.subtitle && formattedDate && (
-                  <span className="opacity-50">|</span>
+                  <span className="opacity-30">|</span>
                 )}
                 {formattedDate && <span>{formattedDate}</span>}
                 {typeLabel && (formattedDate || item.subtitle) && (
-                  <span className="opacity-50">|</span>
+                  <span className="opacity-30">|</span>
                 )}
                 {typeLabel && <span>{typeLabel}</span>}
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="flex items-center gap-1 shrink-0 pt-1">
             {item.url && (
               <Link
                 href={item.url}
                 target="_blank"
                 onClick={(e) => e.stopPropagation()}
-                className="p-2 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-200 dark:hover:bg-neutral-800 rounded-md transition-colors"
+                className="p-1 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                title="View Link"
               >
-                <ExternalLink className="w-4 h-4" />
+                <ExternalLink className="w-3.5 h-3.5" />
               </Link>
             )}
             <div
               className={cn(
-                "p-2 text-neutral-400 transition-transform duration-300",
+                "p-1 text-neutral-400 transition-transform duration-300",
                 isOpen && "rotate-180",
               )}
             >
@@ -224,16 +183,16 @@ function AchievementItem({
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="overflow-hidden w-full pl-13"
+              className="overflow-hidden w-full pl-[48px]"
             >
-              <div className="pt-4 pb-2">
-                <ul className="space-y-2 list-none">
+              <div className="pt-3 pb-1">
+                <ul className="space-y-2 list-none text-[12px] text-neutral-600 dark:text-neutral-400">
                   {item.description.map((desc: string, i: number) => (
                     <li
                       key={i}
-                      className="flex items-start gap-2 text-[12px] text-neutral-600 dark:text-neutral-400 leading-normal"
+                      className="flex items-start gap-2 leading-relaxed"
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-neutral-300 dark:bg-neutral-700 mt-2 shrink-0" />
+                      <span className="w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700 mt-2 shrink-0" />
                       <span
                         dangerouslySetInnerHTML={{ __html: parseLinks(desc) }}
                       />

@@ -184,7 +184,7 @@ export async function updateProfile(
       return { success: false, error: (validated.error as any).errors[0].message };
     }
 
-    const { slug, headline, location, summary, image, coverImage } = validated.data;
+    const { slug, headline, location, summary, image, coverImage, ctaMessage, meetingUrl } = validated.data;
 
     // Get existing profile
     const existingProfile = await db.profile.findUnique({
@@ -216,6 +216,8 @@ export async function updateProfile(
         ...(summary !== undefined && { summary }),
         ...(image !== undefined && { image: image || null }),
         ...(coverImage !== undefined && { coverImage: coverImage || null }),
+        ...(ctaMessage !== undefined && { ctaMessage: ctaMessage || null }),
+        ...(meetingUrl !== undefined && { meetingUrl: meetingUrl || null }),
       },
     });
 
@@ -291,7 +293,8 @@ export async function updateProfileSettings(
       showTechStack, 
       showSummary,
       showAchievements,
-      showCertificates
+      showCertificates,
+      showContact
     } = validated.data;
 
     const settings = await db.profileSettings.update({
@@ -305,6 +308,7 @@ export async function updateProfileSettings(
         ...(showSummary !== undefined && { showSummary }),
         ...(showAchievements !== undefined && { showAchievements }),
         ...(showCertificates !== undefined && { showCertificates }),
+        ...(showContact !== undefined && { showContact }),
       },
     });
 

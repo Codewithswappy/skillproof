@@ -46,6 +46,8 @@ export const UpdateProfileSchema = z.object({
   summary: z.string().max(2000, "Summary must be at most 2000 characters").optional(),
   image: z.string().url("Invalid image URL").optional().or(z.literal("")),
   coverImage: z.string().url("Invalid cover image URL").optional().or(z.literal("")),
+  ctaMessage: z.string().max(200, "Message must be at most 200 characters").optional().or(z.literal("")),
+  meetingUrl: z.string().url("Invalid meeting URL").optional().or(z.literal("")),
 });
 
 export const UpdateProfileSettingsSchema = z.object({
@@ -57,6 +59,7 @@ export const UpdateProfileSettingsSchema = z.object({
   showSummary: z.boolean().optional(),
   showAchievements: z.boolean().optional(),
   showCertificates: z.boolean().optional(),
+  showContact: z.boolean().optional(),
 });
 
 // ============================================

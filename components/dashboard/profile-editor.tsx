@@ -77,6 +77,8 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
     const headline = formData.get("headline") as string;
     const location = formData.get("location") as string;
     const summary = formData.get("summary") as string;
+    const ctaMessage = formData.get("ctaMessage") as string;
+    const meetingUrl = formData.get("meetingUrl") as string;
 
     // Extract social links
     const socialLinks = [
@@ -96,6 +98,8 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
       headline,
       location,
       summary,
+      ctaMessage,
+      meetingUrl,
       image: imageUrl,
       coverImage: coverImageUrl,
     });
@@ -432,6 +436,38 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
                     placeholder="Briefly describe your background, interests, and what you're currently working on."
                     className="font-mono text-xs bg-neutral-50 dark:bg-neutral-950/50 border-neutral-300 dark:border-neutral-700 resize-none p-3 leading-relaxed"
                   />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-mono uppercase text-neutral-500">
+                    Call to Action Message
+                  </Label>
+                  <Textarea
+                    name="ctaMessage"
+                    defaultValue={(profile as any).ctaMessage || ""}
+                    rows={2}
+                    placeholder="Custom message for your contact section (e.g. 'Lets build something amazing together!')"
+                    className="font-mono text-xs bg-neutral-50 dark:bg-neutral-950/50 border-neutral-300 dark:border-neutral-700 resize-none p-3 leading-relaxed"
+                  />
+                  <p className="text-[10px] text-neutral-400">
+                    Falls back to default if empty.
+                  </p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-mono uppercase text-neutral-500">
+                    Meeting URL (Optional)
+                  </Label>
+                  <Input
+                    name="meetingUrl"
+                    defaultValue={(profile as any).meetingUrl || ""}
+                    placeholder="https://cal.com/your-username"
+                    className="font-mono text-xs bg-neutral-50 dark:bg-neutral-950/50 border-neutral-300 dark:border-neutral-700 h-9"
+                  />
+                  <p className="text-[10px] text-neutral-400">
+                    If provided, the 'Book a Free Call' button will link here
+                    instead of email.
+                  </p>
                 </div>
               </div>
             </div>

@@ -32,6 +32,8 @@ export type PublicProfileData = {
     summary: string | null;
     image: string | null;
     coverImage: string | null;
+    ctaMessage: string | null;
+    meetingUrl: string | null;
   };
   profileSettings: {
     isPublic: boolean;
@@ -42,6 +44,7 @@ export type PublicProfileData = {
     showSummary: boolean;
     showAchievements: boolean;
     showCertificates?: boolean;
+    showContact?: boolean;
     primaryResumeId?: string | null;
   };
   projects: ProjectData[];
@@ -174,6 +177,8 @@ export async function getPublicProfile(slug: string): Promise<ActionResult<Publi
         summary: profile.summary,
         image: profile.image,
         coverImage: profile.coverImage,
+        ctaMessage: (profile as any).ctaMessage || null, 
+        meetingUrl: (profile as any).meetingUrl || null,
       },
       profileSettings: {
         isPublic: profileSettings.isPublic,
@@ -184,6 +189,7 @@ export async function getPublicProfile(slug: string): Promise<ActionResult<Publi
         showSummary: profileSettings.showSummary,
         showAchievements: profileSettings.showAchievements,
         showCertificates: profileSettings.showCertificates,
+        showContact: (profileSettings as any).showContact ?? true,
         primaryResumeId: profileSettings.primaryResumeId,
       },
       projects: profile.projects,
