@@ -15,6 +15,7 @@ import { AchievementsSection } from "@/components/public/achievements-section";
 import { CertificatesSection } from "@/components/public/certificates-section";
 import { ProjectDetailsDialog } from "@/components/public/project-details-dialog";
 import { ResumeView } from "@/components/public/resume-view";
+import { GithubHeatmap } from "./GithubHeatmap";
 import { AnimatePresence, motion } from "motion/react";
 import {
   Icon3dRotate,
@@ -111,6 +112,19 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
   const sessionIdRef = useRef<string | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showResume, setShowResume] = useState(false);
+
+  // Extract GitHub username from social links
+  const githubLink = data.socialLinks.find(
+    (link) =>
+      link.platform.toLowerCase() === "github" ||
+      link.url.toLowerCase().includes("github.com"),
+  );
+
+  // Parse username from URL: https://github.com/username or github.com/username
+  // Remove trailing slashes, split by '/', take last segment
+  const githubUsername = githubLink
+    ? githubLink.url.replace(/\/+$/, "").split("/").pop()
+    : null;
 
   // Real-time presence tracking
   useEffect(() => {
@@ -256,8 +270,8 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                     className="flex items-center gap-4 -mt-12 md:-mt-14"
                   >
                     {/* Avatar - overlaps cover image */}
-                    <div className="shrink-0 relative z-20">
-                      <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden bg-white dark:bg-neutral-800  border-4 border-white dark:border-neutral-950 ring-1 ring-black/5 dark:ring-white/10">
+                    <div className="shrink-0 relative z-20 mb-10">
+                      <div className="w-20 h-20 md:w-20 md:h-20 rounded-full overflow-hidden bg-white dark:bg-neutral-800  border-4 border-white dark:border-neutral-950 ring-1 ring-black/5 dark:ring-white/10">
                         {profile.image ? (
                           <Image
                             src={profile.image}
@@ -352,7 +366,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setShowResume(true)}
-                      className="group flex items-center gap-2 px-4 py-2 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors cursor-pointer shadow-sm hover:shadow-md"
+                      className="group flex items-center gap-2 px-4 py-2 border border-dashed border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors cursor-pointer shadow-sm hover:shadow-md"
                     >
                       <span className="text-sm font-medium text-neutral-600 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
                         Resume
@@ -368,7 +382,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                         <a href={`mailto:${data.email}`}>
                           <ViewfinderButton
                             variant="filled"
-                            className="cursor-pointer rounded-lg px-6 h-[42px]"
+                            className="cursor-pointer rounded-sm px-6 h-[42px]"
                           >
                             Contact
                           </ViewfinderButton>
@@ -376,7 +390,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                       ) : (
                         <ViewfinderButton
                           variant="filled"
-                          className="cursor-pointer rounded-none opacity-50 h-[42px]"
+                          className="cursor-pointer rounded-sm opacity-50 h-[42px]"
                           title="Contact info hidden"
                         >
                           Contact
@@ -384,6 +398,16 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                       )}
                     </motion.div>
                   </motion.div>
+
+                  {/* GitHub Heatmap - Render if username exists */}
+                  {githubUsername && (
+                    <div className="pt-8">
+                      <GithubHeatmap
+                        username={githubUsername}
+                        className="scale-100 origin-center"
+                      />
+                    </div>
+                  )}
 
                   {/* Dotted Line Divider */}
                   <div className="flex justify-center pt-6">
@@ -524,7 +548,13 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                         </h2>
                       </div>
 
-                      <div className="relative w-full mt-4 overflow-visible">
+                      <motion.div
+                        className="relative w-full mt-4 overflow-visible"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
+                      >
                         <div className="relative flex overflow-x-hidden w-full">
                           {/* Left Fade Mask */}
                           <div className="absolute left-0 top-0 bottom-0 w-24 z-20 bg-linear-to-r from-white dark:from-neutral-950 to-transparent pointer-events-none"></div>
@@ -556,7 +586,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                             })}
                           </div>
                         </div>
-                      </div>
+                      </motion.div>
                     </div>
                   )}
 

@@ -33,15 +33,22 @@ export function ExperienceSection({ experiences }: ExperienceSectionProps) {
   // which usually means the very first role of the very first company.
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+    <div className="space-y-6">
       {grouped.map(([company, roles], groupIndex) => (
-        <CompanyGroup
+        <motion.div
           key={company}
-          company={company}
-          roles={roles}
-          isFirstGroup={groupIndex === 0}
-          isLast={groupIndex === grouped.length - 1}
-        />
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: groupIndex * 0.1, duration: 0.4 }}
+        >
+          <CompanyGroup
+            company={company}
+            roles={roles}
+            isFirstGroup={groupIndex === 0}
+            isLast={groupIndex === grouped.length - 1}
+          />
+        </motion.div>
       ))}
     </div>
   );

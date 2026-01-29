@@ -15,7 +15,7 @@ export const ViewfinderButton = forwardRef<
     <button
       ref={ref}
       className={cn(
-        "group relative overflow-hidden rounded-full px-4 py-3 text-sm font-semibold tracking-wide transition-all duration-300 ease-out",
+        "group relative overflow-hidden rounded-sm px-4 py-3 text-sm font-semibold tracking-wide transition-all duration-300 ease-out",
         "active:scale-[0.98] active:translate-y-0.5",
 
         variant === "outline"
@@ -54,7 +54,7 @@ export const ViewfinderButton = forwardRef<
       {/* 3D Glassy Effect Layers */}
 
       {/* 1. Metallic Rim / Bevel */}
-      <div className="absolute inset-0 rounded-lg border border-white/20 dark:border-white/10 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)] pointer-events-none" />
+      <div className="absolute inset-0 rounded-sm border border-white/20 dark:border-white/10 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)] pointer-events-none" />
 
       {/* 2. Top Gloss Highlight (The "Glass" reflection) */}
       <div className="absolute inset-x-4 top-0 h-[40%] bg-linear-to-b from-white/20 to-transparent rounded-full opacity-60 pointer-events-none" />
