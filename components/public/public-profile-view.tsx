@@ -373,7 +373,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                         onClick={handleThemeToggle}
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9, rotate: 180 }}
-                        className="p-2 transition-colors text-neutral-600 dark:text-neutral-400 relative overflow-hidden group"
+                        className=" transition-colors text-neutral-600 dark:text-neutral-400 relative overflow-hidden group"
                         aria-label="Toggle theme"
                       >
                         <motion.svg
