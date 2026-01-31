@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { IconMail } from "@tabler/icons-react";
 import { Mail } from "lucide-react";
 import { ButtonHTMLAttributes, forwardRef } from "react";
 
@@ -182,9 +183,9 @@ export const ViewfinderButton = forwardRef<
       >
         <div className="relative z-10 flex items-center gap-2">
           {children}
-          <Mail
+          <IconMail
             className={cn(
-              "w-3.5 h-3.5 transition-transform group-hover:scale-110",
+              "w-4 h-4 transition-transform group-hover:scale-110",
               variant === "filled"
                 ? "text-neutral-50 dark:text-white"
                 : "text-neutral-950",

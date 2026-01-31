@@ -661,7 +661,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setShowResume(true)}
-                        className="relative z-10 flex items-center gap-2 px-4 py-2.5 rounded-lg bg-linear-to-b from-neutral-50 to-neutral-300 dark:from-neutral-200 dark:to-neutral-500 shadow-[0_4px_10px_-2px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,1)] dark:shadow-[0_4px_10px_-2px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] border border-neutral-300 dark:border-neutral-700 overflow-hidden cursor-pointer group/resume"
+                        className="relative z-10 flex items-center gap-2 px-4 py-2 rounded-lg bg-linear-to-b from-neutral-50 to-neutral-300 dark:from-neutral-200 dark:to-neutral-500 shadow-[0_4px_10px_-2px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,1)] dark:shadow-[0_4px_10px_-2px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] border border-neutral-300 dark:border-neutral-700 overflow-hidden cursor-pointer group/resume"
                       >
                         {/* Technical Stitching */}
                         <div className="absolute inset-[3px] rounded-lg border border-dashed border-neutral-400 dark:border-neutral-600 pointer-events-none" />
@@ -700,7 +700,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                             variant="filled"
                             className="cursor-pointer rounded-lg bg-neutral-950 dark:bg-neutral-900 hover:shadow-[0_0_20px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all"
                           >
-                            <span className="font-bold tracking-tight uppercase font-mono">
+                            <span className="text-sm font-bold tracking-tight uppercase font-mono">
                               Contact
                             </span>
                           </ViewfinderButton>
@@ -711,7 +711,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                           className="opacity-10 rounded-lg cursor-not-allowed"
                           title="Contact info hidden"
                         >
-                          <span className="font-bold tracking-tight uppercase font-mono">
+                          <span className="text-sm font-bold tracking-tight uppercase font-mono">
                             Contact
                           </span>
                         </ViewfinderButton>
