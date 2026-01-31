@@ -29,6 +29,7 @@ export type PublicProfileData = {
     slug: string;
     headline: string | null;
     location: string | null;
+    profession: string | null;
     summary: string | null;
     image: string | null;
     coverImage: string | null;
@@ -174,6 +175,7 @@ export async function getPublicProfile(slug: string): Promise<ActionResult<Publi
         slug: profile.slug,
         headline: profile.headline,
         location: profile.location,
+        profession: (profile as any).profession || null,
         summary: profile.summary,
         image: profile.image,
         coverImage: profile.coverImage,

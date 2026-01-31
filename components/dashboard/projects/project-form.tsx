@@ -68,6 +68,12 @@ export function ProjectForm({
     initialData?.isPublic !== undefined ? initialData.isPublic : true,
   );
 
+  // New Fields State
+  const [keyFeatures, setKeyFeatures] = useState<string[]>(
+    initialData?.keyFeatures || [],
+  );
+  const [featureInput, setFeatureInput] = useState("");
+
   async function handleSubmit(formData: FormData) {
     setIsLoading(true);
     setError(null);
@@ -79,6 +85,12 @@ export function ProjectForm({
     const demoUrl = formData.get("demoUrl") as string;
     const startDate = formData.get("startDate") as string;
     const endDate = formData.get("endDate") as string;
+
+    // Detailed Info
+    const problem = formData.get("problem") as string;
+    const solution = formData.get("solution") as string;
+    const impact = formData.get("impact") as string;
+    const futurePlans = formData.get("futurePlans") as string;
 
     let result;
 
@@ -95,6 +107,12 @@ export function ProjectForm({
         isPublic,
         startDate: startDate ? new Date(startDate) : undefined,
         endDate: endDate ? new Date(endDate) : undefined,
+        // New Fields
+        keyFeatures,
+        problem,
+        solution,
+        impact,
+        futurePlans,
       });
     } else {
       result = await createProject({
@@ -108,6 +126,12 @@ export function ProjectForm({
         isPublic,
         startDate: startDate ? new Date(startDate) : undefined,
         endDate: endDate ? new Date(endDate) : undefined,
+        // New Fields
+        keyFeatures,
+        problem,
+        solution,
+        impact,
+        futurePlans,
       });
     }
 
@@ -139,6 +163,19 @@ export function ProjectForm({
     }
   };
 
+  // Feature Helpers
+  const addFeature = () => {
+    const feat = featureInput.trim();
+    if (feat && !keyFeatures.includes(feat)) {
+      setKeyFeatures([...keyFeatures, feat]);
+      setFeatureInput("");
+    }
+  };
+
+  const removeFeature = (feat: string) => {
+    setKeyFeatures(keyFeatures.filter((f) => f !== feat));
+  };
+
   return (
     <div className="flex flex-col bg-white dark:bg-neutral-950 h-full">
       <div className="sticky top-0 px-6 py-5 border-b border-dashed border-neutral-200 dark:border-neutral-800 flex justify-between items-center bg-white dark:bg-neutral-950 z-20">
@@ -162,7 +199,7 @@ export function ProjectForm({
         </Button>
       </div>
 
-      <div className="p-6 overflow-y-auto">
+      <div className="p-6 overflow-y-auto no-scrollbar">
         <form
           id="create-project-form"
           action={handleSubmit}
@@ -580,6 +617,139 @@ export function ProjectForm({
               rows={4}
               className="resize-none text-sm font-mono bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 focus-visible:ring-neutral-900/20 shadow-sm min-h-[100px] rounded-sm placeholder:text-neutral-400"
             />
+          </div>
+
+          <div className="pt-4 border-t border-dashed border-neutral-200 dark:border-neutral-800">
+            <h3 className="text-sm font-bold font-mono text-neutral-900 dark:text-neutral-100 mb-6">
+              Detailed Information
+            </h3>
+
+            <div className="space-y-6">
+              {/* Problem / Why I Built This */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="problem"
+                  className="text-xs font-bold font-mono uppercase text-neutral-500 dark:text-neutral-400"
+                >
+                  Why I Built This (The Problem)
+                </Label>
+                <Textarea
+                  id="problem"
+                  name="problem"
+                  defaultValue={initialData?.problem}
+                  placeholder="What problem were you trying to solve?"
+                  rows={3}
+                  className="resize-none text-sm font-mono bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 focus-visible:ring-neutral-900/20 shadow-sm rounded-sm placeholder:text-neutral-400"
+                />
+              </div>
+
+              {/* Solution */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="solution"
+                  className="text-xs font-bold font-mono uppercase text-neutral-500 dark:text-neutral-400"
+                >
+                  The Solution
+                </Label>
+                <Textarea
+                  id="solution"
+                  name="solution"
+                  defaultValue={initialData?.solution}
+                  placeholder="How does your project solve this problem?"
+                  rows={3}
+                  className="resize-none text-sm font-mono bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 focus-visible:ring-neutral-900/20 shadow-sm rounded-sm placeholder:text-neutral-400"
+                />
+              </div>
+
+              {/* Key Features */}
+              <div className="space-y-2">
+                <Label className="text-xs font-bold font-mono uppercase text-neutral-500 dark:text-neutral-400">
+                  Key Features
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={featureInput}
+                    onChange={(e) => setFeatureInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addFeature();
+                      }
+                    }}
+                    placeholder="Add a key feature..."
+                    className="flex-1 h-9 text-xs font-mono bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 focus-visible:ring-neutral-900/20 rounded-sm"
+                  />
+                  <Button
+                    type="button"
+                    onClick={addFeature}
+                    size="sm"
+                    variant="outline"
+                    className="h-9 px-3 border-neutral-200 dark:border-neutral-800 rounded-sm hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                  >
+                    <IconPlus className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+
+                {keyFeatures.length > 0 && (
+                  <div className="flex flex-col gap-2 pt-2">
+                    {keyFeatures.map((feature, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-start gap-2 p-2 bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-100 dark:border-neutral-800 rounded-sm"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-neutral-400 mt-1.5 shrink-0" />
+                        <span className="text-xs font-mono text-neutral-600 dark:text-neutral-300 flex-1 leading-relaxed">
+                          {feature}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeFeature(feature)}
+                          className="hover:text-red-500 text-neutral-400 transition-colors"
+                        >
+                          <IconX className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Impact */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="impact"
+                  className="text-xs font-bold font-mono uppercase text-neutral-500 dark:text-neutral-400"
+                >
+                  Launch & Impact
+                </Label>
+                <Textarea
+                  id="impact"
+                  name="impact"
+                  defaultValue={initialData?.impact}
+                  placeholder="Any stats, users, or feedback?"
+                  rows={2}
+                  className="resize-none text-sm font-mono bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 focus-visible:ring-neutral-900/20 shadow-sm rounded-sm placeholder:text-neutral-400"
+                />
+              </div>
+
+              {/* Future Plans */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="futurePlans"
+                  className="text-xs font-bold font-mono uppercase text-neutral-500 dark:text-neutral-400"
+                >
+                  Future Plans
+                </Label>
+                <Textarea
+                  id="futurePlans"
+                  name="futurePlans"
+                  defaultValue={initialData?.futurePlans}
+                  placeholder="What's next for this project?"
+                  rows={2}
+                  className="resize-none text-sm font-mono bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 focus-visible:ring-neutral-900/20 shadow-sm rounded-sm placeholder:text-neutral-400"
+                />
+              </div>
+            </div>
           </div>
 
           {error && (

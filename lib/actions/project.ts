@@ -15,6 +15,7 @@ import {
 import { ActionResult } from "./profile";
 import { Project } from "@prisma/client";
 
+
 // ============================================
 // CREATE PROJECT
 // ============================================
@@ -43,6 +44,11 @@ export async function createProject(input: CreateProjectInput): Promise<ActionRe
       techStack,
       role,
       highlights,
+      keyFeatures,
+      problem,
+      solution,
+      impact,
+      futurePlans,
       startDate, 
       endDate,
       status,
@@ -78,6 +84,11 @@ export async function createProject(input: CreateProjectInput): Promise<ActionRe
         techStack: techStack || [],
         role: role || null,
         highlights: highlights || [],
+        keyFeatures: keyFeatures || [],
+        problem: problem || null,
+        solution: solution || null,
+        impact: impact || null,
+        futurePlans: futurePlans || null,
         startDate,
         endDate,
         status: status || "complete",
@@ -123,6 +134,11 @@ export async function updateProject(input: UpdateProjectInput): Promise<ActionRe
       techStack,
       role,
       highlights,
+      keyFeatures,
+      problem,
+      solution,
+      impact,
+      futurePlans,
       startDate, 
       endDate,
       isFeatured,
@@ -151,6 +167,11 @@ export async function updateProject(input: UpdateProjectInput): Promise<ActionRe
         ...(techStack !== undefined && { techStack }),
         ...(role !== undefined && { role: role || null }),
         ...(highlights !== undefined && { highlights }),
+        ...(keyFeatures !== undefined && { keyFeatures }),
+        ...(problem !== undefined && { problem: problem || null }),
+        ...(solution !== undefined && { solution: solution || null }),
+        ...(impact !== undefined && { impact: impact || null }),
+        ...(futurePlans !== undefined && { futurePlans: futurePlans || null }),
         ...(startDate !== undefined && { startDate }),
         ...(endDate !== undefined && { endDate }),
         ...(isFeatured !== undefined && { isFeatured }),

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { User, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { PublicProfileData } from "@/lib/actions/public";
 import { Project } from "@prisma/client";
@@ -11,7 +10,6 @@ import { TechIcons } from "@/components/TechIcons";
 import { ProjectCard } from "@/components/public/project-card";
 import { cn } from "@/lib/utils";
 
-import { ViewfinderFrame } from "@/components/ui/viewfinder-frame";
 import { ViewfinderButton } from "@/components/ui/viewfinder-button";
 import { VerificationBadge } from "@/components/ui/verification-badge";
 import { AchievementsSection } from "@/components/public/achievements-section";
@@ -21,16 +19,10 @@ import { ResumeView } from "@/components/public/resume-view";
 import { GithubHeatmap } from "./GithubHeatmap";
 import { AnimatePresence, motion } from "motion/react";
 import {
-  Icon3dRotate,
-  IconArcheryArrow,
-  IconArchive,
   IconArrowUpRight,
-  IconCurlyLoop,
+  IconChevronDown,
   IconFoldUp,
-  IconInfinity,
-  IconRotate,
-  IconRotate360,
-  IconRotate3d,
+  IconUser,
 } from "@tabler/icons-react";
 
 // Props definition
@@ -112,11 +104,21 @@ const stagger = {
 };
 
 import { useTheme } from "next-themes";
+import { Navbar } from "../landing/navbar";
 
 // ... existing imports
 
 export function PublicProfileView({ data }: PublicProfileViewProps) {
-  const { profile, projects, userName, profileSettings } = data;
+  const {
+    profile,
+    projects,
+    userName,
+    profileSettings,
+    experiences,
+    achievements,
+    certificates,
+    socialLinks,
+  } = data;
   const sessionIdRef = useRef<string | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showResume, setShowResume] = useState(false);
@@ -127,6 +129,15 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
     undefined,
   );
   const [visibleProjects, setVisibleProjects] = useState(4);
+
+  // Verification Logic
+  const isVerified =
+    experiences.length > 0 &&
+    projects.length > 0 &&
+    !!profile.headline &&
+    certificates.length > 0 &&
+    achievements.length > 0 &&
+    socialLinks.length >= 3;
 
   useEffect(() => {
     setMounted(true);
@@ -275,18 +286,12 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
             style={{ transformStyle: "preserve-3d" }}
           >
             {/* <ViewfinderFrame className="max-w-3xl mx-auto"> */}
-            <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 font-sans selection:bg-neutral-900 selection:text-white dark:selection:bg-white dark:selection:text-black p-1 md:py-4 lg:py-4">
-              <div className="max-w-3xl mx-auto bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 shadow-2xl shadow-neutral-200/50 dark:shadow-none border-dashed overflow-hidden relative">
-                {/* Top Status Bar Decoration */}
-                {/* <div className="flex h-6 bg-neutral-100 dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 px-3 items-center justify-between">
-                  <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-neutral-300 dark:bg-neutral-700" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-neutral-300 dark:bg-neutral-700" />
-                  </div>
-                  <div className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest">
-                    Profile_Base_v1.0
-                  </div>
-                </div> */}
+            <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 font-sans selection:bg-neutral-900 selection:text-white dark:selection:bg-white dark:selection:text-black p-1">
+              <div
+                id="home"
+                className="max-w-3xl mx-auto bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 shadow-2xl shadow-neutral-200/50 dark:shadow-none border-dashed overflow-hidden relative"
+              >
+                <Navbar />
                 {/* --- COVER IMAGE --- */}
                 <div className="w-full h-[120px] md:h-[180px] relative overflow-hidden bg-neutral-100 dark:bg-neutral-900">
                   <div className="absolute inset-0 bg-neutral-900/10 dark:bg-neutral-900/30 z-10 pointer-events-none mix-blend-overlay"></div>
@@ -325,7 +330,20 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                   >
                     {/* Avatar - overlaps cover image */}
                     <div className="shrink-0 relative z-20 mb-4">
-                      <div className="w-20 h-20 md:w-20 md:h-20 rounded-full overflow-hidden bg-white dark:bg-neutral-800  border-4 border-white dark:border-neutral-950 ring-1 ring-black/5 dark:ring-white/10">
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 200,
+                          damping: 20,
+                        }}
+                        whileHover={{
+                          scale: 1.05,
+                          rotate: 2,
+                        }}
+                        className="w-20 h-20 md:w-20 md:h-20 rounded-full overflow-hidden bg-white dark:bg-neutral-800  border-4 border-white dark:border-neutral-950 ring-1 ring-black/5 dark:ring-white/10"
+                      >
                         {profile.image ? (
                           <Image
                             src={profile.image}
@@ -336,46 +354,21 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-neutral-400 dark:text-neutral-600 bg-neutral-50 dark:bg-neutral-800">
-                            <User className="w-8 h-8" />
+                            <IconUser className="w-8 h-8" />
                           </div>
                         )}
-                      </div>
+                      </motion.div>
                     </div>
 
                     {/* Socials - Right of Avatar (Swapped) */}
                     <div className=" flex flex-wrap items-center justify-end pt-8">
-                      <SocialsSection links={data.socialLinks} />
+                      <SocialsSection
+                        links={data.socialLinks}
+                        email={profileSettings.showEmail ? data.email : null}
+                      />
 
-                      {/* Email Display */}
-                      {profileSettings.showEmail && data.email && (
-                        <a
-                          href={`mailto:${data.email}`}
-                          className="flex items-center px-2.5 py-1.5 gap-1 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors group"
-                        >
-                          <div className="w-4 h-4 flex items-center justify-center group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="20"
-                              height="20"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="text-neutral-600 dark:text-neutral-400"
-                            >
-                              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                              <polyline points="22,6 12,13 2,6" />
-                            </svg>
-                          </div>
-                          <span className="text-xs hidden md:block font-mono font-medium text-neutral-500 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-100 transition-colors">
-                            Email
-                          </span>
-                        </a>
-                      )}
                       {/* Theme Toggle Button */}
-                      <div className="flex items-center border-l-2 border-neutral-200 dark:border-neutral-800 pl-2">
+                      <div className="flex items-center border-l-2 border-neutral-200 dark:border-neutral-800 pl-2 ml-4">
                         <motion.button
                           onClick={handleThemeToggle}
                           whileHover={{ scale: 1.1 }}
@@ -422,29 +415,131 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                     <div className="flex flex-col min-w-0">
                       <h1 className="text-xl md:text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 text-balance leading-tight flex items-center gap-1">
                         {displayName}
-                        <VerificationBadge size={30} className="shrink-0" />
+                        {isVerified && (
+                          <VerificationBadge size={25} className="shrink-0" />
+                        )}
                       </h1>
                       <p className="text-sm md:text-base text-neutral-500 dark:text-neutral-400 font-medium">
                         {profile.headline || "Developer"}
                       </p>
-                      {profile.location && (
-                        <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-1 flex items-center gap-1">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="w-3 h-3"
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-6 text-xs text-neutral-400 dark:text-neutral-500">
+                        {(profile as any).profession && (
+                          <motion.div
+                            className="flex items-center gap-1.5 group/bag cursor-default"
+                            whileHover="hover"
+                            initial="initial"
+                            animate="animate"
+                            viewport={{ once: true }}
+                            variants={{
+                              initial: { opacity: 0, x: -10 },
+                              animate: {
+                                opacity: 1,
+                                x: 0,
+                                transition: { delay: 0.1 },
+                              },
+                            }}
                           >
-                            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                            <circle cx="12" cy="10" r="3" />
-                          </svg>
-                          {profile.location}
-                        </p>
-                      )}
+                            <motion.svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="w-3.5 h-3.5 text-neutral-400 group-hover/bag:text-amber-500 transition-colors duration-300"
+                              variants={{
+                                hover: {
+                                  rotate: [0, -10, 10, -5, 5, 0],
+                                  transition: {
+                                    duration: 0.5,
+                                    ease: "easeInOut",
+                                  },
+                                },
+                              }}
+                            >
+                              <rect
+                                width="18"
+                                height="13"
+                                x="3"
+                                y="8"
+                                rx="2"
+                                ry="2"
+                              />
+                              <path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                              <path d="M8 11h8" className="opacity-50" />
+                              <path d="M3 13h18" className="opacity-30" />
+                            </motion.svg>
+                            <span className="group-hover/bag:text-neutral-600 dark:group-hover/bag:text-neutral-300 transition-colors duration-300">
+                              {(profile as any).profession}
+                            </span>
+                          </motion.div>
+                        )}
+                        {profile.location && (
+                          <motion.div
+                            className="flex items-center gap-1.5 group/pin cursor-default"
+                            whileHover="hover"
+                            initial="initial"
+                            animate="animate"
+                            viewport={{ once: true }}
+                            variants={{
+                              initial: { opacity: 0, x: -10 },
+                              animate: {
+                                opacity: 1,
+                                x: 0,
+                                transition: { delay: 0.2 },
+                              },
+                            }}
+                          >
+                            <motion.svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="w-3.5 h-3.5 text-neutral-400 group-hover/pin:text-rose-500 transition-colors duration-300"
+                              variants={{
+                                hover: {
+                                  y: [0, -4, 0],
+                                  filter: [
+                                    "drop-shadow(0 0 0px rgba(0,0,0,0))",
+                                    "drop-shadow(0 4px 4px rgba(0,0,0,0.1))",
+                                    "drop-shadow(0 0 0px rgba(0,0,0,0))",
+                                  ],
+                                  transition: {
+                                    duration: 0.8,
+                                    repeat: Infinity,
+                                    ease: "easeInOut",
+                                  },
+                                },
+                              }}
+                            >
+                              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                              <motion.circle
+                                cx="12"
+                                cy="10"
+                                r="3"
+                                variants={{
+                                  hover: {
+                                    scale: [1, 1.2, 1],
+                                    transition: {
+                                      duration: 0.8,
+                                      repeat: Infinity,
+                                    },
+                                  },
+                                }}
+                              />
+                            </motion.svg>
+                            <span className="group-hover/pin:text-neutral-600 dark:group-hover/pin:text-neutral-300 transition-colors duration-300">
+                              {profile.location}
+                            </span>
+                          </motion.div>
+                        )}
+                      </div>
                     </div>
                   </motion.div>
 
@@ -504,14 +599,17 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                   )}
 
                   {/* Dotted Line Divider */}
-                  <div className="w-full h-px bg-linear-to-r from-transparent via-neutral-200 dark:via-neutral-800 to-transparent my-8 opacity-60" />
+                  <div className="w-full h-px bg-linear-to-r from-transparent via-neutral-200 dark:via-neutral-800 to-transparent my-4 opacity-60" />
                 </motion.div>
 
                 {/* --- MAIN CONTENT --- */}
                 <div className="px-4 md:px-6 pt-8 space-y-10 bg-white dark:bg-neutral-950">
                   {/* --- EXPERIENCE --- */}
                   {showExperience && (
-                    <div className="space-y-6 relative">
+                    <div
+                      id="experience"
+                      className="space-y-6 relative scroll-mt-24"
+                    >
                       {/* Section Header */}
                       <div className="flex items-center justify-between md:justify-start gap-4 mb-6">
                         <h2 className="font-mono text-xs font-bold text-neutral-500 dark:text-neutral-500 tracking-wider uppercase flex items-center gap-2">
@@ -531,7 +629,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                   <div className="w-full h-px bg-linear-to-r from-transparent via-neutral-200 dark:via-neutral-800 to-transparent my-8 opacity-60" />
 
                   {showProjects && (
-                    <div className="space-y-6 relative">
+                    <div id="works" className="space-y-6 relative scroll-mt-24">
                       <div className="flex items-center justify-between md:justify-start gap-4 mb-6">
                         <h2 className="font-mono text-xs font-bold text-neutral-500 dark:text-neutral-500 tracking-wider uppercase flex items-center gap-2">
                           // Selected Work
@@ -611,7 +709,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                               {visibleProjects === projects.length
                                 ? "Show Less"
                                 : "Load All Work"}
-                              <ChevronDown
+                              <IconChevronDown
                                 className={cn(
                                   "w-3.5 h-3.5 transition-transform duration-300",
                                   visibleProjects === projects.length &&
@@ -683,7 +781,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                   <div className="w-full h-px bg-linear-to-r from-transparent via-neutral-200 dark:via-neutral-800 to-transparent my-8 opacity-60" />
 
                   {/* --- ACHIEVEMENTS --- */}
-                  <div className="">
+                  <div id="achievements" className="scroll-mt-24">
                     <AchievementsSection
                       achievements={data.achievements}
                       showAchievements={data.profileSettings.showAchievements}
@@ -830,7 +928,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                                   className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300"
                                 />
                               ) : (
-                                <User className="w-4 h-4 text-neutral-400" />
+                                <IconUser className="w-4 h-4 text-neutral-400" />
                               )}
                             </div>
 

@@ -8,6 +8,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
   engineType = "library"
 }
 
@@ -98,6 +99,7 @@ model Profile {
   image     String?  // Profile picture URL
   coverImage String? // Profile cover/banner image URL
   location   String?
+  profession String?
   ctaMessage String? // Custom Call-to-Action message
   meetingUrl String? // Custom meeting URL (e.g. Cal.com)
   createdAt DateTime @default(now())
@@ -258,6 +260,11 @@ model Project {
   techStack   String[]  // Array of technologies (e.g. ["React", "Node.js"])
   role        String?   // User's role (e.g. "Lead Developer", "Designer")
   highlights  String[]  // Key achievements as bullet points
+  keyFeatures String[]  // Key functional features
+  problem     String?   @db.Text // "Why I Built This" / Challenge
+  solution    String?   @db.Text // How it solved the problem
+  impact      String?   @db.Text // Launch & Impact
+  futurePlans String?   @db.Text // Roadmap / Future plans
   
   // Timeline
   startDate   DateTime?

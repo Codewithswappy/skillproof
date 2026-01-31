@@ -1,41 +1,82 @@
 import { SocialLink } from "@prisma/client";
-import Link from "next/link";
-import { TechIcons } from "@/components/TechIcons";
-import { Link as LinkIcon, Globe } from "lucide-react";
-import { IconGlobe, IconGlobeFilled, IconWorld } from "@tabler/icons-react";
-
+import {
+  IconBrandGithub,
+  IconBrandLinkedin,
+  IconBrandX,
+  IconBrandInstagram,
+  IconWorld,
+  IconLink,
+  IconBrandYoutube,
+  IconBrandDiscord,
+  IconBrandTelegram,
+  IconBrandTwitch,
+  IconMail,
+} from "@tabler/icons-react";
+import { motion, Variants } from "motion/react";
 import { cn } from "@/lib/utils";
 
 interface SocialsSectionProps {
   links: SocialLink[];
+  email?: string | null;
   className?: string;
 }
 
-export function SocialsSection({ links, className }: SocialsSectionProps) {
-  if (!links || links.length === 0) return null;
+const container: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+};
 
-  // Map platform to TechIcon key
+const item: Variants = {
+  hidden: { opacity: 0, y: 10, scale: 0.8 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { type: "spring", stiffness: 300, damping: 20 },
+  },
+};
+
+export function SocialsSection({
+  links,
+  email,
+  className,
+}: SocialsSectionProps) {
+  const hasLinks = links && links.length > 0;
+  if (!hasLinks && !email) return null;
+
   function getIcon(platform: string) {
     const p = platform.toLowerCase();
+    const iconClass =
+      "w-5 h-5 transition-transform duration-300 group-hover:rotate-12";
 
-    // Exact match first
-    if (TechIcons[platform]) return TechIcons[platform];
-    if (TechIcons[p]) return TechIcons[p];
-
-    // Mappings for specific names in TechIcons.tsx
     switch (p) {
       case "github":
-        return TechIcons["Github"]; // Note capital G in TechIcons
+        return <IconBrandGithub className={iconClass} />;
       case "linkedin":
-        return TechIcons["Linkiden"]; // Note weird spelling in TechIcons
+        return <IconBrandLinkedin className={iconClass} />;
       case "twitter":
       case "x":
-        return TechIcons["Tweeter"]; // Note 'Tweeter' in TechIcons
+        return <IconBrandX className={iconClass} />;
       case "instagram":
-        // Fallback for instagram if not in TechIcons (it's not currently)
-        return null;
+        return <IconBrandInstagram className={iconClass} />;
+      case "youtube":
+        return <IconBrandYoutube className={iconClass} />;
+      case "discord":
+        return <IconBrandDiscord className={iconClass} />;
+      case "telegram":
+        return <IconBrandTelegram className={iconClass} />;
+      case "twitch":
+        return <IconBrandTwitch className={iconClass} />;
+      case "website":
+        return <IconWorld className={iconClass} />;
       default:
-        return null;
+        return <IconLink className={iconClass} />;
     }
   }
 
@@ -46,41 +87,57 @@ export function SocialsSection({ links, className }: SocialsSectionProps) {
   }
 
   return (
-    <div
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
       className={cn(
-        "inline-flex flex-row flex-wrap items-center w-fit animate-in fade-in slide-in-from-bottom-2 duration-700 delay-300",
+        "inline-flex flex-wrap items-center gap-4 w-fit",
         className,
       )}
     >
-      {links.map((link) => {
-        const iconNode = getIcon(link.platform);
-        // Fallback for website/other
-        const isWebsite = link.platform.toLowerCase() === "website";
-        const label = getLabel(link);
+      {hasLinks &&
+        links.map((link) => {
+          const iconNode = getIcon(link.platform);
+          const label = getLabel(link);
 
-        return (
-          <Link
-            key={link.id}
-            href={link.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center px-2.5 py-1.5 gap-1 rounded-md hover:bg-neutral-200/50 dark:hover:bg-neutral-800 transition-all"
-          >
-            <span className="w-4 h-4 flex items-center justify-center text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-100 transition-colors shrink-0">
-              {iconNode ? (
-                iconNode
-              ) : isWebsite ? (
-                <IconWorld className="w-4 h-4 text-neutral-700 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-100 transition-colors" />
-              ) : (
-                <LinkIcon className="w-4 h-4" />
-              )}
-            </span>
-            <span className="hidden sm:inline text-[12px] text-neutral-500 dark:text-neutral-400 font-medium font-mono group-hover:text-neutral-900 dark:group-hover:text-neutral-100 transition-colors truncate">
-              {label}
-            </span>
-          </Link>
-        );
-      })}
-    </div>
+          return (
+            <motion.a
+              key={link.id}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              variants={item}
+              whileHover={{ y: -4, scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="group flex items-center gap-2 py-1 transition-all cursor-pointer"
+            >
+              <span className="text-neutral-400 group-hover:text-black dark:group-hover:text-white transition-colors duration-300">
+                {iconNode}
+              </span>
+              <span className="hidden sm:block text-xs font-mono font-medium text-neutral-500 dark:text-neutral-500 group-hover:text-black dark:group-hover:text-white transition-colors duration-300 underline-offset-4 group-hover:underline decoration-neutral-300 dark:decoration-neutral-700 decoration-wavy">
+                {label}
+              </span>
+            </motion.a>
+          );
+        })}
+
+      {email && (
+        <motion.a
+          href={`mailto:${email}`}
+          variants={item}
+          whileHover={{ y: -4, scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="group flex items-center gap-2 py-1 transition-all cursor-pointer"
+        >
+          <span className="text-neutral-400 group-hover:text-black dark:group-hover:text-white transition-colors duration-300">
+            <IconMail className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
+          </span>
+          <span className="hidden sm:block text-xs font-mono font-medium text-neutral-500 dark:text-neutral-500 group-hover:text-black dark:group-hover:text-white transition-colors duration-300 underline-offset-4 group-hover:underline decoration-neutral-300 dark:decoration-neutral-700 decoration-wavy">
+            Email
+          </span>
+        </motion.a>
+      )}
+    </motion.div>
   );
 }

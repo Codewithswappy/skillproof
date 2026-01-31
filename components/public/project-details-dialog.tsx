@@ -105,6 +105,77 @@ export function ProjectDetailsDialog({
                 </p>
               </div>
 
+              {/* Problem */}
+              {(project as any).problem && (
+                <div className="space-y-4">
+                  <h3 className="text-xs font-mono uppercase text-neutral-400 tracking-wider">
+                    // Why I Built This
+                  </h3>
+                  <p className="text-neutral-600 dark:text-neutral-300 leading-relaxed max-w-2xl">
+                    {(project as any).problem}
+                  </p>
+                </div>
+              )}
+
+              {/* Solution */}
+              {(project as any).solution && (
+                <div className="space-y-4">
+                  <h3 className="text-xs font-mono uppercase text-neutral-400 tracking-wider">
+                    // The Solution
+                  </h3>
+                  <p className="text-neutral-600 dark:text-neutral-300 leading-relaxed max-w-2xl">
+                    {(project as any).solution}
+                  </p>
+                </div>
+              )}
+
+              {/* Key Features */}
+              {(project as any).keyFeatures &&
+                (project as any).keyFeatures.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-mono uppercase text-neutral-400 tracking-wider">
+                      // Key Features
+                    </h3>
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {(project as any).keyFeatures.map(
+                        (feature: string, i: number) => (
+                          <li
+                            key={i}
+                            className="flex items-start gap-2 text-sm text-neutral-600 dark:text-neutral-300"
+                          >
+                            <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-neutral-400 shrink-0" />
+                            <span className="leading-relaxed">{feature}</span>
+                          </li>
+                        ),
+                      )}
+                    </ul>
+                  </div>
+                )}
+
+              {/* Impact */}
+              {(project as any).impact && (
+                <div className="space-y-4">
+                  <h3 className="text-xs font-mono uppercase text-neutral-400 tracking-wider">
+                    // Impact
+                  </h3>
+                  <p className="text-neutral-600 dark:text-neutral-300 leading-relaxed max-w-2xl">
+                    {(project as any).impact}
+                  </p>
+                </div>
+              )}
+
+              {/* Future Plans */}
+              {(project as any).futurePlans && (
+                <div className="space-y-4">
+                  <h3 className="text-xs font-mono uppercase text-neutral-400 tracking-wider">
+                    // Future Plans
+                  </h3>
+                  <p className="text-neutral-600 dark:text-neutral-300 leading-relaxed max-w-2xl">
+                    {(project as any).futurePlans}
+                  </p>
+                </div>
+              )}
+
               {/* Tech Stack */}
               {project.techStack && project.techStack.length > 0 && (
                 <div className="space-y-4">

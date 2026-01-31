@@ -227,7 +227,7 @@ export const GithubHeatmap = ({ className, username }: GithubHeatmapProps) => {
       </div>
 
       {/* Unique "Circle-Grid" Heatmap */}
-      <div className="w-full relative overflow-x-auto pb-2 pt-10 scrollbar-none">
+      <div className="w-full relative overflow-x-auto pb-2 pt-10 no-scrollbar">
         <div className="min-w-[760px] md:min-w-full px-2">
           <svg
             className="w-full h-auto overflow-visible"

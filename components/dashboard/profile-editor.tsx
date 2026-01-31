@@ -76,6 +76,7 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
     const slug = formData.get("slug") as string;
     const headline = formData.get("headline") as string;
     const location = formData.get("location") as string;
+    const profession = formData.get("profession") as string;
     const summary = formData.get("summary") as string;
     const ctaMessage = formData.get("ctaMessage") as string;
     const meetingUrl = formData.get("meetingUrl") as string;
@@ -97,6 +98,7 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
       slug,
       headline,
       location,
+      profession,
       summary,
       ctaMessage,
       meetingUrl,
@@ -410,18 +412,35 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-mono uppercase text-neutral-500">
-                    Location
-                  </Label>
-                  <div className="relative">
-                    <IconMapPin className="absolute left-3 top-2.5 w-4 h-4 text-neutral-400" />
-                    <Input
-                      name="location"
-                      defaultValue={(profile as any).location || ""}
-                      placeholder="e.g. Mumbai, India"
-                      className="font-mono text-xs bg-neutral-50 dark:bg-neutral-950/50 border-neutral-300 dark:border-neutral-700 h-9 pl-9"
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-mono uppercase text-neutral-500">
+                      Profession
+                    </Label>
+                    <div className="relative">
+                      <IconUser className="absolute left-3 top-2.5 w-4 h-4 text-neutral-400" />
+                      <Input
+                        name="profession"
+                        defaultValue={(profile as any).profession || ""}
+                        placeholder="e.g. UI Designer"
+                        className="font-mono text-xs bg-neutral-50 dark:bg-neutral-950/50 border-neutral-300 dark:border-neutral-700 h-9 pl-9"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-mono uppercase text-neutral-500">
+                      Location
+                    </Label>
+                    <div className="relative">
+                      <IconMapPin className="absolute left-3 top-2.5 w-4 h-4 text-neutral-400" />
+                      <Input
+                        name="location"
+                        defaultValue={(profile as any).location || ""}
+                        placeholder="e.g. Mumbai, India"
+                        className="font-mono text-xs bg-neutral-50 dark:bg-neutral-950/50 border-neutral-300 dark:border-neutral-700 h-9 pl-9"
+                      />
+                    </div>
                   </div>
                 </div>
 

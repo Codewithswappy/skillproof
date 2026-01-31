@@ -119,7 +119,7 @@ export async function createProfile(
       return { success: false, error: (validated.error as any).errors[0].message };
     }
 
-    const { slug, headline, location, summary } = validated.data;
+    const { slug, headline, location, profession, summary } = validated.data;
 
     // Check if slug is taken
     const slugExists = await db.profile.findUnique({
@@ -138,6 +138,7 @@ export async function createProfile(
           slug,
           headline,
           location,
+          profession,
           summary,
         },
       });
@@ -184,7 +185,7 @@ export async function updateProfile(
       return { success: false, error: (validated.error as any).errors[0].message };
     }
 
-    const { slug, headline, location, summary, image, coverImage, ctaMessage, meetingUrl } = validated.data;
+    const { slug, headline, location, profession, summary, image, coverImage, ctaMessage, meetingUrl } = validated.data;
 
     // Get existing profile
     const existingProfile = await db.profile.findUnique({
@@ -213,6 +214,7 @@ export async function updateProfile(
         ...(slug !== undefined && { slug }),
         ...(headline !== undefined && { headline }),
         ...(location !== undefined && { location }),
+        ...(profession !== undefined && { profession }),
         ...(summary !== undefined && { summary }),
         ...(image !== undefined && { image: image || null }),
         ...(coverImage !== undefined && { coverImage: coverImage || null }),

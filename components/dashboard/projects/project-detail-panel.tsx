@@ -176,7 +176,7 @@ export function ProjectDetailPanel({
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-8 space-y-8">
+      <div className="flex-1 overflow-y-auto p-8 space-y-8 no-scrollbar">
         {/* Description */}
         {project.description && (
           <div className="space-y-3">
@@ -189,7 +189,78 @@ export function ProjectDetailPanel({
           </div>
         )}
 
-        {/* Highlights */}
+        {/* Problem */}
+        {(project as any).problem && (
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold font-mono text-neutral-400 uppercase tracking-widest border-b border-dashed border-neutral-200 dark:border-neutral-800 pb-2">
+              Why I Built This
+            </h3>
+            <p className="text-sm text-neutral-600 dark:text-neutral-300 leading-7 font-mono">
+              {(project as any).problem}
+            </p>
+          </div>
+        )}
+
+        {/* Solution */}
+        {(project as any).solution && (
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold font-mono text-neutral-400 uppercase tracking-widest border-b border-dashed border-neutral-200 dark:border-neutral-800 pb-2">
+              The Solution
+            </h3>
+            <p className="text-sm text-neutral-600 dark:text-neutral-300 leading-7 font-mono">
+              {(project as any).solution}
+            </p>
+          </div>
+        )}
+
+        {/* Key Features */}
+        {(project as any).keyFeatures &&
+          (project as any).keyFeatures.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-xs font-bold font-mono text-neutral-400 uppercase tracking-widest border-b border-dashed border-neutral-200 dark:border-neutral-800 pb-2">
+                Key Features
+              </h3>
+              <ul className="space-y-2">
+                {(project as any).keyFeatures.map(
+                  (feature: string, i: number) => (
+                    <li
+                      key={i}
+                      className="text-sm text-neutral-600 dark:text-neutral-300 flex items-start gap-2 font-mono leading-relaxed"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-neutral-400 mt-1.5 shrink-0" />
+                      {feature}
+                    </li>
+                  ),
+                )}
+              </ul>
+            </div>
+          )}
+
+        {/* Impact */}
+        {(project as any).impact && (
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold font-mono text-neutral-400 uppercase tracking-widest border-b border-dashed border-neutral-200 dark:border-neutral-800 pb-2">
+              Launch & Impact
+            </h3>
+            <p className="text-sm text-neutral-600 dark:text-neutral-300 leading-7 font-mono">
+              {(project as any).impact}
+            </p>
+          </div>
+        )}
+
+        {/* Future Plans */}
+        {(project as any).futurePlans && (
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold font-mono text-neutral-400 uppercase tracking-widest border-b border-dashed border-neutral-200 dark:border-neutral-800 pb-2">
+              Future Plans
+            </h3>
+            <p className="text-sm text-neutral-600 dark:text-neutral-300 leading-7 font-mono">
+              {(project as any).futurePlans}
+            </p>
+          </div>
+        )}
+
+        {/* Highlights (Legacy) */}
         {project.highlights && project.highlights.length > 0 && (
           <div className="space-y-3">
             <h3 className="text-xs font-bold font-mono text-neutral-400 uppercase tracking-widest border-b border-dashed border-neutral-200 dark:border-neutral-800 pb-2">
