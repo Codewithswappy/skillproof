@@ -13,9 +13,9 @@ export const ViewfinderButton = forwardRef<
   ViewfinderButtonProps
 >(({ className, variant = "outline", children, ...props }, ref) => {
   return (
-    <div className="relative inline-flex group perspective-1000">
+    <div className="relative inline-flex group perspective-1000 isolate">
       {/* --- Circuit Lines (Background Layer) --- */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-visible">
+      <div className="absolute inset-0 z-[-1] pointer-events-none overflow-visible">
         {/* Left Lines */}
         <svg
           className="absolute right-full top-1/2 -translate-y-1/2 w-8 h-12 text-neutral-400 dark:text-neutral-500"
@@ -174,7 +174,7 @@ export const ViewfinderButton = forwardRef<
             : [
                 // Button Body Neutral Metallic Gradient
                 "bg-linear-to-b from-neutral-800 to-neutral-950 border border-neutral-800 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)]",
-                "text-neutral-50"
+                "text-neutral-50",
               ],
           className,
         )}

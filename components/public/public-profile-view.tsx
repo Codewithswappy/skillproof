@@ -549,49 +549,174 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                     </div>
                   </motion.div>
 
-                  {/* Resume & Contact Buttons */}
+                  {/* Integrated Action Set - Optimized Stacking */}
                   <motion.div
                     variants={fadeIn}
-                    className="flex items-center justify-end gap-3 pt-8"
+                    className="flex items-center justify-end gap-6 pt-10 group/button-set relative isolate"
                   >
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setShowResume(true)}
-                      className="relative z-20 group flex items-center gap-2 px-4 py-2.5 rounded-lg bg-linear-to-b from-neutral-200 to-neutral-400 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] overflow-hidden cursor-pointer"
-                    >
-                      {/* Inner Stitching */}
-                      <div className="absolute inset-[3px] rounded-lg border border-dashed border-neutral-400 pointer-events-none" />
+                    {/* Resume Section */}
+                    <div className="relative">
+                      {/* Left Side Lines - Matching Contact style & Symmetric Flow */}
+                      <svg
+                        className="absolute right-full top-1/2 -translate-y-1/2 w-8 h-12 text-neutral-400 dark:text-neutral-500 pointer-events-none overflow-visible z-[-1]"
+                        viewBox="0 0 48 80"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        {/* Static Background Lines */}
+                        <path
+                          d="M48 40 H24 L16 32 H0"
+                          stroke="currentColor"
+                          strokeWidth="1"
+                          className="opacity-30"
+                        />
+                        <path
+                          d="M48 24 H32 L24 16 H0"
+                          stroke="currentColor"
+                          strokeWidth="1"
+                          className="opacity-30"
+                        />
+                        <path
+                          d="M48 56 H32 L24 64 H0"
+                          stroke="currentColor"
+                          strokeWidth="1"
+                          className="opacity-30"
+                        />
 
-                      <span className="relative z-10 text-sm font-bold tracking-wide text-neutral-700 group-hover:text-black transition-colors drop-shadow-sm">
-                        Resume
-                      </span>
-                      <IconFoldUp className="relative z-10 w-4 h-4 text-neutral-700 group-hover:text-black transition-colors" />
-                    </motion.button>
+                        {/* Flowing Data Streams - Persistent Right-to-Left */}
+                        {[
+                          "M48 40 H24 L16 32 H0",
+                          "M48 24 H32 L24 16 H0",
+                          "M48 56 H32 L24 64 H0",
+                        ].map((path, i) => (
+                          <motion.path
+                            key={i}
+                            d={path}
+                            stroke="currentColor"
+                            strokeWidth="1"
+                            strokeDasharray="4 8"
+                            animate={{ strokeDashoffset: [24, 0] }}
+                            transition={{
+                              duration: 1.2 + i * 0.3,
+                              repeat: Infinity,
+                              ease: "linear",
+                            }}
+                            className="stroke-neutral-950 dark:stroke-white"
+                          />
+                        ))}
+                      </svg>
 
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
+                      {/* Connecting Lines (Circuitry) - Behind Buttons */}
+                      <svg
+                        className="absolute left-full top-1/2 -translate-y-1/2 w-8 h-12 text-neutral-400 dark:text-neutral-500 pointer-events-none overflow-visible z-[-1]"
+                        viewBox="0 0 48 80"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        {/* Static Background Lines */}
+                        {/* We mirror the contact paths so they merge perfectly */}
+                        <path
+                          d="M48 40 H24 L16 32 H0"
+                          stroke="currentColor"
+                          strokeWidth="1"
+                          className="opacity-30"
+                        />
+                        <path
+                          d="M48 24 H32 L24 16 H0"
+                          stroke="currentColor"
+                          strokeWidth="1"
+                          className="opacity-30"
+                        />
+                        <path
+                          d="M48 56 H32 L24 64 H0"
+                          stroke="currentColor"
+                          strokeWidth="1"
+                          className="opacity-30"
+                        />
+
+                        {/* Flowing Data Streams - Persistent Right-to-Left */}
+                        {[
+                          "M48 40 H24 L16 32 H0",
+                          "M48 24 H32 L24 16 H0",
+                          "M48 56 H32 L24 64 H0",
+                        ].map((path, i) => (
+                          <motion.path
+                            key={i}
+                            d={path}
+                            stroke="currentColor"
+                            strokeWidth="1"
+                            strokeDasharray="4 8"
+                            animate={{ strokeDashoffset: [24, 0] }}
+                            transition={{
+                              duration: 1.2 + i * 0.3,
+                              repeat: Infinity,
+                              ease: "linear",
+                            }}
+                            className="stroke-neutral-950 dark:stroke-white"
+                          />
+                        ))}
+                      </svg>
+
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setShowResume(true)}
+                        className="relative z-10 flex items-center gap-2 px-4 py-2.5 rounded-lg bg-linear-to-b from-neutral-50 to-neutral-300 dark:from-neutral-200 dark:to-neutral-500 shadow-[0_4px_10px_-2px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,1)] dark:shadow-[0_4px_10px_-2px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] border border-neutral-300 dark:border-neutral-700 overflow-hidden cursor-pointer group/resume"
+                      >
+                        {/* Technical Stitching */}
+                        <div className="absolute inset-[3px] rounded-lg border border-dashed border-neutral-400 dark:border-neutral-600 pointer-events-none" />
+
+                        <span className="relative z-10 text-sm font-bold tracking-tight text-neutral-800 dark:text-neutral-800 uppercase font-mono">
+                          Resume
+                        </span>
+                        <div className="relative z-10 flex items-center justify-center w-5 h-5 rounded-sm">
+                          <IconFoldUp className="w-4 h-4 text-neutral-700 dark:text-neutral-800 transform transition-transform group-hover/resume:-translate-y-0.5" />
+                        </div>
+
+                        {/* Scanline Hover Effect */}
+                        <motion.div
+                          className="absolute inset-0 w-px h-full bg-linear-to-b from-transparent via-neutral-900/40 dark:via-white/40 to-transparent pointer-events-none z-20"
+                          initial={{ left: "100%" }}
+                          whileHover={{
+                            left: ["100%", "0%"],
+                            transition: {
+                              duration: 1.5,
+                              repeat: Infinity,
+                              ease: "linear",
+                            },
+                          }}
+                        />
+
+                        {/* Background Activation Glow */}
+                        <div className="absolute inset-0 bg-neutral-900/5 dark:bg-white/5 opacity-0 group-hover/resume:opacity-100 transition-opacity duration-300" />
+                      </motion.button>
+                    </div>
+
+                    {/* Contact Button */}
+                    <div className="relative">
                       {profileSettings.showEmail && data.email ? (
                         <a href={`mailto:${data.email}`}>
                           <ViewfinderButton
                             variant="filled"
-                            className="cursor-pointer rounded-lg "
+                            className="cursor-pointer rounded-lg bg-neutral-950 dark:bg-neutral-900 hover:shadow-[0_0_20px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all"
                           >
-                            Contact
+                            <span className="font-bold tracking-tight uppercase font-mono">
+                              Contact
+                            </span>
                           </ViewfinderButton>
                         </a>
                       ) : (
                         <ViewfinderButton
                           variant="filled"
-                          className="cursor-pointer opacity-50 rounded-lg"
+                          className="opacity-10 rounded-lg cursor-not-allowed"
                           title="Contact info hidden"
                         >
-                          Contact
+                          <span className="font-bold tracking-tight uppercase font-mono">
+                            Contact
+                          </span>
                         </ViewfinderButton>
                       )}
-                    </motion.div>
+                    </div>
                   </motion.div>
 
                   {/* GitHub Heatmap - Render if username exists */}
