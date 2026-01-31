@@ -558,7 +558,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                     <div className="relative">
                       {/* Left Side Lines - Matching Contact style & Symmetric Flow */}
                       <svg
-                        className="absolute right-full top-1/2 -translate-y-1/2 w-8 h-12 text-neutral-400 dark:text-neutral-500 pointer-events-none overflow-visible z-[-1]"
+                        className="absolute hidden md:block right-full top-1/2 -translate-y-1/2 w-8 h-12 text-neutral-400 dark:text-neutral-500 pointer-events-none overflow-visible z-[-1]"
                         viewBox="0 0 48 80"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
@@ -661,7 +661,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setShowResume(true)}
-                        className="relative z-10 flex items-center gap-2 px-4 py-2 rounded-lg bg-linear-to-b from-neutral-50 to-neutral-300 dark:from-neutral-200 dark:to-neutral-500 shadow-[0_4px_10px_-2px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,1)] dark:shadow-[0_4px_10px_-2px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] border border-neutral-300 dark:border-neutral-700 overflow-hidden cursor-pointer group/resume"
+                        className="relative z-10 flex items-center gap-2 px-4 py-2.5 rounded-lg bg-linear-to-b from-neutral-50 to-neutral-300 dark:from-neutral-200 dark:to-neutral-500 shadow-[0_4px_10px_-2px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,1)] dark:shadow-[0_4px_10px_-2px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] border border-neutral-300 dark:border-neutral-700 overflow-hidden cursor-pointer group/resume"
                       >
                         {/* Technical Stitching */}
                         <div className="absolute inset-[3px] rounded-lg border border-dashed border-neutral-400 dark:border-neutral-600 pointer-events-none" />

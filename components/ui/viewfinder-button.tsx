@@ -166,7 +166,7 @@ export const ViewfinderButton = forwardRef<
       <button
         ref={ref}
         className={cn(
-          "relative z-10 overflow-hidden px-4 py-2 text-base font-medium tracking-wide transition-all duration-300 transform-gpu",
+          "relative z-10 overflow-hidden px-4 py-2.5 text-base font-medium tracking-wide transition-all duration-300 transform-gpu",
           "active:scale-[0.98] active:translate-y-0.5",
           "shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_4px_8px_-2px_rgba(0,0,0,0.3)]",
 
