@@ -2,6 +2,9 @@ import { CreateProfileWizard } from "@/components/dashboard/create-profile-wizar
 import { getMyProfile } from "@/lib/actions/profile";
 import { redirect } from "next/navigation";
 
+// Force dynamic rendering - this page uses authentication
+export const dynamic = "force-dynamic";
+
 export default async function OnboardingPage() {
   const result = await getMyProfile();
 

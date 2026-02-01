@@ -2,6 +2,9 @@ import { getMyProfile } from "@/lib/actions/profile";
 import { ResumeBuilder } from "@/components/dashboard/resume-builder";
 import { redirect } from "next/navigation";
 
+// Force dynamic rendering - this page uses authentication
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Editor — ProfileBase Resume",
   layout: "fullscreen",
