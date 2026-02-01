@@ -4,7 +4,9 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Project } from "@prisma/client";
 import Image from "next/image";
 import { TechIcons } from "@/components/TechIcons";
-import { Github, ExternalLink } from "lucide-react";
+import { Github, ExternalLink, Calendar } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface ProjectDetailsDialogProps {
   project: Project | null;
@@ -60,11 +62,47 @@ export function ProjectDetailsDialog({
                     {project.title}
                   </h2>
                   <div className="flex items-center gap-2 text-sm text-neutral-500 font-mono">
-                    <span className="w-2 h-2 rounded-full bg-green-500" />
+                    <span
+                      className={cn(
+                        "w-2 h-2 rounded-full",
+                        project.status === "planning"
+                          ? "bg-lime-500"
+                          : project.status === "in_progress"
+                            ? "bg-yellow-500"
+                            : project.status === "complete"
+                              ? "bg-emerald-500"
+                              : project.status === "archived"
+                                ? "bg-neutral-400"
+                                : "bg-neutral-500",
+                      )}
+                    />
                     <span>
                       {project.status?.replace("_", " ").toUpperCase() ||
                         "PROJECT"}
                     </span>
+                    {(project.startDate || project.endDate) && (
+                      <>
+                        <span className="text-neutral-300 dark:text-neutral-700">
+                          |
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span>
+                            {project.startDate &&
+                            new Date(project.startDate).getFullYear() > 1900
+                              ? format(new Date(project.startDate), "MMM yyyy")
+                              : "TBD"}
+                            {" - "}
+                            {project.endDate &&
+                            new Date(project.endDate).getFullYear() > 1900
+                              ? format(new Date(project.endDate), "MMM yyyy")
+                              : project.status === "in_progress"
+                                ? "Ongoing"
+                                : "Present"}
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 

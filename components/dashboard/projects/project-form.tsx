@@ -105,8 +105,8 @@ export function ProjectForm({
         techStack,
         status,
         isPublic,
-        startDate: startDate ? new Date(startDate) : undefined,
-        endDate: endDate ? new Date(endDate) : undefined,
+        startDate: startDate ? new Date(startDate) : null,
+        endDate: endDate ? new Date(endDate) : null,
         // New Fields
         keyFeatures,
         problem,
@@ -570,8 +570,10 @@ export function ProjectForm({
                 id="startDate"
                 name="startDate"
                 type="date"
+                max={new Date().toISOString().split("T")[0]}
                 defaultValue={
-                  initialData?.startDate
+                  initialData?.startDate &&
+                  new Date(initialData.startDate).getFullYear() > 1900
                     ? new Date(initialData.startDate)
                         .toISOString()
                         .split("T")[0]
@@ -591,12 +593,19 @@ export function ProjectForm({
                 id="endDate"
                 name="endDate"
                 type="date"
+                disabled={status === "planning" || status === "in_progress"}
+                max={new Date().toISOString().split("T")[0]}
                 defaultValue={
-                  initialData?.endDate
+                  initialData?.endDate &&
+                  new Date(initialData.endDate).getFullYear() > 1900
                     ? new Date(initialData.endDate).toISOString().split("T")[0]
                     : ""
                 }
-                className="h-9 text-xs font-mono bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 focus-visible:ring-neutral-900/20 rounded-sm"
+                className={cn(
+                  "h-9 text-xs font-mono bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 focus-visible:ring-neutral-900/20 rounded-sm",
+                  (status === "planning" || status === "in_progress") &&
+                    "opacity-50 cursor-not-allowed bg-neutral-100 dark:bg-neutral-800",
+                )}
               />
             </div>
           </div>

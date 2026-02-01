@@ -60,7 +60,6 @@ export function CertificatesSection({
               <CertificateItem item={item} />
             </motion.div>
           ))}
-          <IconArrowUpRight/>
         </div>
       </div>
 
@@ -116,15 +115,21 @@ function CertificateItem({ item }: { item: Certificate }) {
         </div>
       </div>
 
-      {item.url && (
-        <Link
-          href={item.url}
-          target="_blank"
-          className="p-2 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors transform group-hover:translate-x-1 duration-300 group-hover:-translate-y-1"
-        >
-          <IconArrowUpRight className="w-4 h-4 opacity-50 group-hover:opacity-100" />
-        </Link>
-      )}
+      <div className="shrink-0 ml-4">
+        {item.url ? (
+          <Link
+            href={item.url}
+            target="_blank"
+            className="block p-2 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors transform group-hover:translate-x-1 duration-300 group-hover:-translate-y-1"
+          >
+            <ExternalLink className="w-4 h-4" />
+          </Link>
+        ) : (
+          <div className="p-2 text-neutral-300 dark:text-neutral-800 cursor-not-allowed">
+            <ExternalLink className="w-4 h-4" />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

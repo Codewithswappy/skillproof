@@ -141,6 +141,7 @@ export async function updateProject(input: UpdateProjectInput): Promise<ActionRe
       futurePlans,
       startDate, 
       endDate,
+      status,
       isFeatured,
       isPublic,
     } = validated.data;
@@ -174,6 +175,7 @@ export async function updateProject(input: UpdateProjectInput): Promise<ActionRe
         ...(futurePlans !== undefined && { futurePlans: futurePlans || null }),
         ...(startDate !== undefined && { startDate }),
         ...(endDate !== undefined && { endDate }),
+        ...(status !== undefined && { status }),
         ...(isFeatured !== undefined && { isFeatured }),
         ...(isPublic !== undefined && { isPublic }),
       },

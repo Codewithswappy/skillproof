@@ -256,6 +256,7 @@ export function CertificatesForm({ initialData }: CertificatesFormProps) {
               <Input
                 type="date"
                 required
+                max={new Date().toISOString().split("T")[0]}
                 value={formData.date}
                 onChange={(e) =>
                   setFormData({ ...formData, date: e.target.value })

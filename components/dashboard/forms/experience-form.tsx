@@ -341,6 +341,7 @@ export function ExperienceForm({ initialData }: ExperienceFormProps) {
               <Input
                 type="date"
                 required
+                max={new Date().toISOString().split("T")[0]}
                 value={formData.startDate}
                 onChange={(e) =>
                   setFormData({ ...formData, startDate: e.target.value })
@@ -356,6 +357,7 @@ export function ExperienceForm({ initialData }: ExperienceFormProps) {
                 type="date"
                 disabled={formData.current}
                 required={!formData.current}
+                max={new Date().toISOString().split("T")[0]}
                 value={formData.endDate}
                 onChange={(e) =>
                   setFormData({ ...formData, endDate: e.target.value })
