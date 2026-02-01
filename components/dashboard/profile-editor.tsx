@@ -535,29 +535,33 @@ export function ProfileEditor({ data }: ProfileEditorProps) {
                     platform: "website",
                     full: true,
                   },
-                ].map((social) => (
-                  <div
-                    key={social.key}
-                    className={cn(
-                      "space-y-1.5",
-                      social.full && "md:col-span-2",
-                    )}
-                  >
-                    <Label className="text-[10px] font-mono uppercase text-neutral-500 flex items-center gap-1.5">
-                      <social.icon className="w-3 h-3" /> {social.label}
-                    </Label>
-                    <Input
-                      name={social.key}
-                      defaultValue={
-                        data.socialLinks?.find(
-                          (l) => l.platform === social.platform,
-                        )?.url ?? ""
-                      }
-                      placeholder={social.placeholder}
-                      className="font-mono text-xs bg-neutral-50 dark:bg-neutral-950/50 border-neutral-300 dark:border-neutral-700 h-9"
-                    />
-                  </div>
-                ))}
+                ].map((social) => {
+                  const initialUrl =
+                    data.socialLinks?.find(
+                      (l) => l.platform === social.platform,
+                    )?.url ?? "";
+
+                  return (
+                    <div
+                      key={social.key}
+                      className={cn(
+                        "space-y-1.5",
+                        social.full && "md:col-span-2",
+                      )}
+                    >
+                      <Label className="text-[10px] font-mono uppercase text-neutral-500 flex items-center gap-1.5">
+                        <social.icon className="w-3 h-3" /> {social.label}
+                      </Label>
+                      <Input
+                        key={`${social.key}-${initialUrl}`}
+                        name={social.key}
+                        defaultValue={initialUrl}
+                        placeholder={social.placeholder}
+                        className="font-mono text-xs bg-neutral-50 dark:bg-neutral-950/50 border-neutral-300 dark:border-neutral-700 h-9"
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
