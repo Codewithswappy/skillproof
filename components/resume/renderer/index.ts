@@ -4,7 +4,6 @@ export { MinimalTemplate } from "./minimal-template";
 export { ClassicTemplate } from "./classic-template";
 export { ExecutiveTemplate } from "./executive-template";
 export { ProfessionalTemplate } from "./professional-template";
-export { CreativeTemplate } from "./creative-template";
 
 // Template metadata for UI
 export const TEMPLATE_CONFIGS = [
@@ -42,13 +41,6 @@ export const TEMPLATE_CONFIGS = [
     description: "Premium design for senior roles",
     category: "executive",
     atsScore: 80,
-  },
-  {
-    id: "creative" as const,
-    name: "Creative",
-    description: "Vibrant sidebar for design roles",
-    category: "creative",
-    atsScore: 65,
   },
 ] as const;
 

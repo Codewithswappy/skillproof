@@ -11,6 +11,7 @@ import {
   IconList,
   IconLayoutList,
   IconChartBar,
+  IconSettings,
 } from "@tabler/icons-react";
 
 export function ResumeEditorSidebar() {
@@ -25,6 +26,7 @@ export function ResumeEditorSidebar() {
     { id: "education", label: "Education", icon: IconSchool },
     { id: "certifications", label: "Certificates", icon: IconCertificate },
     { id: "analysis", label: "Analysis", icon: IconChartBar },
+    { id: "settings", label: "Customize", icon: IconSettings },
   ];
 
   return (

@@ -31,6 +31,8 @@ interface EditorState {
   
   // Section Layout
   reorderSections: (newOrder: string[]) => void;
+  updateSettings: (settings: any) => void;
+  updateContent: (data: Partial<ResumeContent>) => void;
   
   // Undo/Redo
   undo: () => void;
@@ -139,6 +141,20 @@ export const useResumeStore = create<EditorState>((set, get) => ({
   reorderSections: (newOrder) => {
       const current = get().content;
       const newContent = { ...current, sectionOrder: newOrder };
+      // @ts-ignore
+      get()._pushHistory(newContent);
+  },
+
+  updateSettings: (settings) => {
+      const current = get().content;
+      const newContent = { ...current, settings };
+      // @ts-ignore
+      get()._pushHistory(newContent);
+  },
+
+  updateContent: (data) => {
+      const current = get().content;
+      const newContent = { ...current, ...data };
       // @ts-ignore
       get()._pushHistory(newContent);
   },

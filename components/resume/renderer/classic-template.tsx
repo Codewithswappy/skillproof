@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { ResumeContent } from "@/lib/schemas/resume";
 import { cn } from "@/lib/utils";
 
@@ -9,10 +10,28 @@ interface ClassicTemplateProps {
 
 /**
  * Classic Template - Strict Professional
- * Fixed Order: Header -> Summary -> Experience -> Projects -> Education -> Skills -> Certifications
+ * Fixed Order: Dynamic now
  */
 export function ClassicTemplate({ content }: ClassicTemplateProps) {
-  const { profile } = content;
+  const {
+    profile,
+    settings,
+    sectionOrder = [
+      "summary",
+      "experience",
+      "projects",
+      "education",
+      "skills",
+      "certifications",
+    ],
+  } = content;
+
+  // Defaults
+  const themeColor = settings?.themeColor || "#000000";
+  const sectionTitles = (settings?.sectionTitles || {}) as Record<
+    string,
+    string
+  >;
 
   const HTML = ({
     html,
@@ -49,6 +68,203 @@ export function ClassicTemplate({ content }: ClassicTemplateProps) {
     return date;
   };
 
+  // Section Renderers
+  const renderers: Record<string, React.ReactNode> = {
+    summary: content.summary ? (
+      <section key="summary">
+        <h2
+          className="text-[10pt] font-bold uppercase tracking-widest mb-2 border-b pb-1"
+          style={{ color: themeColor, borderColor: "#d1d5db" }}
+        >
+          {sectionTitles["summary"] || "Professional Profile"}
+        </h2>
+        <HTML html={content.summary} className="text-justify" />
+      </section>
+    ) : null,
+
+    experience:
+      content.experience.length > 0 ? (
+        <section key="experience">
+          <h2
+            className="text-[10pt] font-bold uppercase tracking-widest mb-3 border-b pb-1"
+            style={{ color: themeColor, borderColor: "#d1d5db" }}
+          >
+            {sectionTitles["experience"] || "Work Experience"}
+          </h2>
+          <div className="space-y-4">
+            {content.experience.map((item) => (
+              <div key={item.id}>
+                <div className="flex justify-between items-baseline mb-0.5">
+                  <span className="font-bold text-[11pt] uppercase text-black">
+                    {item.title}
+                  </span>
+                  <span className="font-bold text-[10pt] text-black">
+                    {formatDate(item.startDate)} –{" "}
+                    {item.current ? "Present" : formatDate(item.endDate)}
+                  </span>
+                </div>
+
+                <div className="text-[11pt] text-black italic mb-1 font-bold">
+                  {item.company}{" "}
+                  <span className="font-normal not-italic">
+                    ({item.location})
+                  </span>
+                </div>
+
+                <HTML html={item.description} />
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null,
+
+    projects:
+      content.projects.length > 0 ? (
+        <section key="projects">
+          <h2
+            className="text-[10pt] font-bold uppercase tracking-widest mb-3 border-b pb-1"
+            style={{ color: themeColor, borderColor: "#d1d5db" }}
+          >
+            {sectionTitles["projects"] || "Projects"}
+          </h2>
+          <div className="space-y-3">
+            {content.projects.map((item) => (
+              <div key={item.id}>
+                <div className="flex justify-between items-baseline font-bold mb-0.5">
+                  <div className="flex items-center gap-2">
+                    <span>{item.title}</span>
+                    {(item.url || item.repoUrl) && (
+                      <span className="text-[9pt] font-normal text-gray-700">
+                        [
+                        {item.url && (
+                          <a
+                            href={item.url}
+                            className="hover:underline"
+                            style={{ color: themeColor }}
+                          >
+                            Link
+                          </a>
+                        )}
+                        {item.url && item.repoUrl && " / "}
+                        {item.repoUrl && (
+                          <a
+                            href={item.repoUrl}
+                            className="hover:underline"
+                            style={{ color: themeColor }}
+                          >
+                            Repo
+                          </a>
+                        )}
+                        ]
+                      </span>
+                    )}
+                  </div>
+                  {(item.startDate || item.endDate) && (
+                    <span className="text-[10pt] font-normal">
+                      {formatDate(item.startDate)}{" "}
+                      {item.endDate && `– ${formatDate(item.endDate)}`}
+                    </span>
+                  )}
+                </div>
+                {item.subtitle && (
+                  <p className="text-[10pt] italic mb-1">{item.subtitle}</p>
+                )}
+                <HTML html={item.description} />
+                {item.techStack && item.techStack.length > 0 && (
+                  <div className="text-[10pt] mt-1">
+                    <span className="font-bold">Technologies:</span>{" "}
+                    {item.techStack.join(", ")}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null,
+
+    education:
+      content.education.length > 0 ? (
+        <section key="education">
+          <h2
+            className="text-[10pt] font-bold uppercase tracking-widest mb-3 border-b pb-1"
+            style={{ color: themeColor, borderColor: "#d1d5db" }}
+          >
+            {sectionTitles["education"] || "Education"}
+          </h2>
+          <div className="space-y-2">
+            {content.education.map((item) => (
+              <div
+                key={item.id}
+                className="flex justify-between items-baseline"
+              >
+                <div>
+                  <span className="font-bold text-[11pt] text-black">
+                    {item.degree}
+                    {item.field && <span> in {item.field}</span>}
+                  </span>
+                  <div className="text-[11pt] text-black italic">
+                    {item.school}, {item.location}
+                  </div>
+                </div>
+                <div className="text-[10pt] font-bold text-black shrink-0">
+                  {formatDate(item.endDate)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null,
+
+    skills:
+      content.skills.length > 0 ? (
+        <section key="skills">
+          <h2
+            className="text-[10pt] font-bold uppercase tracking-widest mb-2 border-b pb-1"
+            style={{ color: themeColor, borderColor: "#d1d5db" }}
+          >
+            {sectionTitles["skills"] || "Skills"}
+          </h2>
+          <div className="space-y-1">
+            {content.skills.map((group) => (
+              <div key={group.id} className="flex flex-wrap">
+                <span className="font-bold text-[10pt] text-black select-none mr-2">
+                  {group.name}:
+                </span>
+                <span className="text-[10pt] text-black leading-snug">
+                  {group.skills.map((s) => s.name).join(", ")}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null,
+
+    certifications:
+      content.certifications.length > 0 ? (
+        <section key="certifications">
+          <h2
+            className="text-[10pt] font-bold uppercase tracking-widest mb-2 border-b pb-1"
+            style={{ color: themeColor, borderColor: "#d1d5db" }}
+          >
+            {sectionTitles["certifications"] || "Certifications"}
+          </h2>
+          <div className="space-y-1">
+            {content.certifications.map((item) => (
+              <div key={item.id} className="flex justify-between">
+                <span className="font-bold text-[10pt]">
+                  {item.name}{" "}
+                  <span className="font-normal text-gray-700">
+                    - {item.issuer}
+                  </span>
+                </span>
+                <span className="text-[10pt]">{formatDate(item.date)}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null,
+  };
+
   return (
     <div
       className="w-full min-h-full bg-white text-black p-[40px] font-serif"
@@ -59,7 +275,10 @@ export function ClassicTemplate({ content }: ClassicTemplateProps) {
     >
       {/* 1. Header */}
       <header className="mb-6">
-        <h1 className="text-3xl font-bold uppercase tracking-wide text-black mb-1">
+        <h1
+          className="text-3xl font-bold uppercase tracking-wide mb-1"
+          style={{ color: themeColor }}
+        >
           {profile.firstName} {profile.lastName}
         </h1>
         {profile.headline && (
@@ -86,7 +305,11 @@ export function ClassicTemplate({ content }: ClassicTemplateProps) {
 
           {profile.linkedin && (
             <>
-              <a href={profile.linkedin} className="hover:underline">
+              <a
+                href={profile.linkedin}
+                className="hover:underline"
+                style={{ color: themeColor }}
+              >
                 LinkedIn
               </a>
               {(profile.website || profile.github) && <span> • </span>}
@@ -94,190 +317,30 @@ export function ClassicTemplate({ content }: ClassicTemplateProps) {
           )}
           {profile.github && (
             <>
-              <a href={profile.github} className="hover:underline">
+              <a
+                href={profile.github}
+                className="hover:underline"
+                style={{ color: themeColor }}
+              >
                 GitHub
               </a>
               {profile.website && <span> • </span>}
             </>
           )}
           {profile.website && (
-            <a href={profile.website} className="hover:underline">
+            <a
+              href={profile.website}
+              className="hover:underline"
+              style={{ color: themeColor }}
+            >
               Portfolio
             </a>
           )}
         </div>
       </header>
 
-      <div className="space-y-5">
-        {/* 2. Summary */}
-        {content.summary && (
-          <section>
-            <h2 className="text-[10pt] font-bold uppercase tracking-widest text-black mb-2 border-b border-gray-300 pb-1">
-              Professional Profile
-            </h2>
-            <HTML html={content.summary} className="text-justify" />
-          </section>
-        )}
-
-        {/* 3. Work Experience */}
-        {content.experience.length > 0 && (
-          <section>
-            <h2 className="text-[10pt] font-bold uppercase tracking-widest text-black mb-3 border-b border-gray-300 pb-1">
-              Work Experience
-            </h2>
-            <div className="space-y-4">
-              {content.experience.map((item) => (
-                <div key={item.id}>
-                  <div className="flex justify-between items-baseline mb-0.5">
-                    <span className="font-bold text-[11pt] uppercase text-black">
-                      {item.title}
-                    </span>
-                    <span className="font-bold text-[10pt] text-black">
-                      {formatDate(item.startDate)} –{" "}
-                      {item.current ? "Present" : formatDate(item.endDate)}
-                    </span>
-                  </div>
-
-                  <div className="text-[11pt] text-black italic mb-1 font-bold">
-                    {item.company}{" "}
-                    <span className="font-normal not-italic">
-                      ({item.location})
-                    </span>
-                  </div>
-
-                  <HTML html={item.description} />
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* 4. Projects (Moved up) */}
-        {content.projects.length > 0 && (
-          <section>
-            <h2 className="text-[10pt] font-bold uppercase tracking-widest text-black mb-3 border-b border-gray-300 pb-1">
-              Projects
-            </h2>
-            <div className="space-y-3">
-              {content.projects.map((item) => (
-                <div key={item.id}>
-                  <div className="flex justify-between items-baseline font-bold mb-0.5">
-                    <div className="flex items-center gap-2">
-                      <span>{item.title}</span>
-                      {(item.url || item.repoUrl) && (
-                        <span className="text-[9pt] font-normal text-gray-700">
-                          [
-                          {item.url && (
-                            <a href={item.url} className="hover:underline">
-                              Link
-                            </a>
-                          )}
-                          {item.url && item.repoUrl && " / "}
-                          {item.repoUrl && (
-                            <a href={item.repoUrl} className="hover:underline">
-                              Repo
-                            </a>
-                          )}
-                          ]
-                        </span>
-                      )}
-                    </div>
-                    {(item.startDate || item.endDate) && (
-                      <span className="text-[10pt] font-normal">
-                        {formatDate(item.startDate)}{" "}
-                        {item.endDate && `– ${formatDate(item.endDate)}`}
-                      </span>
-                    )}
-                  </div>
-                  {item.subtitle && (
-                    <p className="text-[10pt] italic mb-1">{item.subtitle}</p>
-                  )}
-                  <HTML html={item.description} />
-                  {item.techStack && item.techStack.length > 0 && (
-                    <div className="text-[10pt] mt-1">
-                      <span className="font-bold">Technologies:</span>{" "}
-                      {item.techStack.join(", ")}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* 5. Education */}
-        {content.education.length > 0 && (
-          <section>
-            <h2 className="text-[10pt] font-bold uppercase tracking-widest text-black mb-3 border-b border-gray-300 pb-1">
-              Education
-            </h2>
-            <div className="space-y-2">
-              {content.education.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex justify-between items-baseline"
-                >
-                  <div>
-                    <span className="font-bold text-[11pt] text-black">
-                      {item.degree}
-                      {item.field && <span> in {item.field}</span>}
-                    </span>
-                    <div className="text-[11pt] text-black italic">
-                      {item.school}, {item.location}
-                    </div>
-                  </div>
-                  <div className="text-[10pt] font-bold text-black shrink-0">
-                    {formatDate(item.endDate)}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* 6. Skills */}
-        {content.skills.length > 0 && (
-          <section>
-            <h2 className="text-[10pt] font-bold uppercase tracking-widest text-black mb-2 border-b border-gray-300 pb-1">
-              Skills
-            </h2>
-            <div className="space-y-1">
-              {content.skills.map((group) => (
-                <div key={group.id} className="flex flex-wrap">
-                  <span className="font-bold text-[10pt] text-black select-none mr-2">
-                    {group.name}:
-                  </span>
-                  <span className="text-[10pt] text-black leading-snug">
-                    {group.skills.map((s) => s.name).join(", ")}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* 7. Certifications */}
-        {content.certifications.length > 0 && (
-          <section>
-            <h2 className="text-[10pt] font-bold uppercase tracking-widest text-black mb-2 border-b border-gray-300 pb-1">
-              Certifications
-            </h2>
-            <div className="space-y-1">
-              {content.certifications.map((item) => (
-                <div key={item.id} className="flex justify-between">
-                  <span className="font-bold text-[10pt]">
-                    {item.name}{" "}
-                    <span className="font-normal text-gray-700">
-                      - {item.issuer}
-                    </span>
-                  </span>
-                  <span className="text-[10pt]">{formatDate(item.date)}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-      </div>
+      {/* Body Content */}
+      <div className="space-y-5">{sectionOrder.map((id) => renderers[id])}</div>
     </div>
   );
 }

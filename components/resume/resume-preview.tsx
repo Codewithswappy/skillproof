@@ -13,8 +13,7 @@ export type TemplateId =
   | "minimal"
   | "classic"
   | "executive"
-  | "professional"
-  | "creative";
+  | "professional";
 
 interface ResumePreviewProps {
   content: ResumeContent;

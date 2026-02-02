@@ -85,6 +85,17 @@ export const ResumeContentSchema = z.object({
     "education",
     "certifications"
   ]),
+
+  // Customization Settings
+  settings: z.object({
+    themeColor: z.string().default("#000000"),
+    font: z.string().default("Inter"),
+    sectionTitles: z.record(z.string()).default({}), 
+  }).default({
+    themeColor: "#000000",
+    font: "Inter",
+    sectionTitles: {}
+  }),
 });
 
 export type ResumeContent = z.infer<typeof ResumeContentSchema>;
