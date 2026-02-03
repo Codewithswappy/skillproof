@@ -151,25 +151,104 @@ export function ResumeEditorRoot({ resume }: ResumeEditorRootProps) {
       paper.style.margin = "0";
       paper.style.width = "100%";
       paper.style.minHeight = "1122px";
-      // User wanted equal padding. 30px is a good balanced value (~0.8 inch)
-      paper.style.setProperty("padding", "20px", "important");
+      // FIX: Remove internal padding so html2pdf can handle margins consistently on ALL pages (including splits)
+      paper.style.setProperty("padding", "0px", "important");
+
+      // FIX: Strip top margin/padding from the first element to fix "Huge Top Margin" on Page 1
+      const firstChild = paper.firstElementChild as HTMLElement;
+      if (firstChild) {
+        firstChild.style.marginTop = "0";
+        firstChild.style.paddingTop = "0";
+      }
 
       // TARGETED PAGE BREAK HANDLING
-      const sections = paper.querySelectorAll("section");
-      sections.forEach((s) => {
-        (s as HTMLElement).style.pageBreakInside = "avoid";
-        (s as HTMLElement).style.breakInside = "avoid";
+      // TARGETED PAGE BREAK HANDLING
+      // We explicitly removed the blanket 'page-break-inside: avoid' on <section> tags
+      // because it forces the entire section to the next page if it doesn't fit, leaving huge gaps.
+
+      // Instead, we ensure HEADINGS stay with their content
+      const headings = paper.querySelectorAll("h2, h3, h4");
+      headings.forEach((h) => {
+        (h as HTMLElement).style.pageBreakAfter = "avoid";
+        (h as HTMLElement).style.breakAfter = "avoid";
+      });
+
+      // And ensure individual ITEMS don't get split excessively (if they are small)
+      const items = paper.querySelectorAll("li, .resume-item");
+      items.forEach((i) => {
+        (i as HTMLElement).style.pageBreakInside = "avoid";
+        (i as HTMLElement).style.breakInside = "avoid";
       });
 
       container.appendChild(paper);
       document.body.appendChild(container);
 
+      // --- FIX: Sanitize Colors for html2canvas compatibility ---
+      // html2canvas (used by html2pdf) assumes sRGB and crashes on modern CSS colors like lab() or oklch().
+      // Tailwind v4 uses these by default. We must convert them to generic RGB on the clone.
+      const sanitizeColors = (root: HTMLElement) => {
+        const canvas = document.createElement("canvas");
+        canvas.width = 1;
+        canvas.height = 1;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+        const toRgb = (color: string) => {
+          if (!ctx || (!color.includes("lab(") && !color.includes("oklch(")))
+            return color;
+          ctx.clearRect(0, 0, 1, 1);
+          ctx.fillStyle = color;
+          ctx.fillRect(0, 0, 1, 1);
+          const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+          return `rgba(${r}, ${g}, ${b}, ${a / 255})`;
+        };
+
+        const elements = root.querySelectorAll("*");
+        elements.forEach((el) => {
+          const e = el as HTMLElement;
+          const s = window.getComputedStyle(e);
+
+          if (
+            s.backgroundColor &&
+            (s.backgroundColor.includes("lab") ||
+              s.backgroundColor.includes("oklch"))
+          ) {
+            e.style.backgroundColor = toRgb(s.backgroundColor);
+          }
+          if (
+            s.color &&
+            (s.color.includes("lab") || s.color.includes("oklch"))
+          ) {
+            e.style.color = toRgb(s.color);
+          }
+          if (
+            s.borderColor &&
+            (s.borderColor.includes("lab") || s.borderColor.includes("oklch"))
+          ) {
+            e.style.borderColor = toRgb(s.borderColor);
+          }
+        });
+      };
+
+      try {
+        sanitizeColors(paper);
+      } catch (err) {
+        console.warn("Color sanitization warning:", err);
+      }
+      // ---------------------------------------------------------
+
       const opt = {
-        margin: 0,
+        margin: [5, 5, 5, 5], // Explicitly 5mm on Top, Left, Bottom, Right
         filename: `${title.replace(/\s+/g, "_")}_resume.pdf`,
         image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowWidth: 793 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          scrollY: 0,
+          windowWidth: 793,
+          letterRendering: true, // Improves text rendering precision
+        },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        pagebreak: { mode: ["css", "legacy"] }, // Respect CSS break rules
       };
 
       await html2pdf()
