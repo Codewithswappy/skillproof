@@ -48,8 +48,12 @@ function getAllTech(projects: Project[]): string[] {
 // Helper to get tech icon (case-insensitive)
 function getTechIcon(techName: string) {
   // 1. Try local TechIcons map first (for custom designed icons)
+  // Normalize both by removing spaces, dashes, and dots for loose matching
+  const normalize = (s: string) => s.toLowerCase().replace(/[\s\-\.]/g, "");
+  const normalizedTechName = normalize(techName);
+
   const iconKey = Object.keys(TechIcons).find(
-    (key) => key.toLowerCase() === techName.toLowerCase(),
+    (key) => normalize(key) === normalizedTechName,
   );
 
   if (iconKey) {
