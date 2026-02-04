@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ViewTransitions } from "next-view-transitions";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/next";
 import { UmamiAnalytics } from "@/components/analytics/umami-analytics";
 import "./globals.css";
 
@@ -105,6 +105,7 @@ export default function RootLayout({
       <html lang="en" className={inter.variable} suppressHydrationWarning>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          suppressHydrationWarning
         >
           <ThemeProvider
             attribute="class"
@@ -116,7 +117,7 @@ export default function RootLayout({
             <Toaster />
           </ThemeProvider>
           <UmamiAnalytics />
-          <Analytics/>
+          <Analytics />
         </body>
       </html>
     </ViewTransitions>

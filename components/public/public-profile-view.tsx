@@ -304,7 +304,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                   <div className="absolute inset-0 bg-neutral-900/10 dark:bg-neutral-900/30 z-10 pointer-events-none mix-blend-overlay"></div>
 
                   {/* Grid Pattern Overlay */}
-                  <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 z-10 pointer-events-none mix-blend-soft-light"></div>
+                  <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20 z-10 pointer-events-none mix-blend-soft-light"></div>
 
                   {profile.coverImage ? (
                     <Image
@@ -1055,7 +1055,7 @@ export function PublicProfileView({ data }: PublicProfileViewProps) {
                             <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_2s_infinite] bg-linear-to-r from-transparent via-neutral-100/50 dark:via-neutral-800/50 to-transparent z-0 pointer-events-none" />
 
                             {/* Subtle Inner Pattern */}
-                            <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat rounded-full" />
+                            <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none bg-[url('/noise.svg')] bg-repeat rounded-full" />
                             <div
                               className="absolute inset-0 opacity-[0.05] dark:opacity-[0.1] pointer-events-none rounded-full"
                               style={{
