@@ -408,8 +408,13 @@ export function DashboardOverview({ data, analytics }: DashboardOverviewProps) {
                         <p className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate">
                           {project.title}
                         </p>
-                        <p className="text-[10px] text-neutral-400 truncate mt-0.5 font-mono">
-                          {new Date(project.updatedAt).toLocaleDateString()}
+                        <p
+                          className="text-[10px] text-neutral-400 truncate mt-0.5 font-mono"
+                          suppressHydrationWarning
+                        >
+                          {new Date(project.updatedAt).toLocaleDateString(
+                            "en-US",
+                          )}
                         </p>
                       </div>
                     </Link>
